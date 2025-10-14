@@ -229,3 +229,4 @@ Kryteria akceptacji:
 - Moderacja/bezpieczeństwo: zdarzenia/1k wiadomości, skuteczność rate‑limitów, czas reakcji moderatorów.
 - Operacyjne: SLO voice 99,5%; alerty kosztowe; testy obciążeniowe osiągają założoną równoczesność ~100 użytkowników.
 
+
