@@ -230,3 +230,4 @@ Kryteria akceptacji:
 - Operacyjne: SLO voice 99,5%; alerty kosztowe; testy obciążeniowe osiągają założoną równoczesność ~100 użytkowników.
 
 
+
