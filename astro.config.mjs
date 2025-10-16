@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import "dotenv/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";

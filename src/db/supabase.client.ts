@@ -4,5 +4,7 @@ import type { Database } from "./database.types.ts";
 
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
-
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing SUPABASE_URL or SUPABASE_KEY environment variables");
+}
 export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
