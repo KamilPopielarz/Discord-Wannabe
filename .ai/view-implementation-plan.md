@@ -1,6 +1,7 @@
 # Kompleksowy Plan Wdrożenia REST API dla Aplikacji
 
 ## 1. Przegląd i Zakres
+
 Celem planu jest zdefiniowanie spójnego podejścia do wdrożenia wszystkich punktów końcowych REST API zgodnie z dostarczoną specyfikacją. API dzieli się na następujące obszary:
 
 - Autoryzacja i zarządzanie użytkownikami
@@ -15,6 +16,7 @@ Celem planu jest zdefiniowanie spójnego podejścia do wdrożenia wszystkich pun
 - Eksport danych i usuwanie użytkownika
 
 Architektura oparta na Astro 5, TypeScript, React, Tailwind i Shadcn/ui. Warstwy:
+
 - Router (Astro pages/api)
 - Kontrolery (handlers)
 - DTO/Command i walidacja
@@ -23,25 +25,30 @@ Architektura oparta na Astro 5, TypeScript, React, Tailwind i Shadcn/ui. Warstwy
 - Middleware (auth, rate limits, error handler)
 
 ## 2. Szczegóły żądań
+
 ### 2.1 Autoryzacja & Użytkownicy
-| Endpoint                              | Metoda | Body (JSON)                             | Wymagane        | Opcjonalne | 
-|---------------------------------------|--------|-----------------------------------------|-----------------|------------|
-| POST `/api/auth/register`             | POST   | `{ email, password }`                   | email, password | —          |
-| POST `/api/auth/confirm`              | POST   | `{ token }`                             | token           | —          |
-| POST `/api/auth/login`                | POST   | `{ email, password }`                   | email, password | —          |
-| POST `/api/auth/logout`               | POST   | *brak*                                  | —               | —          |
-| POST `/api/auth/password-reset/request` | POST | `{ email, captchaToken }`               | email, captchaToken | —       |
-| POST `/api/auth/password-reset/confirm` | POST | `{ token, newPassword }`                | token, newPassword | —        |
+
+| Endpoint                                | Metoda | Body (JSON)               | Wymagane            | Opcjonalne |
+| --------------------------------------- | ------ | ------------------------- | ------------------- | ---------- |
+| POST `/api/auth/register`               | POST   | `{ email, password }`     | email, password     | —          |
+| POST `/api/auth/confirm`                | POST   | `{ token }`               | token               | —          |
+| POST `/api/auth/login`                  | POST   | `{ email, password }`     | email, password     | —          |
+| POST `/api/auth/logout`                 | POST   | _brak_                    | —                   | —          |
+| POST `/api/auth/password-reset/request` | POST   | `{ email, captchaToken }` | email, captchaToken | —          |
+| POST `/api/auth/password-reset/confirm` | POST   | `{ token, newPassword }`  | token, newPassword  | —          |
 
 ### 2.2 Sesja gościa
+
 - POST `/api/guest` – Body `{ serverInviteLink }` – zwraca `sessionId`, `guestNick`
 
 ### 2.3 Serwery
+
 - GET `/api/servers/:inviteLink` – brak body
 - POST `/api/servers` – brak body
 - DELETE `/api/servers/:serverId` – brak body
 
 ### 2.4 Pokoje
+
 - POST `/api/servers/:serverId/rooms` – `{ name, password? }`
 - GET `/api/rooms/:inviteLink` – brak body
 - POST `/api/rooms/:roomId/join` – `{ password? }`
@@ -49,30 +56,38 @@ Architektura oparta na Astro 5, TypeScript, React, Tailwind i Shadcn/ui. Warstwy
 - PATCH `/api/rooms/:roomId/password` – `{ password }`
 
 ### 2.5 Role & Członkostwo
+
 - PATCH `/api/servers/:serverId/members/:userId/role` – `{ role }`
 - PATCH `/api/rooms/:roomId/members/:userId/role` – `{ role }`
 
 ### 2.6 Wiadomości & Czat
+
 - GET `/api/rooms/:roomId/messages` – query `page`, `limit`, `since`
 - POST `/api/rooms/:roomId/messages` – `{ content }`
 - DELETE `/api/rooms/:roomId/messages/:messageId` – brak body
 
 ### 2.7 Linki zaproszeń
+
 - GET `/api/invites/:link` – brak body
 - POST `/api/invites/:link/revoke` – `{ expiresAt?, maxUses?, revoked }`
 
 ### 2.8 Panel Admina
+
 - GET `/api/servers/:serverId/logs` – query `page`, `limit`
 
 ### 2.9 Token głosowy
+
 - POST `/api/rooms/:roomId/voice-token` – `{ permissions: string[] }`
 
 ### 2.10 Eksport i usunięcie użytkownika
+
 - GET `/api/users/:userId/export` – brak body
 - DELETE `/api/users/:userId` – brak body
 
 ## 3. Wykorzystywane Typy (DTO & Command)
+
 Lista wszystkich modeli z `src/types.ts`:
+
 - RegisterUserCommand, RegisterUserResponseDto
 - ConfirmEmailCommand
 - LoginCommand, LogoutCommand
@@ -88,6 +103,7 @@ Lista wszystkich modeli z `src/types.ts`:
 - DataExportResponseDto, DeleteUserCommand
 
 ## 4. Przepływ Danych i Warstwa Serwisowa
+
 1. Router (Astro API) odbiera żądanie.
 2. Middleware: uwierzytelnienie (HTTP-only cookie / JWT), rate limiting.
 3. Walidacja body/query (Zod lub class-validator w serwisach DTO).
@@ -100,6 +116,7 @@ Lista wszystkich modeli z `src/types.ts`:
 8. Kontroler zwraca odpowiedź HTTP z prawidłowym kodem statusu.
 
 ## 5. Względy Bezpieczeństwa
+
 - Hashowanie haseł (bcrypt + salt).
 - HttpOnly, Secure cookie dla sesji.
 - Weryfikacja tokenów (email/hasła) z TTL i flagą `used`.
@@ -110,6 +127,7 @@ Lista wszystkich modeli z `src/types.ts`:
 - Walidacja inputów (Zod/schema-first).
 
 ## 6. Obsługa Błędów
+
 - Dedykowany middleware globalny (catch-all).
 - Mapowanie błędów:
   - ValidationError → 400
@@ -123,6 +141,7 @@ Lista wszystkich modeli z `src/types.ts`:
 - Logi błędów do konsoli + opcjonalnie do `audit_logs` dla operacji administracyjnych.
 
 ## 7. Rozważania Wydajnościowe
+
 - Paginacja i `since` dla wiadomości.
 - Indeksy na kolumnach: `invite_link`, `room_id`, `created_at`.
 - Partitioning tabel (już zaimplementowane).
@@ -130,6 +149,7 @@ Lista wszystkich modeli z `src/types.ts`:
 - Batch inserts / bulk deletes gdzie możliwe.
 
 ## 8. Kroki Implementacji
+
 1. Utworzyć plik routingu dla każdej grupy w `src/pages/api/...`.
 2. Zdefiniować DTO/Command i schematy walidacji (Zod) w `src/types.ts` i `src/lib/validators`.
 3. Stworzyć strukturę services: `src/lib/services/*.ts` z metodami CRUD i logiką.
@@ -139,6 +159,6 @@ Lista wszystkich modeli z `src/types.ts`:
 7. Dodać dokumentację (OpenAPI swagger) i przykłady.
 8. Przegląd i code-review.
 
-
 ---
-*Dokument zapisano w `.ai/view-implementation-plan.md`*
+
+_Dokument zapisano w `.ai/view-implementation-plan.md`_

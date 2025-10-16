@@ -76,13 +76,13 @@ Visit `http://localhost:3000` to explore the app.
 ## Available Scripts
 
 | Command            | Description                           |
-|--------------------|---------------------------------------|
-| `npm run dev`      | Start development server             |
-| `npm run build`    | Build for production                 |
+| ------------------ | ------------------------------------- |
+| `npm run dev`      | Start development server              |
+| `npm run build`    | Build for production                  |
 | `npm run preview`  | Preview production build at local URL |
-| `npm run lint`     | Run ESLint                           |
-| `npm run lint:fix` | Fix ESLint issues                    |
-| `npm run format`   | Format code with Prettier            |
+| `npm run lint`     | Run ESLint                            |
+| `npm run lint:fix` | Fix ESLint issues                     |
+| `npm run format`   | Format code with Prettier             |
 
 ## Project Scope
 
