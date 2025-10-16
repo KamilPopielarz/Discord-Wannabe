@@ -123,10 +123,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
       .eq("server_id", server.id);
 
     // Update server activity
-    await supabase
-      .from("servers")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", server.id);
+    await supabase.from("servers").update({ last_activity: new Date().toISOString() }).eq("id", server.id);
 
     // Set guest session cookie
     cookies.set("guest_session_id", sessionId, {

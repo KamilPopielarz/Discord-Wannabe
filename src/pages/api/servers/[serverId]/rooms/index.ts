@@ -157,10 +157,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Update server activity
-    await supabase
-      .from("servers")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", serverId);
+    await supabase.from("servers").update({ last_activity: new Date().toISOString() }).eq("id", serverId);
 
     const response: CreateRoomResponseDto = {
       roomId: newRoom.id,

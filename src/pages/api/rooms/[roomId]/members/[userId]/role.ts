@@ -197,10 +197,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     });
 
     // Update room activity
-    await supabase
-      .from("rooms")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", roomId);
+    await supabase.from("rooms").update({ last_activity: new Date().toISOString() }).eq("id", roomId);
 
     return new Response(
       JSON.stringify({

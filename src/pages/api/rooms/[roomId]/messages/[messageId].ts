@@ -113,10 +113,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     }
 
     // Update room activity
-    await supabase
-      .from("rooms")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", roomId);
+    await supabase.from("rooms").update({ last_activity: new Date().toISOString() }).eq("id", roomId);
 
     return new Response(JSON.stringify({ message: "Message deleted successfully" }), {
       status: 200,

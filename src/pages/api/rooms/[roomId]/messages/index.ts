@@ -105,10 +105,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     }
 
     // Check if there are more messages (for pagination)
-    const { count } = await supabase
-      .from("messages")
-      .select("*", { count: "exact", head: true })
-      .eq("room_id", roomId);
+    const { count } = await supabase.from("messages").select("*", { count: "exact", head: true }).eq("room_id", roomId);
 
     const totalMessages = count || 0;
     const hasNextPage = offset + limit < totalMessages;
@@ -119,10 +116,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     };
 
     // Update room activity
-    await supabase
-      .from("rooms")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", roomId);
+    await supabase.from("rooms").update({ last_activity: new Date().toISOString() }).eq("id", roomId);
 
     return new Response(JSON.stringify(response), {
       status: 200,
@@ -245,23 +239,13 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Update room activity
-    await supabase
-      .from("rooms")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", roomId);
+    await supabase.from("rooms").update({ last_activity: new Date().toISOString() }).eq("id", roomId);
 
     // Update server activity
-    const { data: room } = await supabase
-      .from("rooms")
-      .select("server_id")
-      .eq("id", roomId)
-      .single();
+    const { data: room } = await supabase.from("rooms").select("server_id").eq("id", roomId).single();
 
     if (room) {
-      await supabase
-        .from("servers")
-        .update({ last_activity: new Date().toISOString() })
-        .eq("id", room.server_id);
+      await supabase.from("servers").update({ last_activity: new Date().toISOString() }).eq("id", room.server_id);
     }
 
     const response: SendMessageResponseDto = {

@@ -4,6 +4,7 @@ import { supabaseClient } from "../db/supabase.client.ts";
 export const onRequest = defineMiddleware(async (context, next) => {
   // Add Supabase client to locals
   context.locals.supabase = supabaseClient;
+  const supabase = context.locals.supabase;
 
   // Authentication middleware for API routes
   if (context.url.pathname.startsWith("/api/")) {
@@ -35,7 +36,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       // Try user session first
       if (sessionId) {
-        const { data: userSession, error: sessionError } = await supabaseClient
+        const { data: userSession, error: sessionError } = await supabase
           .from("auth_sessions")
           .select("user_id, expires_at")
           .eq("session_id", sessionId)
@@ -49,7 +50,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
             isAuthenticated = true;
           } else {
             // Clean up expired session
-            await supabaseClient.from("auth_sessions").delete().eq("session_id", sessionId);
+            await supabase.from("auth_sessions").delete().eq("session_id", sessionId);
             context.cookies.delete("session_id", { path: "/" });
           }
         } else {
@@ -60,7 +61,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       // If user auth failed, try guest session
       if (!isAuthenticated && guestSessionId) {
-        const { data: guestSession, error: guestError } = await supabaseClient
+        const { data: guestSession, error: guestError } = await supabase
           .from("sessions")
           .select("session_id, guest_nick, expires_at")
           .eq("session_id", guestSessionId)
@@ -72,11 +73,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
             // Add guest info to locals
             context.locals.userId = undefined; // Guests don't have user_id
             context.locals.sessionId = guestSession.session_id;
-            context.locals.guestNick = guestSession.guest_nick;
+            context.locals.guestNick = guestSession.guest_nick ?? undefined;
             isAuthenticated = true;
           } else {
             // Clean up expired guest session
-            await supabaseClient.from("sessions").delete().eq("session_id", guestSessionId);
+            await supabase.from("sessions").delete().eq("session_id", guestSessionId);
             context.cookies.delete("guest_session_id", { path: "/" });
           }
         } else {

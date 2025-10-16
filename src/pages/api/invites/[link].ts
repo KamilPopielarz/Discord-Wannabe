@@ -178,11 +178,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
         hasPermission = true;
       } else {
         // Check server permissions for room
-        const { data: room } = await supabase
-          .from("rooms")
-          .select("server_id")
-          .eq("id", invitation.room_id)
-          .single();
+        const { data: room } = await supabase.from("rooms").select("server_id").eq("id", invitation.room_id).single();
 
         if (room) {
           const { data: serverMembership } = await supabase
@@ -213,10 +209,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     if (revoked !== undefined) updateData.revoked = revoked;
 
     // Update invitation
-    const { error: updateError } = await supabase
-      .from("invitation_links")
-      .update(updateData)
-      .eq("id", invitation.id);
+    const { error: updateError } = await supabase.from("invitation_links").update(updateData).eq("id", invitation.id);
 
     if (updateError) {
       console.error("Failed to update invitation:", updateError);

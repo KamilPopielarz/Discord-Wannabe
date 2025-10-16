@@ -81,7 +81,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
 
     // Fetch audit logs for the server
     const offset = (page - 1) * limit;
-    
+
     const { data: logs, error: logsError } = await supabase
       .from("audit_logs")
       .select("id, actor_id, action, target_type, target_id, metadata, created_at")
@@ -98,13 +98,10 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     }
 
     // Also fetch logs for rooms in this server
-    const { data: rooms } = await supabase
-      .from("rooms")
-      .select("id")
-      .eq("server_id", serverId);
+    const { data: rooms } = await supabase.from("rooms").select("id").eq("server_id", serverId);
 
-    const roomIds = rooms?.map(room => room.id) || [];
-    
+    const roomIds = rooms?.map((room) => room.id) || [];
+
     let roomLogs: any[] = [];
     if (roomIds.length > 0) {
       const { data: roomLogsData } = await supabase

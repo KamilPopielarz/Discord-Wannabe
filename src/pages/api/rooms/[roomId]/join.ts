@@ -108,7 +108,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       if (!isValidPassword) {
         // Track failed password attempts
         const clientIP = request.headers.get("x-forwarded-for") || "unknown";
-        
+
         // Check current attempts
         const { data: attempts } = await supabase
           .from("room_password_attempts")
@@ -127,14 +127,12 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
         const newAttempts = (attempts?.attempts || 0) + 1;
         const blockedUntil = newAttempts >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null; // 15 minutes block
 
-        await supabase
-          .from("room_password_attempts")
-          .upsert({
-            room_id: roomId,
-            ip_address: clientIP,
-            attempts: newAttempts,
-            blocked_until: blockedUntil?.toISOString() || null,
-          });
+        await supabase.from("room_password_attempts").upsert({
+          room_id: roomId,
+          ip_address: clientIP,
+          attempts: newAttempts,
+          blocked_until: blockedUntil?.toISOString() || null,
+        });
 
         return new Response(JSON.stringify({ error: "Invalid room password" }), {
           status: 401,
@@ -181,16 +179,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Update room activity
-    await supabase
-      .from("rooms")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", roomId);
+    await supabase.from("rooms").update({ last_activity: new Date().toISOString() }).eq("id", roomId);
 
     // Update server activity
-    await supabase
-      .from("servers")
-      .update({ last_activity: new Date().toISOString() })
-      .eq("id", room.server_id);
+    await supabase.from("servers").update({ last_activity: new Date().toISOString() }).eq("id", room.server_id);
 
     return new Response(JSON.stringify({ message: "Successfully joined room" }), {
       status: 200,

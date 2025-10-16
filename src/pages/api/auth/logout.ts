@@ -18,10 +18,7 @@ export const POST: APIRoute = async ({ locals, cookies }) => {
 
     // Delete session from database if we have one
     if (sessionId) {
-      const { error: deleteError } = await supabase
-        .from("auth_sessions")
-        .delete()
-        .eq("session_id", sessionId);
+      const { error: deleteError } = await supabase.from("auth_sessions").delete().eq("session_id", sessionId);
 
       if (deleteError) {
         console.error("Failed to delete session:", deleteError);
