@@ -14,6 +14,14 @@ interface ChatVoicePageProps {
 }
 
 export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
+  // Debug: Check if we can see Supabase config
+  console.log('ChatVoicePage: Environment check:', {
+    hasSupabaseUrl: !!import.meta.env.SUPABASE_URL,
+    hasSupabaseKey: !!import.meta.env.SUPABASE_KEY,
+    hasPublicSupabaseUrl: !!import.meta.env.PUBLIC_SUPABASE_URL,
+    hasPublicSupabaseKey: !!import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+  });
+  
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
   const [roomName, setRoomName] = useState<string | undefined>(undefined);
   const [loadingRoomInfo, setLoadingRoomInfo] = useState(false);

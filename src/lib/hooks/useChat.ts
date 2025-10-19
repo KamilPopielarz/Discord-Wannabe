@@ -3,6 +3,8 @@ import type { SendMessageCommand, MessageDto, ListMessagesResponseDto } from '..
 import type { ChatViewModel } from '../../types/viewModels';
 
 export function useChat(roomId?: string) {
+  console.log('useChat hook initialized with roomId:', roomId);
+  
   const [state, setState] = useState<ChatViewModel>({
     messages: [],
     nextPage: undefined,
@@ -38,7 +40,11 @@ export function useChat(roomId?: string) {
   };
 
   const loadMessages = async (page?: string) => {
-    if (!roomId) return;
+    console.log('loadMessages called with:', { roomId, page });
+    if (!roomId) {
+      console.log('loadMessages early return: no roomId');
+      return;
+    }
 
     setLoading(true);
     setState(prev => ({
@@ -122,7 +128,11 @@ export function useChat(roomId?: string) {
   };
 
   const sendMessage = async (content: string) => {
-    if (!roomId || !content.trim()) return;
+    console.log('sendMessage called with:', { roomId, content: content.trim() });
+    if (!roomId || !content.trim()) {
+      console.log('sendMessage early return:', { hasRoomId: !!roomId, hasContent: !!content.trim() });
+      return;
+    }
 
     // Early return for validation
     if (content.trim().length > 2000) {

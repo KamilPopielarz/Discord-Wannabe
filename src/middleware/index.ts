@@ -8,6 +8,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Authentication middleware for API routes
   if (context.url.pathname.startsWith("/api/")) {
+    console.log("Middleware - API request:", {
+      method: context.request.method,
+      pathname: context.url.pathname,
+      cookies: {
+        session_id: context.cookies.get("session_id")?.value ? "present" : "missing",
+        guest_session_id: context.cookies.get("guest_session_id")?.value ? "present" : "missing",
+      },
+    });
     // Skip auth for public endpoints
     const publicEndpoints = [
       "/api/auth/register",
@@ -17,23 +25,26 @@ export const onRequest = defineMiddleware(async (context, next) => {
       "/api/auth/password-reset/confirm",
       "/api/guest",
       "/api/servers/invite/", // GET server by invite link and POST join server
-      "/api/rooms/", // GET room by invite link and membership check
       "/api/invites/", // GET invitation info
     ];
 
-    const isPublicEndpoint = publicEndpoints.some((endpoint) => {
-      const pathMatches = context.url.pathname.startsWith(endpoint);
+    // Special handling for room endpoints
+    const isRoomByInviteLink = context.url.pathname.match(/^\/api\/rooms\/[^/]+$/) && context.request.method === "GET";
 
-      if (!pathMatches) return false;
+    const isPublicEndpoint =
+      publicEndpoints.some((endpoint) => {
+        const pathMatches = context.url.pathname.startsWith(endpoint);
 
-      // Allow all methods for auth and guest endpoints
-      if (endpoint.includes("auth") || endpoint.includes("guest")) {
-        return true;
-      }
+        if (!pathMatches) return false;
 
-      // Allow only GET for other endpoints (servers, rooms, invites)
-      return context.request.method === "GET";
-    });
+        // Allow all methods for auth and guest endpoints
+        if (endpoint.includes("auth") || endpoint.includes("guest")) {
+          return true;
+        }
+
+        // Allow only GET for other endpoints (servers, invites)
+        return context.request.method === "GET";
+      }) || isRoomByInviteLink;
 
     if (!isPublicEndpoint) {
       // Skip auth if Supabase is not configured (development mode)
@@ -81,6 +92,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       // If user auth failed, try guest session
       if (!isAuthenticated && guestSessionId) {
+        console.log("Middleware: Checking guest session:", guestSessionId);
         const { data: guestSession, error: guestError } = await supabase
           .from("sessions")
           .select("session_id, guest_nick, expires_at")
@@ -95,6 +107,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
             context.locals.sessionId = guestSession.session_id;
             context.locals.guestNick = guestSession.guest_nick ?? undefined;
             isAuthenticated = true;
+            console.log("Middleware: Guest session authenticated:", {
+              sessionId: guestSession.session_id,
+              guestNick: guestSession.guest_nick,
+            });
           } else {
             // Clean up expired guest session
             await supabase.from("sessions").delete().eq("session_id", guestSessionId);
@@ -112,6 +128,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
           headers: { "Content-Type": "application/json" },
         });
       }
+
+      console.log("Middleware - Authentication result:", {
+        method: context.request.method,
+        pathname: context.url.pathname,
+        userId: context.locals.userId,
+        sessionId: context.locals.sessionId,
+        guestNick: context.locals.guestNick,
+      });
     }
 
     // CORS headers for API routes

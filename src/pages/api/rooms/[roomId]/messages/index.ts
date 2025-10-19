@@ -44,6 +44,8 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     const supabase = locals.supabase;
     const userId = locals.userId;
     const sessionId = locals.sessionId;
+    
+    console.log('API Messages GET - locals:', { userId, sessionId, hasSupabase: !!supabase });
 
     if (!supabase) {
       // Mock mode - return empty messages list
@@ -59,22 +61,55 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
 
     // Check if user/guest has access to this room
     let hasAccess = false;
+    
+    console.log('POST Messages - Access check:', { userId, sessionId, roomId });
 
     if (userId) {
-      // Check user room membership
-      const { data: membership } = await supabase
+      // Check user room membership first
+      const { data: membership, error: membershipError } = await supabase
         .from("user_room")
         .select("role")
         .eq("user_id", userId)
         .eq("room_id", roomId)
         .single();
 
-      hasAccess = !!membership;
+      console.log('POST Messages - Membership check:', { membership, membershipError });
+
+      if (membership) {
+        hasAccess = true;
+        console.log('POST Messages - Access granted via membership');
+      } else {
+        // If no direct membership, check if user can access via valid invite link
+        // This allows users to access rooms through invite links without being explicitly added to user_room
+        const { data: invitations, error: invitationsError } = await supabase
+          .from("invitation_links")
+          .select("expires_at, max_uses, uses, revoked")
+          .eq("room_id", roomId);
+
+        console.log('POST Messages - Invitations check:', { invitations, invitationsError });
+
+        // Check if there's any valid invitation for this room
+        const validInvitation = invitations?.find(invitation => 
+          !invitation.revoked && 
+          (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
+          (!invitation.max_uses || invitation.uses < invitation.max_uses)
+        );
+
+        console.log('POST Messages - Valid invitation found:', !!validInvitation);
+
+        if (validInvitation) {
+          hasAccess = true;
+          console.log('POST Messages - Access granted via invitation');
+        }
+      }
     } else if (sessionId) {
       // For guests, check if they have a valid session
       // Guests can access rooms through server invites
       hasAccess = true; // Middleware already validated guest session
+      console.log('POST Messages - Access granted for guest session');
     }
+    
+    console.log('POST Messages - Final access decision:', hasAccess);
 
     if (!hasAccess) {
       return new Response(JSON.stringify({ error: "Access denied to this room" }), {
@@ -87,8 +122,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     let query = supabase
       .from("messages")
       .select(`
-        id, user_id, session_id, content, metadata, created_at,
-        sessions(guest_nick)
+        id, user_id, session_id, content, metadata, created_at
       `)
       .eq("room_id", roomId)
       .order("created_at", { ascending: false });
@@ -134,10 +168,23 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
         } catch (error) {
           authorName = `Użytkownik ${message.user_id.slice(-6)}`;
         }
-      } else if (message.session_id && message.sessions?.guest_nick) {
-        authorName = message.sessions.guest_nick;
       } else if (message.session_id) {
-        authorName = `Gość ${message.session_id.slice(-6)}`;
+        // Try to get guest nick from sessions table
+        try {
+          const { data: sessionData } = await supabase
+            .from("sessions")
+            .select("guest_nick")
+            .eq("session_id", message.session_id)
+            .single();
+          
+          if (sessionData?.guest_nick) {
+            authorName = sessionData.guest_nick;
+          } else {
+            authorName = `Gość ${message.session_id.slice(-6)}`;
+          }
+        } catch (error) {
+          authorName = `Gość ${message.session_id.slice(-6)}`;
+        }
       }
 
       return {
@@ -217,6 +264,8 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     const supabase = locals.supabase;
     const userId = locals.userId;
     const sessionId = locals.sessionId;
+    
+    console.log('API Messages POST - locals:', { userId, sessionId, hasSupabase: !!supabase });
 
     if (!supabase) {
       // Mock mode - simulate successful message send
@@ -232,21 +281,54 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     // Check if user/guest has access to this room
     let hasAccess = false;
+    
+    console.log('POST Messages - Access check:', { userId, sessionId, roomId });
 
     if (userId) {
-      // Check user room membership
-      const { data: membership } = await supabase
+      // Check user room membership first
+      const { data: membership, error: membershipError } = await supabase
         .from("user_room")
         .select("role")
         .eq("user_id", userId)
         .eq("room_id", roomId)
         .single();
 
-      hasAccess = !!membership;
+      console.log('POST Messages - Membership check:', { membership, membershipError });
+
+      if (membership) {
+        hasAccess = true;
+        console.log('POST Messages - Access granted via membership');
+      } else {
+        // If no direct membership, check if user can access via valid invite link
+        // This allows users to access rooms through invite links without being explicitly added to user_room
+        const { data: invitations, error: invitationsError } = await supabase
+          .from("invitation_links")
+          .select("expires_at, max_uses, uses, revoked")
+          .eq("room_id", roomId);
+
+        console.log('POST Messages - Invitations check:', { invitations, invitationsError });
+
+        // Check if there's any valid invitation for this room
+        const validInvitation = invitations?.find(invitation => 
+          !invitation.revoked && 
+          (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
+          (!invitation.max_uses || invitation.uses < invitation.max_uses)
+        );
+
+        console.log('POST Messages - Valid invitation found:', !!validInvitation);
+
+        if (validInvitation) {
+          hasAccess = true;
+          console.log('POST Messages - Access granted via invitation');
+        }
+      }
     } else if (sessionId) {
       // For guests, check if they have a valid session
       hasAccess = true; // Middleware already validated guest session
+      console.log('POST Messages - Access granted for guest session');
     }
+    
+    console.log('POST Messages - Final access decision:', hasAccess);
 
     if (!hasAccess) {
       return new Response(JSON.stringify({ error: "Access denied to this room" }), {
