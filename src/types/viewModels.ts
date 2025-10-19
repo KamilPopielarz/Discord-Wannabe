@@ -1,48 +1,71 @@
-export interface RoomInfoVM {
-  roomId: string;
-  requiresPassword: boolean;
+// src/types/viewModels.ts
+
+import type { MessageDto, AuditLogDto } from '../types';
+
+// Auth ViewModels
+export interface AuthViewModel {
+  email: string;
+  password: string;
+  loading: boolean;
+  error?: string;
 }
 
-export interface ChatMessageVM {
-  id: number;
-  userId: string;
-  sessionId: string;
-  content: string;
-  metadata: unknown;
-  createdAt: string;
+export interface RegisterViewModel extends AuthViewModel {
+  confirmPassword: string;
+  captchaToken: string;
 }
 
-export interface VoiceParticipantVM {
-  userId: string;
-  participantId: string;
-  status: "connected" | "disconnected";
+// Guest ViewModels
+export interface GuestJoinViewModel {
+  inviteLink: string;
+  loading: boolean;
+  error?: string;
+  guestNick?: string;
 }
 
-export interface MemberVM {
-  userId: string;
-  role: string;
+// Servers ViewModels
+export interface ServersViewModel {
+  servers: Array<{
+    serverId: string;
+    inviteLink: string;
+    name?: string;
+    ttlExpiresAt: string;
+  }>;
+  loading: boolean;
+  error?: string;
 }
 
-export interface ServerVM {
-  serverId: string;
-  name?: string;
-  ttlExpiresAt: string;
-  inviteLink?: string;
+// Rooms ViewModels
+export interface RoomsViewModel {
+  rooms: Array<{
+    roomId: string;
+    inviteLink: string;
+    requiresPassword: boolean;
+  }>;
+  loading: boolean;
+  error?: string;
 }
 
-export interface InvitationVM {
-  type: "server" | "room";
-  id: string;
-  expiresAt: string | null;
-  usesLeft: number;
+// Chat ViewModels
+export interface ChatViewModel {
+  messages: MessageDto[];
+  nextPage?: string;
+  sending: boolean;
+  error?: string;
 }
 
-export interface AuditLogVM {
-  id: number;
-  action: string;
-  actorId: string;
-  targetType: string;
-  targetId: string;
-  metadata: unknown;
-  createdAt: string;
+// Voice ViewModels
+export interface VoiceViewModel {
+  connected: boolean;
+  token?: string;
+  permissions?: string[];
+  error?: string;
+}
+
+// Admin ViewModels
+export interface AdminLogsViewModel {
+  logs: AuditLogDto[];
+  nextPage?: string;
+  loading: boolean;
+  error?: string;
 }

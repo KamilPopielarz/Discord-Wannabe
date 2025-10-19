@@ -1,0 +1,23 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Panel Admina - Discord Wannabe">
+  <main class="min-h-screen bg-background">
+    <div id="admin-panel-root" class="container mx-auto p-6">
+      <!-- React Island będzie zamontowany tutaj -->
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { createRoot } from 'react-dom/client';
+  import { AdminPanelPage } from '../components/admin/AdminPanelPage';
+  import { createElement } from 'react';
+
+  const container = document.getElementById('admin-panel-root');
+  if (container) {
+    const root = createRoot(container);
+    root.render(createElement(AdminPanelPage));
+  }
+</script>

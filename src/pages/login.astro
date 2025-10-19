@@ -1,0 +1,23 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Logowanie - Discord Wannabe">
+  <main class="min-h-screen flex items-center justify-center bg-background">
+    <div id="login-page-root" class="w-full max-w-md p-6">
+      <!-- React Island będzie zamontowany tutaj -->
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { createRoot } from 'react-dom/client';
+  import { LoginPage } from '../components/auth/LoginPage';
+  import { createElement } from 'react';
+
+  const container = document.getElementById('login-page-root');
+  if (container) {
+    const root = createRoot(container);
+    root.render(createElement(LoginPage));
+  }
+</script>

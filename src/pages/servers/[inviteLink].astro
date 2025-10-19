@@ -1,0 +1,26 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const { inviteLink } = Astro.params;
+---
+
+<Layout title="Serwer - Discord Wannabe">
+  <main class="min-h-screen bg-background">
+    <div id="server-detail-root" class="container mx-auto p-6" data-invite-link={inviteLink}>
+      <!-- React Island będzie zamontowany tutaj -->
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { createRoot } from 'react-dom/client';
+  import { ServerDetailPage } from '../../components/servers/ServerDetailPage';
+  import { createElement } from 'react';
+
+  const container = document.getElementById('server-detail-root');
+  if (container) {
+    const inviteLink = container.dataset.inviteLink;
+    const root = createRoot(container);
+    root.render(createElement(ServerDetailPage, { inviteLink }));
+  }
+</script>
