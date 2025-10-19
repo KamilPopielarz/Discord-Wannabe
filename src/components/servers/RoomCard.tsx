@@ -7,8 +7,12 @@ import { Trash2, MessageCircle, Mic, Copy, Lock } from 'lucide-react';
 interface RoomCardProps {
   room: {
     roomId: string;
+    name: string;
     inviteLink: string;
     requiresPassword: boolean;
+    isPermanent?: boolean;
+    createdAt?: string;
+    lastActivity?: string;
   };
   onDelete: (roomId: string) => void;
 }
@@ -28,11 +32,11 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
   };
 
   const joinRoom = (view: 'chat' | 'voice') => {
-    window.location.href = `/rooms${room.inviteLink}?view=${view}`;
+    window.location.href = `/rooms/${room.inviteLink}?view=${view}`;
   };
 
   const openRoomJoin = () => {
-    window.location.href = `/rooms${room.inviteLink}`;
+    window.location.href = `/rooms/${room.inviteLink}`;
   };
 
   return (
@@ -41,13 +45,16 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <CardTitle className="text-lg flex items-center">
-              Pokój {room.roomId.slice(-6)}
+              {room.name}
               {room.requiresPassword && (
                 <Lock className="h-4 w-4 ml-2 text-muted-foreground" />
               )}
+              {room.isPermanent && (
+                <Badge variant="outline" className="ml-2 text-xs">24h</Badge>
+              )}
             </CardTitle>
             <CardDescription>
-              ID: {room.roomId}
+              ID: {room.roomId.slice(-8)}
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">

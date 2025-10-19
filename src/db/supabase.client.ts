@@ -6,7 +6,13 @@ export type DatabaseSupabaseClient = _SC<Database>;
 
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing SUPABASE_URL or SUPABASE_KEY environment variables");
+
+// Create Supabase client or null if not configured
+export const supabaseClient =
+  !supabaseUrl || !supabaseAnonKey ? null : createClient<Database>(supabaseUrl, supabaseAnonKey);
+
+// Log warning if not configured (only in development)
+if ((!supabaseUrl || !supabaseAnonKey) && import.meta.env.DEV) {
+  // eslint-disable-next-line no-console
+  console.warn("Missing SUPABASE_URL or SUPABASE_KEY environment variables - using mock mode");
 }
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);

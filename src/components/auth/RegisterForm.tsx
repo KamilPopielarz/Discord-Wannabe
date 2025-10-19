@@ -12,9 +12,11 @@ interface RegisterFormProps {
   error?: string;
   email: string;
   password: string;
+  username: string;
   confirmPassword: string;
   onEmailChange: (email: string) => void;
   onPasswordChange: (password: string) => void;
+  onUsernameChange: (username: string) => void;
   onConfirmPasswordChange: (password: string) => void;
   validatePassword: (password: string) => string | null;
 }
@@ -24,10 +26,12 @@ export function RegisterForm({
   loading, 
   error, 
   email, 
-  password, 
+  password,
+  username,
   confirmPassword,
   onEmailChange, 
   onPasswordChange,
+  onUsernameChange,
   onConfirmPasswordChange,
   validatePassword
 }: RegisterFormProps) {
@@ -40,7 +44,8 @@ export function RegisterForm({
     // In real implementation, this would come from reCAPTCHA
     onSubmit({ 
       email, 
-      password, 
+      password,
+      username,
       confirmPassword, 
       captchaToken: captchaToken || 'dummy-captcha-token' 
     });
@@ -52,6 +57,7 @@ export function RegisterForm({
   const isFormValid = 
     email.trim() !== '' && 
     password.trim() !== '' && 
+    username.trim() !== '' &&
     confirmPassword.trim() !== '' &&
     !passwordError &&
     !confirmPasswordError;
@@ -78,6 +84,23 @@ export function RegisterForm({
               placeholder="twoj@email.com"
               value={email}
               onChange={(e) => onEmailChange(e.target.value)}
+              disabled={loading}
+              required
+              aria-invalid={!!error}
+              aria-describedby={error ? "error-message" : undefined}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="register-username" className="text-sm font-medium">
+              Nazwa użytkownika
+            </label>
+            <Input
+              id="register-username"
+              type="text"
+              placeholder="Twoja nazwa użytkownika"
+              value={username}
+              onChange={(e) => onUsernameChange(e.target.value)}
               disabled={loading}
               required
               aria-invalid={!!error}

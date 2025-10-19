@@ -1,8 +1,57 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="Discord Wannabe - Komunikator">
+  <main
+    class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 flex items-center justify-center p-4"
+  >
+    <div
+      class="max-w-md w-full backdrop-blur-xl bg-gradient-to-b from-white/10 to-white/5 rounded-2xl shadow-2xl p-8 text-white border border-white/10"
+    >
+      <div class="text-center space-y-6">
+        <div>
+          <h1
+            class="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 text-transparent bg-clip-text"
+          >
+            Discord Wannabe
+          </h1>
+          <p class="text-blue-100/90">Komunikator do czatu tekstowego i rozmów głosowych</p>
+        </div>
+
+        <div class="space-y-4">
+          <a
+            href="/login"
+            class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg"
+          >
+            Zaloguj się
+          </a>
+
+          <a
+            href="/register"
+            class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg"
+          >
+            Zarejestruj się
+          </a>
+
+          <a
+            href="/guest"
+            class="block w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg"
+          >
+            Dołącz jako gość
+          </a>
+        </div>
+
+        <div class="bg-white/5 rounded-lg p-4 text-sm text-blue-100/80">
+          <h3 class="font-medium mb-2">Funkcje:</h3>
+          <ul class="space-y-1 text-left">
+            <li>• Czat tekstowy w czasie rzeczywistym</li>
+            <li>• Rozmowy głosowe (WebRTC)</li>
+            <li>• Tworzenie serwerów i pokoi</li>
+            <li>• Sesje gościa (24h)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
 </Layout>

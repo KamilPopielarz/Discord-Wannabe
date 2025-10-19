@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import type { GetServerResponseDto } from "../../../types";
-import { InviteLinkSchema } from "../../../lib/validators/auth.validators";
+import type { GetServerResponseDto } from "../../../../types";
+import { InviteLinkSchema } from "../../../../lib/validators/auth.validators";
 
 export const prerender = false;
 

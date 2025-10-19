@@ -1,5 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { RoomJoinPage } from "../../components/rooms/RoomJoinPage";
+import { ChatVoicePage } from "../../components/rooms/ChatVoicePage";
 
 const { inviteLink } = Astro.params;
 const url = new URL(Astro.request.url);
@@ -8,28 +10,12 @@ const view = url.searchParams.get('view') || 'join';
 
 <Layout title="Pokój - Discord Wannabe">
   <main class="min-h-screen bg-background">
-    <div id="room-root" class="container mx-auto p-6" data-invite-link={inviteLink} data-view={view}>
-      <!-- React Island będzie zamontowany tutaj -->
+    <div class="container mx-auto p-6">
+      {view === 'chat' || view === 'voice' ? (
+        <ChatVoicePage client:load inviteLink={inviteLink} view={view} />
+      ) : (
+        <RoomJoinPage client:load inviteLink={inviteLink} />
+      )}
     </div>
   </main>
 </Layout>
-
-<script>
-  import { createRoot } from 'react-dom/client';
-  import { RoomJoinPage } from '../../components/rooms/RoomJoinPage';
-  import { ChatVoicePage } from '../../components/rooms/ChatVoicePage';
-  import { createElement } from 'react';
-
-  const container = document.getElementById('room-root');
-  if (container) {
-    const inviteLink = container.dataset.inviteLink;
-    const view = container.dataset.view;
-    const root = createRoot(container);
-    
-    if (view === 'chat' || view === 'voice') {
-      root.render(createElement(ChatVoicePage, { inviteLink, view }));
-    } else {
-      root.render(createElement(RoomJoinPage, { inviteLink }));
-    }
-  }
-</script>

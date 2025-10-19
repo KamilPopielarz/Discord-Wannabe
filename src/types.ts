@@ -1,11 +1,12 @@
 // src/types.ts
 
-import type { Tables, Json } from "./db/database.types";
+import type { Tables, Json } from "./db/database.types.ts";
 
 // 1. Authentication & User Management
 export interface RegisterUserCommand {
   email: string;
   password: string;
+  username: string;
 }
 export interface RegisterUserResponseDto {
   userId: string;
@@ -65,6 +66,7 @@ export interface CreateRoomResponseDto {
 }
 export interface GetRoomResponseDto {
   roomId: string;
+  name: string;
   requiresPassword: boolean;
 }
 export interface JoinRoomCommand {
@@ -91,6 +93,7 @@ export interface MessageDto {
   content: Tables<"messages">["content"];
   metadata: Tables<"messages">["metadata"];
   createdAt: Tables<"messages">["created_at"];
+  authorName?: string; // Display name for the author
 }
 
 export interface ListMessagesResponseDto {

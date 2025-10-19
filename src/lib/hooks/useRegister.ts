@@ -6,6 +6,7 @@ export function useRegister() {
   const [state, setState] = useState<RegisterViewModel>({
     email: '',
     password: '',
+    username: '',
     confirmPassword: '',
     captchaToken: '',
     loading: false,
@@ -39,7 +40,7 @@ export function useRegister() {
 
   const register = async (payload: RegisterUserCommand & { confirmPassword: string; captchaToken: string }) => {
     // Early returns for validation
-    if (!payload.email || !payload.password || !payload.confirmPassword) {
+    if (!payload.email || !payload.password || !payload.username || !payload.confirmPassword) {
       setState(prev => ({
         ...prev,
         error: 'Wszystkie pola są wymagane'
@@ -100,6 +101,7 @@ export function useRegister() {
         body: JSON.stringify({
           email: payload.email,
           password: payload.password,
+          username: payload.username,
           captchaToken: payload.captchaToken
         }),
       });
@@ -129,15 +131,16 @@ export function useRegister() {
         return;
       }
 
-      // Success - show confirmation message
+      // Success - account is immediately active, redirect to login
       setState(prev => ({
         ...prev,
         loading: false,
         error: undefined
       }));
 
-      // You might want to show a success message or redirect
-      alert('Rejestracja zakończona pomyślnie! Sprawdź swoją skrzynkę e-mail, aby potwierdzić konto.');
+      // Account is ready to use immediately - redirect to login
+      alert('Rejestracja zakończona pomyślnie! Możesz się teraz zalogować.');
+      window.location.href = '/login';
       
     } catch (error) {
       setState(prev => ({

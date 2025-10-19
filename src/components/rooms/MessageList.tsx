@@ -34,9 +34,10 @@ function MessageItem({ message, onDelete, canDelete }: MessageItemProps) {
         minute: '2-digit' 
       });
 
-  const authorName = message.userId ? `Użytkownik ${message.userId.slice(-6)}` : 
-                     message.sessionId ? `Gość ${message.sessionId.slice(-6)}` : 
-                     'Nieznany';
+  const authorName = message.authorName || 
+                     (message.userId ? `Użytkownik ${message.userId.slice(-6)}` : 
+                      message.sessionId ? `Gość ${message.sessionId.slice(-6)}` : 
+                      'Nieznany');
 
   return (
     <div className="group flex items-start space-x-3 p-3 hover:bg-muted/50 rounded-lg">

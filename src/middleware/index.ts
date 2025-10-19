@@ -2,7 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { supabaseClient } from "../db/supabase.client.ts";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  // Add Supabase client to locals
+  // Add Supabase client to locals (can be null in development)
   context.locals.supabase = supabaseClient;
   const supabase = context.locals.supabase;
 
@@ -16,18 +16,32 @@ export const onRequest = defineMiddleware(async (context, next) => {
       "/api/auth/password-reset/request",
       "/api/auth/password-reset/confirm",
       "/api/guest",
-      "/api/servers/", // GET server by invite link
+      "/api/servers/invite/", // GET server by invite link
       "/api/rooms/", // GET room by invite link
       "/api/invites/", // GET invitation info
     ];
 
-    const isPublicEndpoint = publicEndpoints.some(
-      (endpoint) =>
-        context.url.pathname.startsWith(endpoint) &&
-        (context.request.method === "GET" || endpoint.includes("auth") || endpoint.includes("guest"))
-    );
+    const isPublicEndpoint = publicEndpoints.some((endpoint) => {
+      const pathMatches = context.url.pathname.startsWith(endpoint);
+
+      if (!pathMatches) return false;
+
+      // Allow all methods for auth and guest endpoints
+      if (endpoint.includes("auth") || endpoint.includes("guest")) {
+        return true;
+      }
+
+      // Allow only GET for other endpoints (servers, rooms, invites)
+      return context.request.method === "GET";
+    });
 
     if (!isPublicEndpoint) {
+      // Skip auth if Supabase is not configured (development mode)
+      if (!supabase) {
+        // Allow all requests in development without Supabase
+        return next();
+      }
+
       // Check for custom session tokens
       const sessionId = context.cookies.get("session_id")?.value;
       const guestSessionId = context.cookies.get("guest_session_id")?.value;

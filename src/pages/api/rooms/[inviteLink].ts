@@ -84,6 +84,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
     const response: GetRoomResponseDto = {
       roomId: room.id,
+      name: room.name,
       requiresPassword: !!room.password_hash,
     };
 

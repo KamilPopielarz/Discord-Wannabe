@@ -19,9 +19,11 @@ export function RegisterPage() {
           error={state.error}
           email={state.email}
           password={state.password}
+          username={state.username}
           confirmPassword={state.confirmPassword}
           onEmailChange={(email) => updateField('email', email)}
           onPasswordChange={(password) => updateField('password', password)}
+          onUsernameChange={(username) => updateField('username', username)}
           onConfirmPasswordChange={(password) => updateField('confirmPassword', password)}
           validatePassword={validatePassword}
         />

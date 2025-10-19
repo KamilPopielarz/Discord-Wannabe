@@ -31,8 +31,8 @@ export function useServerRooms(inviteLink?: string) {
     }
   }, [inviteLink]);
 
-  const loadServerInfo = async () => {
-    if (!inviteLink) return;
+  const loadServerInfo = async (): Promise<string | null> => {
+    if (!inviteLink) return null;
 
     setState(prev => ({
       ...prev,
@@ -41,7 +41,7 @@ export function useServerRooms(inviteLink?: string) {
     }));
 
     try {
-      const response = await fetch(`/api/servers${inviteLink}`, {
+      const response = await fetch(`/api/servers/invite/${inviteLink}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export function useServerRooms(inviteLink?: string) {
           loadingServer: false,
           error: errorMessage
         }));
-        return;
+        return null;
       }
 
       const data: GetServerResponseDto = await response.json();
@@ -88,12 +88,15 @@ export function useServerRooms(inviteLink?: string) {
         }
       }));
       
+      return data.serverId;
+      
     } catch (error) {
       setState(prev => ({
         ...prev,
         loadingServer: false,
         error: 'Błąd połączenia. Sprawdź połączenie internetowe'
       }));
+      return null;
     }
   };
 
@@ -107,9 +110,23 @@ export function useServerRooms(inviteLink?: string) {
     }));
 
     try {
-      // Note: This endpoint might not exist yet, simulate for now
-      // For now, we'll use a placeholder serverId since we might not have serverInfo yet
-      const serverId = state.serverInfo?.serverId || 'placeholder';
+      // Get serverId from serverInfo - if not available, load server info first
+      let serverId = state.serverInfo?.serverId;
+      
+      if (!serverId) {
+        // Need to load server info first to get serverId
+        serverId = await loadServerInfo();
+      }
+      
+      if (!serverId) {
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Nie można pobrać ID serwera'
+        }));
+        return;
+      }
+
       const response = await fetch(`/api/servers/${serverId}/rooms`, {
         method: 'GET',
         headers: {
@@ -118,11 +135,10 @@ export function useServerRooms(inviteLink?: string) {
       });
 
       if (response.status === 404) {
-        // Endpoint doesn't exist yet, use empty array
         setState(prev => ({
           ...prev,
           loading: false,
-          rooms: []
+          error: 'Endpoint pokojów nie istnieje'
         }));
         return;
       }
@@ -154,10 +170,21 @@ export function useServerRooms(inviteLink?: string) {
 
       const data = await response.json();
       
+      // Transform room data to match RoomsViewModel format
+      const transformedRooms = (data.rooms || []).map((room: any) => ({
+        roomId: room.roomId,
+        inviteLink: room.inviteLink,
+        name: room.name,
+        requiresPassword: room.requiresPassword,
+        isPermanent: room.isPermanent,
+        createdAt: room.createdAt,
+        lastActivity: room.lastActivity
+      }));
+      
       setState(prev => ({
         ...prev,
         loading: false,
-        rooms: data.rooms || []
+        rooms: transformedRooms
       }));
       
     } catch (error) {

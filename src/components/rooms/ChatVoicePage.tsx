@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { ArrowLeft, MessageCircle, Mic, MicOff, Volume2, VolumeX, Users } from 'lucide-react';
 import { useChat } from '../../lib/hooks/useChat';
+import type { GetRoomResponseDto } from '../../types';
 
 interface ChatVoicePageProps {
   inviteLink?: string;
@@ -13,8 +14,62 @@ interface ChatVoicePageProps {
 }
 
 export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
-  // Extract roomId from inviteLink (assuming format like /rooms/abc123)
-  const roomId = inviteLink?.split('/').pop();
+  const [roomId, setRoomId] = useState<string | undefined>(undefined);
+  const [roomName, setRoomName] = useState<string | undefined>(undefined);
+  const [loadingRoomInfo, setLoadingRoomInfo] = useState(false);
+  const [roomError, setRoomError] = useState<string | undefined>(undefined);
+  
+  // Load room info from invite link
+  useEffect(() => {
+    if (inviteLink) {
+      loadRoomInfo();
+    }
+  }, [inviteLink]);
+
+  const loadRoomInfo = async () => {
+    if (!inviteLink) return;
+
+    setLoadingRoomInfo(true);
+    setRoomError(undefined);
+
+    try {
+      const response = await fetch(`/api/rooms/${inviteLink}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        setRoomError('Nie można załadować informacji o pokoju');
+        return;
+      }
+
+      const data: GetRoomResponseDto = await response.json();
+      setRoomId(data.roomId);
+      setRoomName(data.name);
+      
+      // Auto-join the room if user accessed via invite link
+      try {
+        await fetch(`/api/rooms/${data.roomId}/join`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json', 
+          },
+          body: JSON.stringify({ password: undefined }), // No password for now
+        });
+        // Ignore join response - it's OK if user is already a member
+      } catch (joinError) {
+        // Ignore join errors for now - user might already be a member
+        console.log('Auto-join attempt:', joinError);
+      }
+      
+    } catch (error) {
+      setRoomError('Błąd połączenia. Sprawdź połączenie internetowe');
+    } finally {
+      setLoadingRoomInfo(false);
+    }
+  };
   
   const { 
     state, 
@@ -37,7 +92,7 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
 
   const toggleView = () => {
     const newView = view === 'chat' ? 'voice' : 'chat';
-    window.location.href = `/rooms${inviteLink}?view=${newView}`;
+    window.location.href = `/rooms/${inviteLink}?view=${newView}`;
   };
 
   const toggleVoice = () => {
@@ -58,6 +113,39 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
     // TODO: Implement actual deafen logic
   };
 
+  // Show loading screen while fetching room info
+  if (loadingRoomInfo) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Ładowanie pokoju...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error screen if room loading failed
+  if (roomError) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center max-w-md p-6">
+          <div className="mx-auto w-24 h-24 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-12 h-12 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold mb-2">Błąd ładowania pokoju</h1>
+          <p className="text-muted-foreground mb-4">{roomError}</p>
+          <Button onClick={goBack}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Wstecz
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
@@ -71,7 +159,7 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
             
             <div>
               <h1 className="text-lg font-semibold flex items-center">
-                Pokój {roomId?.slice(-6)}
+                {roomName || `Pokój ${roomId?.slice(-6)}`}
                 <Badge variant="outline" className="ml-2">
                   {view === 'voice' ? (
                     <>
@@ -195,7 +283,7 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
                 disabled={state.sending}
                 value={messageText}
                 onChange={updateMessageText}
-                placeholder={`Napisz wiadomość w pokoju ${roomId?.slice(-6)}...`}
+                placeholder={`Napisz wiadomość w ${roomName || `pokoju ${roomId?.slice(-6)}`}...`}
               />
             </>
           )}

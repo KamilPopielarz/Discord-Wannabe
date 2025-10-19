@@ -15,21 +15,43 @@ export class AuthService {
    * Register a new user
    */
   async registerUser(command: RegisterUserCommand): Promise<RegisterUserResponseDto> {
-    const { email, password } = command;
+    const { email, password, username } = command;
 
-    // Create user using Supabase Auth Admin API
-    const { data: authData, error: signUpError } = await this.supabase.auth.admin.createUser({
+    // Create user using normal Supabase Auth signUp (consistent with login)
+    const { data: authData, error: signUpError } = await this.supabase.auth.signUp({
       email,
       password,
-      email_confirm: false,
+      options: {
+        emailRedirectTo: undefined, // Skip email confirmation for now
+        data: {
+          username: username,
+        },
+      },
     });
+
     if (signUpError || !authData.user) {
       throw new DatabaseError("Failed to create user account");
     }
+
     const userId = authData.user.id;
 
-    // Generate and store confirmation token
-    await this.generateEmailConfirmationToken(userId);
+    // Update user metadata with username using admin API
+    try {
+      const { error: updateError } = await this.supabase.auth.admin.updateUserById(userId, {
+        user_metadata: { username: username },
+      });
+
+      if (updateError) {
+        console.warn("Failed to update user metadata with username:", updateError);
+        // Don't throw error here, user is still created
+      }
+    } catch (metadataError) {
+      console.warn("Error updating user metadata:", metadataError);
+      // Don't throw error here, user is still created
+    }
+
+    // ✅ Skip email confirmation token generation - not needed anymore
+    // await this.generateEmailConfirmationToken(userId);
     return { userId };
   }
 

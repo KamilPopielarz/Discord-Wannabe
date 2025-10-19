@@ -36,7 +36,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
   };
 
   const openServer = () => {
-    window.location.href = `/servers${server.inviteLink}`;
+    window.location.href = `/servers/${server.inviteLink}`;
   };
 
   return (

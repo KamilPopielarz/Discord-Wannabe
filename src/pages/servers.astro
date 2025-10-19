@@ -1,23 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { ServersDashboardPage } from "../components/servers/ServersDashboardPage";
 ---
 
 <Layout title="Serwery - Discord Wannabe">
   <main class="min-h-screen bg-background">
-    <div id="servers-dashboard-root" class="container mx-auto p-6">
-      <!-- React Island będzie zamontowany tutaj -->
+    <div class="container mx-auto p-6">
+      <ServersDashboardPage client:load />
     </div>
   </main>
 </Layout>
-
-<script>
-  import { createRoot } from 'react-dom/client';
-  import { ServersDashboardPage } from '../components/servers/ServersDashboardPage';
-  import { createElement } from 'react';
-
-  const container = document.getElementById('servers-dashboard-root');
-  if (container) {
-    const root = createRoot(container);
-    root.render(createElement(ServersDashboardPage));
-  }
-</script>

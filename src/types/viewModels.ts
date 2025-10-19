@@ -11,6 +11,7 @@ export interface AuthViewModel {
 }
 
 export interface RegisterViewModel extends AuthViewModel {
+  username: string;
   confirmPassword: string;
   captchaToken: string;
 }
@@ -39,8 +40,12 @@ export interface ServersViewModel {
 export interface RoomsViewModel {
   rooms: Array<{
     roomId: string;
+    name: string;
     inviteLink: string;
     requiresPassword: boolean;
+    isPermanent?: boolean;
+    createdAt?: string;
+    lastActivity?: string;
   }>;
   loading: boolean;
   error?: string;

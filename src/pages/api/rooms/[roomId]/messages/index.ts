@@ -78,10 +78,13 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
       });
     }
 
-    // Build query
+    // Build query with user/session info for author names
     let query = supabase
       .from("messages")
-      .select("id, user_id, session_id, content, metadata, created_at")
+      .select(`
+        id, user_id, session_id, content, metadata, created_at,
+        sessions(guest_nick)
+      `)
       .eq("room_id", roomId)
       .order("created_at", { ascending: false });
 
@@ -110,8 +113,41 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     const totalMessages = count || 0;
     const hasNextPage = offset + limit < totalMessages;
 
+    // Process messages to add author names
+    const processedMessages = await Promise.all((messages || []).map(async (message: any) => {
+      let authorName = 'Nieznany';
+      
+      if (message.user_id) {
+        // Try to get username from auth.users metadata
+        try {
+          const { data: userData } = await supabase.auth.admin.getUserById(message.user_id);
+          if (userData.user?.user_metadata?.username) {
+            authorName = userData.user.user_metadata.username;
+          } else {
+            authorName = `Użytkownik ${message.user_id.slice(-6)}`;
+          }
+        } catch (error) {
+          authorName = `Użytkownik ${message.user_id.slice(-6)}`;
+        }
+      } else if (message.session_id && message.sessions?.guest_nick) {
+        authorName = message.sessions.guest_nick;
+      } else if (message.session_id) {
+        authorName = `Gość ${message.session_id.slice(-6)}`;
+      }
+
+      return {
+        id: message.id,
+        userId: message.user_id,
+        sessionId: message.session_id,
+        content: message.content,
+        metadata: message.metadata,
+        createdAt: message.created_at,
+        authorName: authorName
+      };
+    }));
+
     const response: ListMessagesResponseDto = {
-      messages: messages || [],
+      messages: processedMessages,
       nextPage: hasNextPage ? (page + 1).toString() : undefined,
     };
 
@@ -232,6 +268,13 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     if (createError || !newMessage) {
       console.error("Failed to create message:", createError);
+      console.error("Insert data was:", {
+        room_id: roomId,
+        user_id: userId || null,
+        session_id: sessionId,
+        content: sanitizedContent,
+        metadata: null,
+      });
       return new Response(JSON.stringify({ error: "Failed to send message" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },

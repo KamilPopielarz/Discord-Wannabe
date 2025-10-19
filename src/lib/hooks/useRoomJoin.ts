@@ -40,7 +40,7 @@ export function useRoomJoin(inviteLink?: string) {
     }));
 
     try {
-      const response = await fetch(`/api/rooms${inviteLink}`, {
+      const response = await fetch(`/api/rooms/${inviteLink}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -174,7 +174,7 @@ export function useRoomJoin(inviteLink?: string) {
 
       // Success - redirect to chat view after a short delay
       setTimeout(() => {
-        window.location.href = `/rooms${inviteLink}?view=chat`;
+        window.location.href = `/rooms/${inviteLink}?view=chat`;
       }, 1000);
       
     } catch (error) {

@@ -17,6 +17,13 @@ export function useChat(roomId?: string) {
   // Load messages on mount and when roomId changes
   useEffect(() => {
     if (roomId) {
+      // Clear existing messages when switching rooms
+      setState(prev => ({
+        ...prev,
+        messages: [],
+        nextPage: undefined,
+        error: undefined
+      }));
       loadMessages();
     }
   }, [roomId]);
@@ -89,6 +96,8 @@ export function useChat(roomId?: string) {
 
       const data: ListMessagesResponseDto = await response.json();
       
+      // When loading first page, replace messages completely
+      // When loading more pages (pagination), prepend older messages
       setState(prev => ({
         ...prev,
         messages: page ? [...data.messages, ...prev.messages] : data.messages,
@@ -173,24 +182,16 @@ export function useChat(roomId?: string) {
 
       const data = await response.json();
       
-      // Add new message to the list (optimistic update)
-      const newMessage: MessageDto = {
-        id: data.messageId,
-        userId: null, // Will be filled by server
-        sessionId: null, // Will be filled by server
-        content: content.trim(),
-        metadata: null,
-        createdAt: data.createdAt
-      };
-
       setState(prev => ({
         ...prev,
-        messages: [...prev.messages, newMessage],
         sending: false
       }));
 
       // Clear message input
       setMessageText('');
+      
+      // Reload messages from server to get the actual message with proper user data
+      await loadMessages();
       
     } catch (error) {
       setState(prev => ({

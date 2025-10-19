@@ -4,6 +4,94 @@ import { CreateRoomSchema, UUIDSchema } from "../../../../../lib/validators/auth
 
 export const prerender = false;
 
+export const GET: APIRoute = async ({ params, locals }) => {
+  try {
+    const { serverId } = params;
+
+    // Validate server ID parameter
+    const serverIdValidation = UUIDSchema.safeParse(serverId);
+    if (!serverIdValidation.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid server ID format",
+          details: serverIdValidation.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get Supabase client and user info from locals
+    const supabase = locals.supabase;
+    const userId = locals.userId;
+
+    if (!supabase) {
+      return new Response(JSON.stringify({ error: "Database connection not available" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if user has access to this server
+    const { data: membership, error: memberError } = await supabase
+      .from("user_server")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("server_id", serverId)
+      .single();
+
+    if (memberError || !membership) {
+      return new Response(JSON.stringify({ error: "Server not found or access denied" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Get all rooms for this server
+    const { data: rooms, error: roomsError } = await supabase
+      .from("rooms")
+      .select("id, name, invite_link, password_hash, is_permanent, created_at, last_activity")
+      .eq("server_id", serverId)
+      .order("created_at", { ascending: false });
+
+    if (roomsError) {
+      console.error("Failed to fetch rooms:", roomsError);
+      return new Response(JSON.stringify({ error: "Failed to fetch rooms" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Transform rooms to match expected format
+    const roomsResponse = (rooms || []).map(room => ({
+      roomId: room.id,
+      name: room.name,
+      inviteLink: room.invite_link,
+      requiresPassword: !!room.password_hash,
+      isPermanent: room.is_permanent,
+      createdAt: room.created_at,
+      lastActivity: room.last_activity
+    }));
+
+    return new Response(JSON.stringify({ rooms: roomsResponse }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Get rooms error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
 export const POST: APIRoute = async ({ params, request, locals }) => {
   try {
     const { serverId } = params;
@@ -105,7 +193,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
         server_id: serverId,
         invite_link: inviteLink,
         password_hash: passwordHash,
-        is_permanent: false, // Rooms are temporary by default
+        is_permanent: true, // Rooms are permanent by default (24h TTL via last_activity)
         last_activity: new Date().toISOString(),
       })
       .select("id, invite_link")

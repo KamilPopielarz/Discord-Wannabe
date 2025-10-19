@@ -8,8 +8,12 @@ import { Button } from '../ui/button';
 interface RoomListProps {
   rooms: Array<{
     roomId: string;
+    name: string;
     inviteLink: string;
     requiresPassword: boolean;
+    isPermanent?: boolean;
+    createdAt?: string;
+    lastActivity?: string;
   }>;
   loading: boolean;
   error?: string;

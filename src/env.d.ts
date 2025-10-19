@@ -6,7 +6,7 @@ import type { Database } from "./db/database.types.ts";
 declare global {
   namespace App {
     interface Locals {
-      supabase: SupabaseClient<Database>;
+      supabase: SupabaseClient<Database> | null;
       userId?: string;
       sessionId?: string;
       guestNick?: string;
