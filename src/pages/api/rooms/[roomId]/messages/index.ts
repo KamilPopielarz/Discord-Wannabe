@@ -46,8 +46,13 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     const sessionId = locals.sessionId;
 
     if (!supabase) {
-      return new Response(JSON.stringify({ error: "Database connection not available" }), {
-        status: 500,
+      // Mock mode - return empty messages list
+      console.log("Mock mode: Returning empty messages for room:", roomId);
+      return new Response(JSON.stringify({ 
+        messages: [],
+        nextPage: undefined
+      }), {
+        status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }
@@ -214,8 +219,13 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     const sessionId = locals.sessionId;
 
     if (!supabase) {
-      return new Response(JSON.stringify({ error: "Database connection not available" }), {
-        status: 500,
+      // Mock mode - simulate successful message send
+      console.log("Mock mode: Simulating message send for user:", userId, "room:", roomId, "content:", content);
+      return new Response(JSON.stringify({ 
+        id: Date.now(),
+        created_at: new Date().toISOString()
+      }), {
+        status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }

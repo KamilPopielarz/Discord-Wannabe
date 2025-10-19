@@ -42,11 +42,9 @@ export class AuthService {
       });
 
       if (updateError) {
-        console.warn("Failed to update user metadata with username:", updateError);
         // Don't throw error here, user is still created
       }
-    } catch (metadataError) {
-      console.warn("Error updating user metadata:", metadataError);
+    } catch {
       // Don't throw error here, user is still created
     }
 

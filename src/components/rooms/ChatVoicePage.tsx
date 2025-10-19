@@ -18,17 +18,96 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   const [roomName, setRoomName] = useState<string | undefined>(undefined);
   const [loadingRoomInfo, setLoadingRoomInfo] = useState(false);
   const [roomError, setRoomError] = useState<string | undefined>(undefined);
+  const [hasAccess, setHasAccess] = useState<boolean>(true);
   
   // Load room info from invite link
   useEffect(() => {
     if (inviteLink) {
-      loadRoomInfo();
+      handleRoomAccess();
     }
   }, [inviteLink]);
+
+  const handleRoomAccess = async () => {
+    // Check what type of session user has
+    const hasUserSession = document.cookie.includes('session_id=');
+    const hasGuestSession = document.cookie.includes('guest_session_id=');
+    
+    console.log('User session:', hasUserSession, 'Guest session:', hasGuestSession);
+    
+    if (hasUserSession) {
+      // Logged in user - direct access to room
+      console.log('Logged user accessing room directly');
+      loadRoomInfo();
+    } else if (hasGuestSession) {
+      // Already has guest session - direct access to room
+      console.log('Guest user accessing room directly');
+      loadRoomInfo();
+    } else {
+      // No session - create guest session automatically
+      console.log('No session found, creating guest session');
+      await createGuestSession();
+    }
+  };
+
+  const createGuestSession = async () => {
+    try {
+      console.log('Creating guest session for room invite:', inviteLink);
+      
+      // First, get room info to find the server
+      const roomResponse = await fetch(`/api/rooms/${inviteLink}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!roomResponse.ok) {
+        console.error('Failed to get room info');
+        setRoomError('Nie można znaleźć pokoju. Sprawdź link.');
+        return;
+      }
+
+      const roomData = await roomResponse.json();
+      console.log('Room data for guest session:', roomData);
+
+      // Get server invite link from room data
+      const serverInviteLink = roomData.serverInviteLink;
+      if (!serverInviteLink) {
+        console.error('No server invite link in room data');
+        setRoomError('Nie można dołączyć jako gość. Spróbuj się zalogować.');
+        return;
+      }
+
+      // Now create guest session with server invite link
+      const guestResponse = await fetch('/api/guest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ serverInviteLink }),
+      });
+
+      if (guestResponse.ok) {
+        console.log('Guest session created successfully');
+        // Instead of reloading, just load room info directly
+        loadRoomInfo();
+      } else {
+        console.error('Failed to create guest session');
+        const errorData = await guestResponse.text();
+        console.error('Guest session error:', errorData);
+        setRoomError('Nie można dołączyć jako gość. Spróbuj się zalogować.');
+      }
+    } catch (error) {
+      console.error('Error creating guest session:', error);
+      setRoomError('Błąd połączenia. Sprawdź połączenie internetowe.');
+    }
+  };
+
 
   const loadRoomInfo = async () => {
     if (!inviteLink) return;
 
+    console.log('Loading room info for inviteLink:', inviteLink);
     setLoadingRoomInfo(true);
     setRoomError(undefined);
 
@@ -40,29 +119,22 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
         },
       });
 
+      console.log('Room info response status:', response.status);
+
       if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Room info error:', errorData);
         setRoomError('Nie można załadować informacji o pokoju');
         return;
       }
 
       const data: GetRoomResponseDto = await response.json();
+      console.log('Room info data:', data);
       setRoomId(data.roomId);
       setRoomName(data.name);
       
-      // Auto-join the room if user accessed via invite link
-      try {
-        await fetch(`/api/rooms/${data.roomId}/join`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json', 
-          },
-          body: JSON.stringify({ password: undefined }), // No password for now
-        });
-        // Ignore join response - it's OK if user is already a member
-      } catch (joinError) {
-        // Ignore join errors for now - user might already be a member
-        console.log('Auto-join attempt:', joinError);
-      }
+      // In simplified flow, if user has session and room exists, they have access
+      // hasAccess is already true by default
       
     } catch (error) {
       setRoomError('Błąd połączenia. Sprawdź połączenie internetowe');
@@ -135,12 +207,23 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold mb-2">Błąd ładowania pokoju</h1>
+          <h1 className="text-2xl font-bold mb-2">Nie można załadować pokoju</h1>
           <p className="text-muted-foreground mb-4">{roomError}</p>
-          <Button onClick={goBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Wstecz
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+            <Button onClick={() => {
+              const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+              window.location.href = `/login?returnTo=${returnTo}`;
+            }} variant="default">
+              Zaloguj się
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Spróbuj ponownie
+            </Button>
+            <Button onClick={goBack} variant="ghost">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Wstecz
+            </Button>
+          </div>
         </div>
       </div>
     );

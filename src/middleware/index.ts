@@ -16,8 +16,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
       "/api/auth/password-reset/request",
       "/api/auth/password-reset/confirm",
       "/api/guest",
-      "/api/servers/invite/", // GET server by invite link
-      "/api/rooms/", // GET room by invite link
+      "/api/servers/invite/", // GET server by invite link and POST join server
+      "/api/rooms/", // GET room by invite link and membership check
       "/api/invites/", // GET invitation info
     ];
 
@@ -38,7 +38,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (!isPublicEndpoint) {
       // Skip auth if Supabase is not configured (development mode)
       if (!supabase) {
-        // Allow all requests in development without Supabase
+        // In development mode without Supabase, create mock user session
+        const sessionId = context.cookies.get("session_id")?.value;
+        if (sessionId) {
+          // Extract mock user ID from session ID (created in login endpoint)
+          context.locals.userId = `mock-user-${sessionId.split("-").pop()}`;
+          context.locals.sessionId = sessionId;
+        }
         return next();
       }
 

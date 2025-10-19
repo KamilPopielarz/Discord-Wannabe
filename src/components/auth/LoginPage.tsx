@@ -7,12 +7,12 @@ export function LoginPage() {
   const { state, updateField, login } = useLogin();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="absolute top-4 right-4">
+    <div className="relative w-full">
+      <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
       
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center p-4">
         <LoginForm
           onSubmit={login}
           loading={state.loading}

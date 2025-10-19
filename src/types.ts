@@ -68,6 +68,7 @@ export interface GetRoomResponseDto {
   roomId: string;
   name: string;
   requiresPassword: boolean;
+  serverInviteLink?: string;
 }
 export interface JoinRoomCommand {
   password?: string;

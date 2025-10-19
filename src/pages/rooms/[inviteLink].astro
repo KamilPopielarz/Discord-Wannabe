@@ -1,21 +1,14 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { RoomJoinPage } from "../../components/rooms/RoomJoinPage";
 import { ChatVoicePage } from "../../components/rooms/ChatVoicePage";
 
 const { inviteLink } = Astro.params;
 const url = new URL(Astro.request.url);
-const view = url.searchParams.get('view') || 'join';
+const view = url.searchParams.get('view') || 'chat';
 ---
 
 <Layout title="Pokój - Discord Wannabe">
   <main class="min-h-screen bg-background">
-    <div class="container mx-auto p-6">
-      {view === 'chat' || view === 'voice' ? (
-        <ChatVoicePage client:load inviteLink={inviteLink} view={view} />
-      ) : (
-        <RoomJoinPage client:load inviteLink={inviteLink} />
-      )}
-    </div>
+    <ChatVoicePage client:load inviteLink={inviteLink} view={view} />
   </main>
 </Layout>

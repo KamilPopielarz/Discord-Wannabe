@@ -23,16 +23,27 @@ export const GET: APIRoute = async ({ params, locals }) => {
     // Get Supabase client from locals
     const supabase = locals.supabase;
     if (!supabase) {
-      return new Response(JSON.stringify({ error: "Database connection not available" }), {
-        status: 500,
+      // Mock mode - simulate room info
+      console.log("Mock mode: Returning mock room info for invite:", inviteLink);
+      const response: GetRoomResponseDto = {
+        roomId: `mock-room-${inviteLink}`,
+        name: `Mock Room ${inviteLink.slice(-6)}`,
+        requiresPassword: false,
+        serverInviteLink: `mock-server-${inviteLink}`,
+      };
+      return new Response(JSON.stringify(response), {
+        status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Find room by invite link
+    // Find room by invite link and get server info
     const { data: room, error: roomError } = await supabase
       .from("rooms")
-      .select("id, name, password_hash, last_activity")
+      .select(`
+        id, name, password_hash, last_activity, server_id,
+        servers!inner(invite_link)
+      `)
       .eq("invite_link", inviteLink)
       .single();
 
@@ -86,6 +97,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       roomId: room.id,
       name: room.name,
       requiresPassword: !!room.password_hash,
+      serverInviteLink: room.servers.invite_link,
     };
 
     return new Response(JSON.stringify(response), {
