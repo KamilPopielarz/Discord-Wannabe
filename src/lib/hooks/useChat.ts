@@ -1,30 +1,30 @@
-import { useState, useEffect, useRef } from 'react';
-import type { SendMessageCommand, MessageDto, ListMessagesResponseDto } from '../../types';
-import type { ChatViewModel } from '../../types/viewModels';
+import { useState, useEffect, useRef } from "react";
+import type { SendMessageCommand, MessageDto, ListMessagesResponseDto } from "../../types";
+import type { ChatViewModel } from "../../types/viewModels";
 
 export function useChat(roomId?: string) {
-  console.log('useChat hook initialized with roomId:', roomId);
-  
+  console.log("useChat hook initialized with roomId:", roomId);
+
   const [state, setState] = useState<ChatViewModel>({
     messages: [],
     nextPage: undefined,
     sending: false,
-    error: undefined
+    error: undefined,
   });
 
   const [loading, setLoading] = useState(false);
-  const [messageText, setMessageText] = useState('');
+  const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load messages on mount and when roomId changes
   useEffect(() => {
     if (roomId) {
       // Clear existing messages when switching rooms
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         messages: [],
         nextPage: undefined,
-        error: undefined
+        error: undefined,
       }));
       loadMessages();
     }
@@ -36,86 +36,85 @@ export function useChat(roomId?: string) {
   }, [state.messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const loadMessages = async (page?: string) => {
-    console.log('loadMessages called with:', { roomId, page });
+    console.log("loadMessages called with:", { roomId, page });
     if (!roomId) {
-      console.log('loadMessages early return: no roomId');
+      console.log("loadMessages early return: no roomId");
       return;
     }
 
     setLoading(true);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      error: undefined
+      error: undefined,
     }));
 
     try {
       const url = new URL(`/api/rooms/${roomId}/messages`, window.location.origin);
       if (page) {
-        url.searchParams.set('page', page);
+        url.searchParams.set("page", page);
       }
 
       const response = await fetch(url.toString(), {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (response.status === 404) {
         // Endpoint doesn't exist yet, use empty array
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
-          messages: []
+          messages: [],
         }));
         setLoading(false);
         return;
       }
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas ładowania wiadomości';
-        
+        let errorMessage = "Wystąpił błąd podczas ładowania wiadomości";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak dostępu do tego pokoju';
+            errorMessage = "Brak dostępu do tego pokoju";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
-          error: errorMessage
+          error: errorMessage,
         }));
         setLoading(false);
         return;
       }
 
       const data: ListMessagesResponseDto = await response.json();
-      
+
       // When loading first page, replace messages completely
       // When loading more pages (pagination), prepend older messages
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         messages: page ? [...data.messages, ...prev.messages] : data.messages,
-        nextPage: data.nextPage
+        nextPage: data.nextPage,
       }));
-      
+
       setLoading(false);
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
       setLoading(false);
     }
@@ -128,139 +127,137 @@ export function useChat(roomId?: string) {
   };
 
   const sendMessage = async (content: string) => {
-    console.log('sendMessage called with:', { roomId, content: content.trim() });
+    console.log("sendMessage called with:", { roomId, content: content.trim() });
     if (!roomId || !content.trim()) {
-      console.log('sendMessage early return:', { hasRoomId: !!roomId, hasContent: !!content.trim() });
+      console.log("sendMessage early return:", { hasRoomId: !!roomId, hasContent: !!content.trim() });
       return;
     }
 
     // Early return for validation
     if (content.trim().length > 2000) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Wiadomość jest za długa (maksymalnie 2000 znaków)'
+        error: "Wiadomość jest za długa (maksymalnie 2000 znaków)",
       }));
       return;
     }
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       sending: true,
-      error: undefined
+      error: undefined,
     }));
 
     try {
       const payload: SendMessageCommand = {
-        content: content.trim()
+        content: content.trim(),
       };
 
       const response = await fetch(`/api/rooms/${roomId}/messages`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas wysyłania wiadomości';
-        
+        let errorMessage = "Wystąpił błąd podczas wysyłania wiadomości";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do wysyłania wiadomości';
+            errorMessage = "Brak uprawnień do wysyłania wiadomości";
             break;
           case 429:
-            errorMessage = 'Za dużo wiadomości. Zwolnij tempo';
+            errorMessage = "Za dużo wiadomości. Zwolnij tempo";
             break;
           case 400:
-            errorMessage = 'Nieprawidłowa wiadomość';
+            errorMessage = "Nieprawidłowa wiadomość";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
           sending: false,
-          error: errorMessage
+          error: errorMessage,
         }));
         return;
       }
 
       const data = await response.json();
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
-        sending: false
+        sending: false,
       }));
 
       // Clear message input
-      setMessageText('');
-      
+      setMessageText("");
+
       // Reload messages from server to get the actual message with proper user data
       await loadMessages();
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         sending: false,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
     }
   };
 
   const deleteMessage = async (messageId: number) => {
-    if (!roomId || !confirm('Czy na pewno chcesz usunąć tę wiadomość?')) return;
+    if (!roomId || !confirm("Czy na pewno chcesz usunąć tę wiadomość?")) return;
 
     try {
       const response = await fetch(`/api/rooms/${roomId}/messages/${messageId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas usuwania wiadomości';
-        
+        let errorMessage = "Wystąpił błąd podczas usuwania wiadomości";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do usuwania tej wiadomości';
+            errorMessage = "Brak uprawnień do usuwania tej wiadomości";
             break;
           case 404:
-            errorMessage = 'Wiadomość nie została znaleziona';
+            errorMessage = "Wiadomość nie została znaleziona";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
-          error: errorMessage
+          error: errorMessage,
         }));
         return;
       }
 
       // Remove message from the list
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        messages: prev.messages.filter(msg => msg.id !== messageId),
-        error: undefined
+        messages: prev.messages.filter((msg) => msg.id !== messageId),
+        error: undefined,
       }));
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
     }
   };
@@ -269,9 +266,9 @@ export function useChat(roomId?: string) {
     setMessageText(text);
     // Clear error when user starts typing
     if (state.error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: undefined
+        error: undefined,
       }));
     }
   };
@@ -286,6 +283,6 @@ export function useChat(roomId?: string) {
     sendMessage,
     deleteMessage,
     updateMessageText,
-    scrollToBottom
+    scrollToBottom,
   };
 }

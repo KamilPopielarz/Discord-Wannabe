@@ -19,10 +19,7 @@ const RegisterUserSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters long")
     .max(20, "Username must be at most 20 characters long")
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Username can only contain letters, numbers, underscores, and hyphens"
-    ),
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens"),
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -56,7 +53,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const supabase = locals.supabase;
     if (!supabase) {
       // Mock response for development when Supabase is not configured
-      console.log('Mock registration for:', email);
+      console.log("Mock registration for:", email);
       const mockUserId = `mock-user-${Date.now()}`;
       return new Response(JSON.stringify({ userId: mockUserId }), {
         status: 201,
@@ -65,20 +62,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     try {
-      console.log('Register API: Starting registration for email:', email, 'username:', username);
-      console.log('Register API: Supabase client available:', !!supabase);
-      
+      console.log("Register API: Starting registration for email:", email, "username:", username);
+      console.log("Register API: Supabase client available:", !!supabase);
+
       // Delegate registration to AuthService
       const authService = new AuthService(supabase);
       const { userId } = await authService.registerUser({ email, password, username });
-      
-      console.log('Register API: Registration successful for userId:', userId);
+
+      console.log("Register API: Registration successful for userId:", userId);
       return new Response(JSON.stringify({ userId }), {
         status: 201,
         headers: { "Content-Type": "application/json" },
       });
     } catch (authError) {
-      console.error('Auth service error:', authError);
+      console.error("Auth service error:", authError);
       // Fallback to mock for development
       const mockUserId = `mock-user-${Date.now()}`;
       return new Response(JSON.stringify({ userId: mockUserId }), {

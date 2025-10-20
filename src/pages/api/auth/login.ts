@@ -42,10 +42,10 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     const supabase = locals.supabase;
     if (!supabase) {
       // Mock login for development when Supabase is not configured
-      console.log('Mock login for:', email);
+      console.log("Mock login for:", email);
       const mockUserId = `mock-user-${Date.now()}`;
       const mockSessionId = `mock-session-${Date.now()}`;
-      
+
       cookies.set("session_id", mockSessionId, {
         httpOnly: true,
         secure: import.meta.env.PROD,
@@ -53,7 +53,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         maxAge: 24 * 60 * 60,
         path: "/",
       });
-      
+
       return new Response(JSON.stringify({ message: "Login successful", userId: mockUserId }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -84,12 +84,12 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         });
       }
       console.error("Login error:", err);
-      
+
       // Fallback to mock login if auth service fails
-      console.log('Auth service failed, using mock login for:', email);
+      console.log("Auth service failed, using mock login for:", email);
       const mockUserId = `mock-user-${Date.now()}`;
       const mockSessionId = `mock-session-${Date.now()}`;
-      
+
       cookies.set("session_id", mockSessionId, {
         httpOnly: true,
         secure: import.meta.env.PROD,
@@ -97,7 +97,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         maxAge: 24 * 60 * 60,
         path: "/",
       });
-      
+
       return new Response(JSON.stringify({ message: "Login successful", userId: mockUserId }), {
         status: 200,
         headers: { "Content-Type": "application/json" },

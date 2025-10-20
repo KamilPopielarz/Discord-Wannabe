@@ -40,10 +40,12 @@ export const GET: APIRoute = async ({ params, locals }) => {
     // Find room by invite link and get server info
     const { data: room, error: roomError } = await supabase
       .from("rooms")
-      .select(`
+      .select(
+        `
         id, name, password_hash, last_activity, server_id,
         servers!inner(invite_link)
-      `)
+      `
+      )
       .eq("invite_link", inviteLink)
       .single();
 

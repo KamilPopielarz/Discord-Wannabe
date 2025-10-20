@@ -23,6 +23,11 @@ const baseConfig = tseslint.config({
   },
 });
 
+// Ignore CSS files completely - they have their own linter (stylelint)
+const ignoreConfig = {
+  ignores: ["**/*.css"],
+};
+
 const jsxA11yConfig = tseslint.config({
   files: ["**/*.{js,jsx,ts,tsx}"],
   extends: [jsxA11y.flatConfigs.recommended],
@@ -58,6 +63,7 @@ const reactConfig = tseslint.config({
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  ignoreConfig,
   baseConfig,
   jsxA11yConfig,
   reactConfig,

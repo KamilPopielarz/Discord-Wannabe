@@ -1,10 +1,10 @@
-import React from 'react';
-import { ScrollArea } from '../ui/scroll-area';
-import { Button } from '../ui/button';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { ErrorBanner } from '../ui/ErrorBanner';
-import { Trash2, MoreVertical } from 'lucide-react';
-import type { MessageDto } from '../../types';
+import React from "react";
+import { ScrollArea } from "../ui/scroll-area";
+import { Button } from "../ui/button";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { ErrorBanner } from "../ui/ErrorBanner";
+import { Trash2, MoreVertical } from "lucide-react";
+import type { MessageDto } from "../../types";
 
 interface MessageListProps {
   messages: MessageDto[];
@@ -25,41 +25,30 @@ interface MessageItemProps {
 function MessageItem({ message, onDelete, canDelete }: MessageItemProps) {
   const messageDate = new Date(message.createdAt);
   const isToday = messageDate.toDateString() === new Date().toDateString();
-  const timeString = isToday 
-    ? messageDate.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
-    : messageDate.toLocaleString('pl-PL', { 
-        month: 'short', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
+  const timeString = isToday
+    ? messageDate.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })
+    : messageDate.toLocaleString("pl-PL", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
 
-  const authorName = message.authorName || 
-                     (message.userId ? `Użytkownik ${message.userId.slice(-6)}` : 
-                      message.sessionId ? `Gość ${message.sessionId.slice(-6)}` : 
-                      'Nieznany');
+  const authorName = message.authorName || "Nieznany";
 
   return (
     <div className="group flex items-start space-x-3 p-3 hover:bg-muted/50 rounded-lg">
       <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-        <span className="text-xs font-medium text-primary">
-          {authorName.charAt(0)}
-        </span>
+        <span className="text-xs font-medium text-primary">{authorName.charAt(0)}</span>
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-2 mb-1">
-          <span className="text-sm font-medium text-foreground">
-            {authorName}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {timeString}
-          </span>
+          <span className="text-sm font-medium text-foreground">{authorName}</span>
+          <span className="text-xs text-muted-foreground">{timeString}</span>
         </div>
-        
-        <div className="text-sm text-foreground break-words">
-          {message.content}
-        </div>
+
+        <div className="text-sm text-foreground break-words">{message.content}</div>
       </div>
 
       {canDelete && (
@@ -78,26 +67,21 @@ function MessageItem({ message, onDelete, canDelete }: MessageItemProps) {
   );
 }
 
-export function MessageList({ 
-  messages, 
-  loading, 
-  error, 
-  hasMore, 
-  onLoadMore, 
+export function MessageList({
+  messages,
+  loading,
+  error,
+  hasMore,
+  onLoadMore,
   onDeleteMessage,
-  messagesEndRef
+  messagesEndRef,
 }: MessageListProps) {
   if (messages.length === 0 && !loading) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-            <svg
-              className="w-8 h-8 text-muted-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -107,9 +91,7 @@ export function MessageList({
             </svg>
           </div>
           <h3 className="text-lg font-medium mb-2">Brak wiadomości</h3>
-          <p className="text-muted-foreground">
-            Rozpocznij rozmowę wysyłając pierwszą wiadomość!
-          </p>
+          <p className="text-muted-foreground">Rozpocznij rozmowę wysyłając pierwszą wiadomość!</p>
         </div>
       </div>
     );
@@ -118,24 +100,19 @@ export function MessageList({
   return (
     <div className="flex-1 flex flex-col">
       <ErrorBanner error={error} className="mx-4 mb-2" />
-      
+
       <ScrollArea className="flex-1 px-2">
         <div className="space-y-1">
           {hasMore && (
             <div className="text-center py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onLoadMore}
-                disabled={loading}
-              >
+              <Button variant="outline" size="sm" onClick={onLoadMore} disabled={loading}>
                 {loading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Ładowanie...
                   </>
                 ) : (
-                  'Załaduj starsze wiadomości'
+                  "Załaduj starsze wiadomości"
                 )}
               </Button>
             </div>
@@ -157,7 +134,7 @@ export function MessageList({
             </div>
           )}
         </div>
-        
+
         <div ref={messagesEndRef} />
       </ScrollArea>
     </div>

@@ -1,20 +1,13 @@
-import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { ErrorBanner } from '../ui/ErrorBanner';
-import { Plus, Eye, EyeOff } from 'lucide-react';
-import type { CreateRoomCommand } from '../../types';
+import React, { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Checkbox } from "../ui/checkbox";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { ErrorBanner } from "../ui/ErrorBanner";
+import { Plus, Eye, EyeOff } from "lucide-react";
+import type { CreateRoomCommand } from "../../types";
 
 interface CreateRoomModalProps {
   open: boolean;
@@ -24,16 +17,10 @@ interface CreateRoomModalProps {
   error?: string;
 }
 
-export function CreateRoomModal({ 
-  open, 
-  onOpenChange, 
-  onCreate, 
-  creating,
-  error
-}: CreateRoomModalProps) {
-  const [roomName, setRoomName] = useState('');
+export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error }: CreateRoomModalProps) {
+  const [roomName, setRoomName] = useState("");
   const [hasPassword, setHasPassword] = useState(false);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleCreate = () => {
@@ -43,7 +30,7 @@ export function CreateRoomModal({
 
     const roomData: CreateRoomCommand = {
       name: roomName.trim(),
-      ...(hasPassword && password.trim() ? { password: password.trim() } : {})
+      ...(hasPassword && password.trim() ? { password: password.trim() } : {}),
     };
 
     onCreate(roomData);
@@ -54,15 +41,15 @@ export function CreateRoomModal({
       onOpenChange(newOpen);
       if (!newOpen) {
         // Reset form when closing
-        setRoomName('');
+        setRoomName("");
         setHasPassword(false);
-        setPassword('');
+        setPassword("");
         setShowPassword(false);
       }
     }
   };
 
-  const isFormValid = roomName.trim() !== '' && (!hasPassword || password.trim() !== '');
+  const isFormValid = roomName.trim() !== "" && (!hasPassword || password.trim() !== "");
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -75,11 +62,9 @@ export function CreateRoomModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Utwórz nowy pokój</DialogTitle>
-          <DialogDescription>
-            Utwórz pokój do czatu tekstowego i rozmów głosowych.
-          </DialogDescription>
+          <DialogDescription>Utwórz pokój do czatu tekstowego i rozmów głosowych.</DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <ErrorBanner error={error} />
 
@@ -102,7 +87,7 @@ export function CreateRoomModal({
               onCheckedChange={(checked) => {
                 setHasPassword(checked as boolean);
                 if (!checked) {
-                  setPassword('');
+                  setPassword("");
                   setShowPassword(false);
                 }
               }}
@@ -119,7 +104,7 @@ export function CreateRoomModal({
               <div className="relative">
                 <Input
                   id="room-password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Wprowadź hasło"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -134,16 +119,10 @@ export function CreateRoomModal({
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={creating}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Hasło będzie wymagane do dołączenia do pokoju
-              </p>
+              <p className="text-xs text-muted-foreground">Hasło będzie wymagane do dołączenia do pokoju</p>
             </div>
           )}
 
@@ -158,17 +137,10 @@ export function CreateRoomModal({
           </div>
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 space-y-2 space-y-reverse sm:space-y-0">
-            <Button
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={creating}
-            >
+            <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={creating}>
               Anuluj
             </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={creating || !isFormValid}
-            >
+            <Button onClick={handleCreate} disabled={creating || !isFormValid}>
               {creating ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />

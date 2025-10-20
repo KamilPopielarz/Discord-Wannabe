@@ -31,8 +31,6 @@ export class AuthService {
     });
 
     if (signUpError || !authData.user) {
-      console.error("Supabase signUp error:", signUpError);
-      console.error("Auth data:", authData);
       throw new DatabaseError(`Failed to create user account: ${signUpError?.message || "Unknown error"}`);
     }
 
@@ -40,28 +38,18 @@ export class AuthService {
 
     // Update user metadata with username using admin API
     try {
-      console.log("AuthService: Admin client available:", !!supabaseAdminClient);
       if (supabaseAdminClient) {
-        console.log("AuthService: Updating user metadata for userId:", userId, "with username:", username);
-        const { data: updateData, error: updateError } = await supabaseAdminClient.auth.admin.updateUserById(userId, {
+        const { error: updateError } = await supabaseAdminClient.auth.admin.updateUserById(userId, {
           user_metadata: { username: username },
         });
 
         if (updateError) {
-          console.error("AuthService: Failed to update user metadata:", updateError);
           // Don't throw error here, user is still created
-        } else {
-          console.log("AuthService: Successfully updated user metadata:", updateData.user?.user_metadata);
         }
       } else {
-        console.warn("AuthService: No admin client available for updating user metadata");
-        console.log(
-          "AuthService: Environment check - SUPABASE_SERVICE_ROLE_KEY:",
-          !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-        );
+        // No admin client available for updating user metadata
       }
-    } catch (error) {
-      console.error("AuthService: Error updating user metadata:", error);
+    } catch {
       // Don't throw error here, user is still created
     }
 

@@ -1,32 +1,24 @@
-import React, { useState } from 'react';
-import { AdminLogTable } from './AdminLogTable';
-import { LogFilter } from './LogFilter';
-import { PaginationControls } from './PaginationControls';
-import { ThemeToggle } from '../ui/ThemeToggle';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { ArrowLeft, Shield, Server } from 'lucide-react';
-import { useAdminLogs } from '../../lib/hooks/useAdminLogs';
+import React, { useState } from "react";
+import { AdminLogTable } from "./AdminLogTable";
+import { LogFilter } from "./LogFilter";
+import { PaginationControls } from "./PaginationControls";
+import { ThemeToggle } from "../ui/ThemeToggle";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { ArrowLeft, Shield, Server } from "lucide-react";
+import { useAdminLogs } from "../../lib/hooks/useAdminLogs";
 
 export function AdminPanelPage() {
-  const [serverId, setServerId] = useState('');
+  const [serverId, setServerId] = useState("");
   const [selectedServerId, setSelectedServerId] = useState<string | undefined>();
-  
-  const { 
-    state, 
-    filters, 
-    currentPage, 
-    updateFilters, 
-    clearFilters, 
-    loadMoreLogs, 
-    refreshLogs, 
-    goToPage 
-  } = useAdminLogs(selectedServerId);
+
+  const { state, filters, currentPage, updateFilters, clearFilters, loadMoreLogs, refreshLogs, goToPage } =
+    useAdminLogs(selectedServerId);
 
   const goBack = () => {
-    window.location.href = '/servers';
+    window.location.href = "/servers";
   };
 
   const selectServer = () => {
@@ -37,7 +29,7 @@ export function AdminPanelPage() {
 
   const resetServer = () => {
     setSelectedServerId(undefined);
-    setServerId('');
+    setServerId("");
   };
 
   if (!selectedServerId) {
@@ -57,9 +49,7 @@ export function AdminPanelPage() {
                     <Shield className="h-6 w-6 mr-2" />
                     Panel Administratora
                   </h1>
-                  <p className="text-muted-foreground">
-                    Zarządzanie i monitorowanie aktywności serwerów
-                  </p>
+                  <p className="text-muted-foreground">Zarządzanie i monitorowanie aktywności serwerów</p>
                 </div>
               </div>
               <ThemeToggle />
@@ -75,9 +65,7 @@ export function AdminPanelPage() {
                 <Server className="w-8 h-8 text-primary" />
               </div>
               <h2 className="text-xl font-bold mb-2">Wybierz serwer</h2>
-              <p className="text-muted-foreground">
-                Wprowadź ID serwera, aby wyświetlić logi audytu
-              </p>
+              <p className="text-muted-foreground">Wprowadź ID serwera, aby wyświetlić logi audytu</p>
             </div>
 
             <div className="space-y-4">
@@ -91,11 +79,7 @@ export function AdminPanelPage() {
                 />
               </div>
 
-              <Button 
-                onClick={selectServer} 
-                className="w-full"
-                disabled={!serverId.trim()}
-              >
+              <Button onClick={selectServer} className="w-full" disabled={!serverId.trim()}>
                 <Shield className="h-4 w-4 mr-2" />
                 Wyświetl logi serwera
               </Button>
@@ -136,9 +120,7 @@ export function AdminPanelPage() {
                     {selectedServerId.slice(-8)}
                   </Badge>
                 </h1>
-                <p className="text-muted-foreground">
-                  Logi audytu dla serwera {selectedServerId}
-                </p>
+                <p className="text-muted-foreground">Logi audytu dla serwera {selectedServerId}</p>
               </div>
             </div>
             <ThemeToggle />
@@ -157,11 +139,7 @@ export function AdminPanelPage() {
         />
 
         {/* Logs Table */}
-        <AdminLogTable
-          logs={state.logs}
-          loading={state.loading}
-          error={state.error}
-        />
+        <AdminLogTable logs={state.logs} loading={state.loading} error={state.error} />
 
         {/* Pagination */}
         <PaginationControls

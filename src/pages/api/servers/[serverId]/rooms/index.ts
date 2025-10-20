@@ -69,14 +69,14 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     // Transform rooms to match expected format
-    const roomsResponse = (rooms || []).map(room => ({
+    const roomsResponse = (rooms || []).map((room) => ({
       roomId: room.id,
       name: room.name,
       inviteLink: room.invite_link,
       requiresPassword: !!room.password_hash,
       isPermanent: room.is_permanent,
       createdAt: room.created_at,
-      lastActivity: room.last_activity
+      lastActivity: room.last_activity,
     }));
 
     return new Response(JSON.stringify({ rooms: roomsResponse }), {

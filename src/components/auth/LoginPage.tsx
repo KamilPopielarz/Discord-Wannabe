@@ -1,7 +1,7 @@
-import React from 'react';
-import { LoginForm } from './LoginForm';
-import { ThemeToggle } from '../ui/ThemeToggle';
-import { useLogin } from '../../lib/hooks/useLogin';
+import React from "react";
+import { LoginForm } from "./LoginForm";
+import { ThemeToggle } from "../ui/ThemeToggle";
+import { useLogin } from "../../lib/hooks/useLogin";
 
 export function LoginPage() {
   const { state, updateField, login } = useLogin();
@@ -11,7 +11,7 @@ export function LoginPage() {
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
-      
+
       <div className="flex items-center justify-center p-4">
         <LoginForm
           onSubmit={login}
@@ -19,8 +19,8 @@ export function LoginPage() {
           error={state.error}
           email={state.email}
           password={state.password}
-          onEmailChange={(email) => updateField('email', email)}
-          onPasswordChange={(password) => updateField('password', password)}
+          onEmailChange={(email) => updateField("email", email)}
+          onPasswordChange={(password) => updateField("password", password)}
         />
       </div>
     </div>

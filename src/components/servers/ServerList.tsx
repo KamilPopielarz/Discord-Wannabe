@@ -1,30 +1,24 @@
-import React from 'react';
-import { ServerCard } from './ServerCard';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { ErrorBanner } from '../ui/ErrorBanner';
-import { RefreshCw } from 'lucide-react';
-import { Button } from '../ui/button';
+import React from "react";
+import { ServerCard } from "./ServerCard";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { ErrorBanner } from "../ui/ErrorBanner";
+import { RefreshCw } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface ServerListProps {
-  servers: Array<{
+  servers: {
     serverId: string;
     inviteLink: string;
     name?: string;
     ttlExpiresAt: string;
-  }>;
+  }[];
   loading: boolean;
   error?: string;
   onRefresh: () => void;
   onDeleteServer: (serverId: string) => void;
 }
 
-export function ServerList({ 
-  servers, 
-  loading, 
-  error, 
-  onRefresh, 
-  onDeleteServer 
-}: ServerListProps) {
+export function ServerList({ servers, loading, error, onRefresh, onDeleteServer }: ServerListProps) {
   if (loading && servers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -37,16 +31,9 @@ export function ServerList({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
-          Twoje serwery ({servers.length})
-        </h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRefresh}
-          disabled={loading}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+        <h2 className="text-xl font-semibold">Twoje serwery ({servers.length})</h2>
+        <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           Odśwież
         </Button>
       </div>
@@ -56,12 +43,7 @@ export function ServerList({
       {servers.length === 0 ? (
         <div className="text-center py-12">
           <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-            <svg
-              className="w-12 h-12 text-muted-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -78,11 +60,7 @@ export function ServerList({
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {servers.map((server) => (
-            <ServerCard
-              key={server.serverId}
-              server={server}
-              onDelete={onDeleteServer}
-            />
+            <ServerCard key={server.serverId} server={server} onDelete={onDeleteServer} />
           ))}
         </div>
       )}

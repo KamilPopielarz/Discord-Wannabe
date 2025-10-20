@@ -8,14 +8,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Authentication middleware for API routes
   if (context.url.pathname.startsWith("/api/")) {
-    console.log("Middleware - API request:", {
-      method: context.request.method,
-      pathname: context.url.pathname,
-      cookies: {
-        session_id: context.cookies.get("session_id")?.value ? "present" : "missing",
-        guest_session_id: context.cookies.get("guest_session_id")?.value ? "present" : "missing",
-      },
-    });
+    // API request logging disabled for cleaner console
     // Skip auth for public endpoints
     const publicEndpoints = [
       "/api/auth/register",
@@ -80,44 +73,26 @@ export const onRequest = defineMiddleware(async (context, next) => {
             context.locals.sessionId = sessionId;
 
             // Try to get username from auth.users metadata using admin client
-            console.log("Middleware: Admin client available:", !!supabaseAdminClient);
-            console.log("Middleware: Environment vars:", {
-              SUPABASE_SERVICE_ROLE_KEY: !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
-              SUPABASE_URL: !!import.meta.env.SUPABASE_URL,
-            });
 
             try {
               if (supabaseAdminClient) {
-                const { data: userData, error: getUserError } = await supabaseAdminClient.auth.admin.getUserById(
-                  userSession.user_id
-                );
-                console.log("Middleware: getUserById result:", {
-                  userData: userData.user,
-                  metadata: userData.user?.user_metadata,
-                  error: getUserError,
-                });
+                const { data: userData } = await supabaseAdminClient.auth.admin.getUserById(userSession.user_id);
+                // getUserById result logged in development mode only
                 if (userData.user?.user_metadata?.username) {
                   context.locals.username = userData.user.user_metadata.username;
-                  console.log("Middleware: Set username in locals:", userData.user.user_metadata.username);
                 } else {
-                  console.log("Middleware: No username found in user_metadata");
                   // Fallback: use email as username (temporary solution)
                   if (userData.user?.email) {
                     context.locals.username = userData.user.email.split("@")[0];
-                    console.log("Middleware: Using email as fallback username:", context.locals.username);
                   }
                 }
               } else {
-                console.log("Middleware: No admin client available for getUserById");
                 // Fallback: use user ID as username when admin client is not available
                 context.locals.username = `User-${userSession.user_id.slice(-6)}`;
-                console.log("Middleware: Using fallback username:", context.locals.username);
               }
-            } catch (error) {
-              console.log("Failed to get username from metadata:", error);
+            } catch {
               // Fallback: use user ID as username
               context.locals.username = `User-${userSession.user_id.slice(-6)}`;
-              console.log("Middleware: Using error fallback username:", context.locals.username);
             }
 
             isAuthenticated = true;
@@ -134,7 +109,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       // If user auth failed, try guest session
       if (!isAuthenticated && guestSessionId) {
-        console.log("Middleware: Checking guest session:", guestSessionId);
         const { data: guestSession, error: guestError } = await supabase
           .from("sessions")
           .select("session_id, guest_nick, expires_at")
@@ -149,10 +123,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
             context.locals.sessionId = guestSession.session_id;
             context.locals.guestNick = guestSession.guest_nick ?? undefined;
             isAuthenticated = true;
-            console.log("Middleware: Guest session authenticated:", {
-              sessionId: guestSession.session_id,
-              guestNick: guestSession.guest_nick,
-            });
           } else {
             // Clean up expired guest session
             await supabase.from("sessions").delete().eq("session_id", guestSessionId);
@@ -171,14 +141,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         });
       }
 
-      console.log("Middleware - Authentication result:", {
-        method: context.request.method,
-        pathname: context.url.pathname,
-        userId: context.locals.userId,
-        sessionId: context.locals.sessionId,
-        username: context.locals.username,
-        guestNick: context.locals.guestNick,
-      });
+      // Authentication result logged in development mode only
     }
 
     // CORS headers for API routes

@@ -1,9 +1,9 @@
-import React from 'react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { ErrorBanner } from '../ui/ErrorBanner';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
+import React from "react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { ErrorBanner } from "../ui/ErrorBanner";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
 
 interface GuestJoinFormProps {
   onSubmit: (inviteLink: string) => void;
@@ -14,29 +14,27 @@ interface GuestJoinFormProps {
   guestNick?: string;
 }
 
-export function GuestJoinForm({ 
-  onSubmit, 
-  loading, 
-  error, 
-  inviteLink, 
+export function GuestJoinForm({
+  onSubmit,
+  loading,
+  error,
+  inviteLink,
   onInviteLinkChange,
-  guestNick
+  guestNick,
 }: GuestJoinFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(inviteLink);
   };
 
-  const isFormValid = inviteLink.trim() !== '';
+  const isFormValid = inviteLink.trim() !== "";
 
   // Show success message if guest nick is available
   if (guestNick) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-green-600">
-            Pomyślnie dołączono!
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-green-600">Pomyślnie dołączono!</CardTitle>
           <CardDescription className="text-center">
             Twój nick gościa: <strong>{guestNick}</strong>
           </CardDescription>
@@ -44,9 +42,7 @@ export function GuestJoinForm({
         <CardContent>
           <div className="text-center">
             <LoadingSpinner className="mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              Przekierowywanie...
-            </p>
+            <p className="text-sm text-muted-foreground">Przekierowywanie...</p>
           </div>
         </CardContent>
       </Card>
@@ -64,7 +60,7 @@ export function GuestJoinForm({
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <ErrorBanner error={error} className="mb-4" />
-          
+
           <div className="space-y-2">
             <label htmlFor="invite-link" className="text-sm font-medium">
               Link zaproszeniowy
@@ -85,18 +81,14 @@ export function GuestJoinForm({
             </p>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={loading || !isFormValid}
-          >
+          <Button type="submit" className="w-full" disabled={loading || !isFormValid}>
             {loading ? (
               <>
                 <LoadingSpinner size="sm" className="mr-2" />
                 Dołączanie...
               </>
             ) : (
-              'Dołącz jako gość'
+              "Dołącz jako gość"
             )}
           </Button>
 

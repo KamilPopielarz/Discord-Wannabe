@@ -19,22 +19,6 @@ export const supabaseAdminClient =
 
 // Log configuration status (only in development)
 if (import.meta.env.DEV) {
-  console.log("Supabase config:", {
-    hasUrl: !!supabaseUrl,
-    hasAnonKey: !!supabaseAnonKey,
-    hasServiceKey: !!supabaseServiceKey,
-    url: supabaseUrl,
-    serviceKey: supabaseServiceKey ? `${supabaseServiceKey.substring(0, 20)}...` : "missing",
-    client: !!supabaseClient,
-    adminClient: !!supabaseAdminClient,
-  });
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn("Missing SUPABASE_URL or SUPABASE_KEY environment variables - using mock mode");
-  }
-  if (!supabaseServiceKey) {
-    console.warn("Missing SUPABASE_SERVICE_ROLE_KEY - admin operations will not work");
-  } else {
-    console.log("Admin client should be available for user metadata operations");
-  }
+  // Development logging disabled for cleaner console
+  // Configuration can be checked via browser dev tools if needed
 }

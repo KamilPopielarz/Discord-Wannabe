@@ -18,6 +18,7 @@ const { title = "10x Astro Starter" } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <script is:inline>
+      /* eslint-disable */
       // Prevent theme flash by applying theme immediately
       (function () {
         const savedTheme = localStorage.getItem("theme");
@@ -28,20 +29,23 @@ const { title = "10x Astro Starter" } = Astro.props;
           document.documentElement.classList.add("dark");
         }
       })();
+      /* eslint-enable */
     </script>
     <ViewTransitions />
   </head>
   <body>
     <slot />
     <script is:inline>
+      /* eslint-disable */
       // Ensure theme persists across view transitions
-      document.addEventListener("astro:after-swap", () => {
+      document.addEventListener("astro:after-swap", function () {
         const savedTheme = localStorage.getItem("theme");
         const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         const theme = savedTheme || systemTheme;
 
         document.documentElement.classList.toggle("dark", theme === "dark");
       });
+      /* eslint-enable */
     </script>
   </body>
 </html>

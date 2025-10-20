@@ -1,49 +1,49 @@
-import { useState } from 'react';
-import type { RegisterUserCommand } from '../../types';
-import type { RegisterViewModel } from '../../types/viewModels';
+import { useState } from "react";
+import type { RegisterUserCommand } from "../../types";
+import type { RegisterViewModel } from "../../types/viewModels";
 
 export function useRegister() {
   const [state, setState] = useState<RegisterViewModel>({
-    email: '',
-    password: '',
-    username: '',
-    confirmPassword: '',
-    captchaToken: '',
+    email: "",
+    password: "",
+    username: "",
+    confirmPassword: "",
+    captchaToken: "",
     loading: false,
-    error: undefined
+    error: undefined,
   });
 
-  const updateField = (field: keyof Omit<RegisterViewModel, 'loading' | 'error'>, value: string) => {
-    setState(prev => ({
+  const updateField = (field: keyof Omit<RegisterViewModel, "loading" | "error">, value: string) => {
+    setState((prev) => ({
       ...prev,
       [field]: value,
-      error: undefined // Clear error when user types
+      error: undefined, // Clear error when user types
     }));
   };
 
   const validatePassword = (password: string): string | null => {
     if (password.length < 8) {
-      return 'Hasło musi mieć co najmniej 8 znaków';
+      return "Hasło musi mieć co najmniej 8 znaków";
     }
-    
+
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumbers = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
+
     if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-      return 'Hasło musi zawierać wielką literę, małą literę, cyfrę i znak specjalny';
+      return "Hasło musi zawierać wielką literę, małą literę, cyfrę i znak specjalny";
     }
-    
+
     return null;
   };
 
   const register = async (payload: RegisterUserCommand & { confirmPassword: string; captchaToken: string }) => {
     // Early returns for validation
     if (!payload.email || !payload.password || !payload.username || !payload.confirmPassword) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Wszystkie pola są wymagane'
+        error: "Wszystkie pola są wymagane",
       }));
       return;
     }
@@ -51,9 +51,9 @@ export function useRegister() {
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(payload.email)) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Nieprawidłowy format e-mail'
+        error: "Nieprawidłowy format e-mail",
       }));
       return;
     }
@@ -61,92 +61,91 @@ export function useRegister() {
     // Password strength validation
     const passwordError = validatePassword(payload.password);
     if (passwordError) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: passwordError
+        error: passwordError,
       }));
       return;
     }
 
     // Password confirmation validation
     if (payload.password !== payload.confirmPassword) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Hasła nie są identyczne'
+        error: "Hasła nie są identyczne",
       }));
       return;
     }
 
     // CAPTCHA validation
     if (!payload.captchaToken) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Proszę rozwiązać CAPTCHA'
+        error: "Proszę rozwiązać CAPTCHA",
       }));
       return;
     }
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       loading: true,
-      error: undefined
+      error: undefined,
     }));
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: payload.email,
           password: payload.password,
           username: payload.username,
-          captchaToken: payload.captchaToken
+          captchaToken: payload.captchaToken,
         }),
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas rejestracji';
-        
+        let errorMessage = "Wystąpił błąd podczas rejestracji";
+
         switch (response.status) {
           case 409:
-            errorMessage = 'Użytkownik z tym e-mailem już istnieje';
+            errorMessage = "Użytkownik z tym e-mailem już istnieje";
             break;
           case 400:
-            errorMessage = 'Nieprawidłowe dane rejestracji';
+            errorMessage = "Nieprawidłowe dane rejestracji";
             break;
           case 429:
-            errorMessage = 'Za dużo prób rejestracji. Spróbuj ponownie później';
+            errorMessage = "Za dużo prób rejestracji. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
           loading: false,
-          error: errorMessage
+          error: errorMessage,
         }));
         return;
       }
 
       // Success - account is immediately active, redirect to login
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
-        error: undefined
+        error: undefined,
       }));
 
       // Account is ready to use immediately - redirect to login
-      alert('Rejestracja zakończona pomyślnie! Możesz się teraz zalogować.');
-      window.location.href = '/login';
-      
+      alert("Rejestracja zakończona pomyślnie! Możesz się teraz zalogować.");
+      window.location.href = "/login";
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
     }
   };
@@ -155,6 +154,6 @@ export function useRegister() {
     state,
     updateField,
     register,
-    validatePassword
+    validatePassword,
   };
 }

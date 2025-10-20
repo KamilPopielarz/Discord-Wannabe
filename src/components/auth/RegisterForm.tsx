@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { ErrorBanner } from '../ui/ErrorBanner';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import type { RegisterUserCommand } from '../../types';
+import React, { useState } from "react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { ErrorBanner } from "../ui/ErrorBanner";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import type { RegisterUserCommand } from "../../types";
 
 interface RegisterFormProps {
   onSubmit: (payload: RegisterUserCommand & { confirmPassword: string; captchaToken: string }) => void;
@@ -21,44 +21,44 @@ interface RegisterFormProps {
   validatePassword: (password: string) => string | null;
 }
 
-export function RegisterForm({ 
-  onSubmit, 
-  loading, 
-  error, 
-  email, 
+export function RegisterForm({
+  onSubmit,
+  loading,
+  error,
+  email,
   password,
   username,
   confirmPassword,
-  onEmailChange, 
+  onEmailChange,
   onPasswordChange,
   onUsernameChange,
   onConfirmPasswordChange,
-  validatePassword
+  validatePassword,
 }: RegisterFormProps) {
-  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaToken, setCaptchaToken] = useState("");
   const [showPasswordHints, setShowPasswordHints] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // For now, we'll use a dummy captcha token
     // In real implementation, this would come from reCAPTCHA
-    onSubmit({ 
-      email, 
+    onSubmit({
+      email,
       password,
       username,
-      confirmPassword, 
-      captchaToken: captchaToken || 'dummy-captcha-token' 
+      confirmPassword,
+      captchaToken: captchaToken || "dummy-captcha-token",
     });
   };
 
   const passwordError = password ? validatePassword(password) : null;
-  const confirmPasswordError = confirmPassword && password !== confirmPassword ? 'Hasła nie są identyczne' : null;
-  
-  const isFormValid = 
-    email.trim() !== '' && 
-    password.trim() !== '' && 
-    username.trim() !== '' &&
-    confirmPassword.trim() !== '' &&
+  const confirmPasswordError = confirmPassword && password !== confirmPassword ? "Hasła nie są identyczne" : null;
+
+  const isFormValid =
+    email.trim() !== "" &&
+    password.trim() !== "" &&
+    username.trim() !== "" &&
+    confirmPassword.trim() !== "" &&
     !passwordError &&
     !confirmPasswordError;
 
@@ -66,14 +66,12 @@ export function RegisterForm({
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">Rejestracja</CardTitle>
-        <CardDescription className="text-center">
-          Utwórz nowe konto, aby rozpocząć
-        </CardDescription>
+        <CardDescription className="text-center">Utwórz nowe konto, aby rozpocząć</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <ErrorBanner error={error} className="mb-4" />
-          
+
           <div className="space-y-2">
             <label htmlFor="register-email" className="text-sm font-medium">
               E-mail
@@ -167,36 +165,30 @@ export function RegisterForm({
 
           {/* Placeholder for CAPTCHA - in real implementation this would be reCAPTCHA */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Weryfikacja (CAPTCHA)
-            </label>
+            <label className="text-sm font-medium">Weryfikacja (CAPTCHA)</label>
             <div className="border rounded-md p-4 bg-muted/50 text-center text-sm text-muted-foreground">
               <p>CAPTCHA będzie tutaj zaimplementowana</p>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setCaptchaToken('verified-captcha-token')}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setCaptchaToken("verified-captcha-token")}
                 disabled={loading}
                 className="mt-2"
               >
-                {captchaToken ? '✓ Zweryfikowano' : 'Kliknij aby zweryfikować'}
+                {captchaToken ? "✓ Zweryfikowano" : "Kliknij aby zweryfikować"}
               </Button>
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={loading || !isFormValid || !captchaToken}
-          >
+          <Button type="submit" className="w-full" disabled={loading || !isFormValid || !captchaToken}>
             {loading ? (
               <>
                 <LoadingSpinner size="sm" className="mr-2" />
                 Rejestrowanie...
               </>
             ) : (
-              'Zarejestruj się'
+              "Zarejestruj się"
             )}
           </Button>
 

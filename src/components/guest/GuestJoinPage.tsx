@@ -1,7 +1,7 @@
-import React from 'react';
-import { GuestJoinForm } from './GuestJoinForm';
-import { ThemeToggle } from '../ui/ThemeToggle';
-import { useGuestJoin } from '../../lib/hooks/useGuestJoin';
+import React from "react";
+import { GuestJoinForm } from "./GuestJoinForm";
+import { ThemeToggle } from "../ui/ThemeToggle";
+import { useGuestJoin } from "../../lib/hooks/useGuestJoin";
 
 export function GuestJoinPage() {
   const { state, updateInviteLink, joinAsGuest } = useGuestJoin();
@@ -11,7 +11,7 @@ export function GuestJoinPage() {
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      
+
       <div className="flex-1 flex items-center justify-center p-4">
         <GuestJoinForm
           onSubmit={joinAsGuest}

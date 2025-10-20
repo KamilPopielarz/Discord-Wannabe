@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import type { CreateRoomCommand, CreateRoomResponseDto, GetServerResponseDto } from '../../types';
-import type { RoomsViewModel } from '../../types/viewModels';
+import { useState, useEffect } from "react";
+import type { CreateRoomCommand, CreateRoomResponseDto, GetServerResponseDto } from "../../types";
+import type { RoomsViewModel } from "../../types/viewModels";
 
 interface ServerRoomsState extends RoomsViewModel {
   serverInfo?: {
@@ -17,7 +17,7 @@ export function useServerRooms(inviteLink?: string) {
     loading: false,
     error: undefined,
     serverInfo: undefined,
-    loadingServer: false
+    loadingServer: false,
   });
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -34,67 +34,66 @@ export function useServerRooms(inviteLink?: string) {
   const loadServerInfo = async (): Promise<string | null> => {
     if (!inviteLink) return null;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       loadingServer: true,
-      error: undefined
+      error: undefined,
     }));
 
     try {
       const response = await fetch(`/api/servers/invite/${inviteLink}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas ładowania informacji o serwerze';
-        
+        let errorMessage = "Wystąpił błąd podczas ładowania informacji o serwerze";
+
         switch (response.status) {
           case 404:
-            errorMessage = 'Serwer nie został znaleziony lub link wygasł';
+            errorMessage = "Serwer nie został znaleziony lub link wygasł";
             break;
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak dostępu do tego serwera';
+            errorMessage = "Brak dostępu do tego serwera";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
           loadingServer: false,
-          error: errorMessage
+          error: errorMessage,
         }));
         return null;
       }
 
       const data: GetServerResponseDto = await response.json();
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         loadingServer: false,
         serverInfo: {
           serverId: data.serverId,
           name: data.name,
-          ttlExpiresAt: data.ttlExpiresAt
-        }
+          ttlExpiresAt: data.ttlExpiresAt,
+        },
       }));
-      
+
       return data.serverId;
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loadingServer: false,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
       return null;
     }
@@ -103,73 +102,73 @@ export function useServerRooms(inviteLink?: string) {
   const loadRooms = async () => {
     if (!inviteLink) return;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       loading: true,
-      error: undefined
+      error: undefined,
     }));
 
     try {
       // Get serverId from serverInfo - if not available, load server info first
       let serverId = state.serverInfo?.serverId;
-      
+
       if (!serverId) {
         // Need to load server info first to get serverId
         serverId = await loadServerInfo();
       }
-      
+
       if (!serverId) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           loading: false,
-          error: 'Nie można pobrać ID serwera'
+          error: "Nie można pobrać ID serwera",
         }));
         return;
       }
 
       const response = await fetch(`/api/servers/${serverId}/rooms`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (response.status === 404) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           loading: false,
-          error: 'Endpoint pokojów nie istnieje'
+          error: "Endpoint pokojów nie istnieje",
         }));
         return;
       }
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas ładowania pokoi';
-        
+        let errorMessage = "Wystąpił błąd podczas ładowania pokoi";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do przeglądania pokoi';
+            errorMessage = "Brak uprawnień do przeglądania pokoi";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
           loading: false,
-          error: errorMessage
+          error: errorMessage,
         }));
         return;
       }
 
       const data = await response.json();
-      
+
       // Transform room data to match RoomsViewModel format
       const transformedRooms = (data.rooms || []).map((room: any) => ({
         roomId: room.roomId,
@@ -178,20 +177,19 @@ export function useServerRooms(inviteLink?: string) {
         requiresPassword: room.requiresPassword,
         isPermanent: room.isPermanent,
         createdAt: room.createdAt,
-        lastActivity: room.lastActivity
+        lastActivity: room.lastActivity,
       }));
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         loading: false,
-        rooms: transformedRooms
+        rooms: transformedRooms,
       }));
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
     }
   };
@@ -203,54 +201,54 @@ export function useServerRooms(inviteLink?: string) {
 
     try {
       const response = await fetch(`/api/servers/${state.serverInfo.serverId}/rooms`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(roomData),
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas tworzenia pokoju';
-        
+        let errorMessage = "Wystąpił błąd podczas tworzenia pokoju";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do tworzenia pokoi';
+            errorMessage = "Brak uprawnień do tworzenia pokoi";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           case 400:
-            errorMessage = 'Nieprawidłowe dane pokoju';
+            errorMessage = "Nieprawidłowe dane pokoju";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
-          error: errorMessage
+          error: errorMessage,
         }));
         setCreating(false);
         return;
       }
 
       const data: CreateRoomResponseDto = await response.json();
-      
+
       // Add new room to the list
       const newRoom = {
         roomId: data.roomId,
         inviteLink: data.inviteLink,
-        requiresPassword: !!roomData.password
+        requiresPassword: !!roomData.password,
       };
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         rooms: [newRoom, ...prev.rooms],
-        error: undefined
+        error: undefined,
       }));
 
       setCreating(false);
@@ -260,76 +258,76 @@ export function useServerRooms(inviteLink?: string) {
       if (navigator.clipboard) {
         try {
           await navigator.clipboard.writeText(data.inviteLink);
-          alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy skopiowany do schowka: ${data.inviteLink}`);
+          alert(
+            `Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy skopiowany do schowka: ${data.inviteLink}`
+          );
         } catch {
           alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
         }
       } else {
         alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
       }
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
       setCreating(false);
     }
   };
 
   const deleteRoom = async (roomId: string) => {
-    if (!confirm('Czy na pewno chcesz usunąć ten pokój? Ta akcja jest nieodwracalna.')) {
+    if (!confirm("Czy na pewno chcesz usunąć ten pokój? Ta akcja jest nieodwracalna.")) {
       return;
     }
 
     try {
       const response = await fetch(`/api/rooms/${roomId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas usuwania pokoju';
-        
+        let errorMessage = "Wystąpił błąd podczas usuwania pokoju";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do usuwania tego pokoju';
+            errorMessage = "Brak uprawnień do usuwania tego pokoju";
             break;
           case 404:
-            errorMessage = 'Pokój nie został znaleziony';
+            errorMessage = "Pokój nie został znaleziony";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
-          error: errorMessage
+          error: errorMessage,
         }));
         return;
       }
 
       // Remove room from the list
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        rooms: prev.rooms.filter(room => room.roomId !== roomId),
-        error: undefined
+        rooms: prev.rooms.filter((room) => room.roomId !== roomId),
+        error: undefined,
       }));
 
-      alert('Pokój został usunięty pomyślnie');
-      
+      alert("Pokój został usunięty pomyślnie");
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
     }
   };
@@ -342,6 +340,6 @@ export function useServerRooms(inviteLink?: string) {
     loadServerInfo,
     loadRooms,
     createRoom,
-    deleteRoom
+    deleteRoom,
   };
 }

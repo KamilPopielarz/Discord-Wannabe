@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Trash2, MessageCircle, Mic, Copy, Lock } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Trash2, MessageCircle, Mic, Copy, Lock } from "lucide-react";
 
 interface RoomCardProps {
   room: {
@@ -22,7 +22,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
     if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(room.inviteLink);
-        alert('Link zaproszeniowy do pokoju skopiowany do schowka!');
+        alert("Link zaproszeniowy do pokoju skopiowany do schowka!");
       } catch {
         alert(`Link zaproszeniowy do pokoju: ${room.inviteLink}`);
       }
@@ -31,7 +31,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
     }
   };
 
-  const joinRoom = (view: 'chat' | 'voice') => {
+  const joinRoom = (view: "chat" | "voice") => {
     window.location.href = `/rooms/${room.inviteLink}?view=${view}`;
   };
 
@@ -46,16 +46,14 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
           <div className="space-y-1">
             <CardTitle className="text-lg flex items-center">
               {room.name}
-              {room.requiresPassword && (
-                <Lock className="h-4 w-4 ml-2 text-muted-foreground" />
-              )}
+              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-muted-foreground" />}
               {room.isPermanent && (
-                <Badge variant="outline" className="ml-2 text-xs">24h</Badge>
+                <Badge variant="outline" className="ml-2 text-xs">
+                  24h
+                </Badge>
               )}
             </CardTitle>
-            <CardDescription>
-              ID: {room.roomId.slice(-8)}
-            </CardDescription>
+            <CardDescription>ID: {room.roomId.slice(-8)}</CardDescription>
           </div>
           <div className="flex items-center space-x-2">
             {room.requiresPassword ? (
@@ -68,55 +66,34 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="text-sm text-muted-foreground">
-          <p>Link: <code className="text-xs bg-muted px-1 py-0.5 rounded">{room.inviteLink}</code></p>
+          <p>
+            Link: <code className="text-xs bg-muted px-1 py-0.5 rounded">{room.inviteLink}</code>
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => joinRoom('chat')}
-            className="flex items-center"
-          >
+          <Button variant="default" size="sm" onClick={() => joinRoom("chat")} className="flex items-center">
             <MessageCircle className="h-4 w-4 mr-2" />
             Czat
           </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => joinRoom('voice')}
-            className="flex items-center"
-          >
+
+          <Button variant="outline" size="sm" onClick={() => joinRoom("voice")} className="flex items-center">
             <Mic className="h-4 w-4 mr-2" />
             Głos
           </Button>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={openRoomJoin}
-            className="flex-1 min-w-0"
-          >
+          <Button variant="outline" size="sm" onClick={openRoomJoin} className="flex-1 min-w-0">
             Dołącz przez link
           </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={copyInviteLink}
-          >
+
+          <Button variant="outline" size="sm" onClick={copyInviteLink}>
             <Copy className="h-4 w-4 mr-2" />
             Kopiuj
           </Button>
-          
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(room.roomId)}
-          >
+
+          <Button variant="destructive" size="sm" onClick={() => onDelete(room.roomId)}>
             <Trash2 className="h-4 w-4 mr-2" />
             Usuń
           </Button>

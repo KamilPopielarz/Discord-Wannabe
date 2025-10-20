@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { Send, Smile, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { Send, Smile, X } from "lucide-react";
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -12,12 +12,12 @@ interface MessageInputProps {
   placeholder?: string;
 }
 
-export function MessageInput({ 
-  onSend, 
-  disabled, 
-  value, 
-  onChange, 
-  placeholder = "Napisz wiadomość..." 
+export function MessageInput({
+  onSend,
+  disabled,
+  value,
+  onChange,
+  placeholder = "Napisz wiadomość...",
 }: MessageInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [rows, setRows] = useState(1);
@@ -27,7 +27,7 @@ export function MessageInput({
   useEffect(() => {
     if (textareaRef.current) {
       const textarea = textareaRef.current;
-      textarea.style.height = 'auto';
+      textarea.style.height = "auto";
       const scrollHeight = textarea.scrollHeight;
       const lineHeight = 24; // Approximate line height
       const maxRows = 5;
@@ -44,7 +44,7 @@ export function MessageInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (value.trim() && !disabled) {
         onSend(value);
@@ -59,30 +59,198 @@ export function MessageInput({
 
   // Common emojis
   const commonEmojis = [
-    '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣',
-    '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰',
-    '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜',
-    '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳',
-    '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️',
-    '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤',
-    '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱',
-    '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫',
-    '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦',
-    '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵',
-    '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕',
-    '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩',
-    '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺',
-    '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾',
-    '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏',
-    '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆',
-    '🖕', '👇', '☝️', '👍', '👎', '👊', '✊', '🤛',
-    '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️',
-    '❤️', '🧡', '💛', '💚', '💙', '💜', '🤎', '🖤',
-    '🤍', '💔', '❣️', '💕', '💞', '💓', '💗', '💖',
-    '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️',
-    '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈',
-    '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐',
-    '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️'
+    "😀",
+    "😃",
+    "😄",
+    "😁",
+    "😆",
+    "😅",
+    "😂",
+    "🤣",
+    "😊",
+    "😇",
+    "🙂",
+    "🙃",
+    "😉",
+    "😌",
+    "😍",
+    "🥰",
+    "😘",
+    "😗",
+    "😙",
+    "😚",
+    "😋",
+    "😛",
+    "😝",
+    "😜",
+    "🤪",
+    "🤨",
+    "🧐",
+    "🤓",
+    "😎",
+    "🥸",
+    "🤩",
+    "🥳",
+    "😏",
+    "😒",
+    "😞",
+    "😔",
+    "😟",
+    "😕",
+    "🙁",
+    "☹️",
+    "😣",
+    "😖",
+    "😫",
+    "😩",
+    "🥺",
+    "😢",
+    "😭",
+    "😤",
+    "😠",
+    "😡",
+    "🤬",
+    "🤯",
+    "😳",
+    "🥵",
+    "🥶",
+    "😱",
+    "😨",
+    "😰",
+    "😥",
+    "😓",
+    "🤗",
+    "🤔",
+    "🤭",
+    "🤫",
+    "🤥",
+    "😶",
+    "😐",
+    "😑",
+    "😬",
+    "🙄",
+    "😯",
+    "😦",
+    "😧",
+    "😮",
+    "😲",
+    "🥱",
+    "😴",
+    "🤤",
+    "😪",
+    "😵",
+    "🤐",
+    "🥴",
+    "🤢",
+    "🤮",
+    "🤧",
+    "😷",
+    "🤒",
+    "🤕",
+    "🤑",
+    "🤠",
+    "😈",
+    "👿",
+    "👹",
+    "👺",
+    "🤡",
+    "💩",
+    "👻",
+    "💀",
+    "☠️",
+    "👽",
+    "👾",
+    "🤖",
+    "🎃",
+    "😺",
+    "😸",
+    "😹",
+    "😻",
+    "😼",
+    "😽",
+    "🙀",
+    "😿",
+    "😾",
+    "👋",
+    "🤚",
+    "🖐️",
+    "✋",
+    "🖖",
+    "👌",
+    "🤌",
+    "🤏",
+    "✌️",
+    "🤞",
+    "🤟",
+    "🤘",
+    "🤙",
+    "👈",
+    "👉",
+    "👆",
+    "🖕",
+    "👇",
+    "☝️",
+    "👍",
+    "👎",
+    "👊",
+    "✊",
+    "🤛",
+    "🤜",
+    "👏",
+    "🙌",
+    "👐",
+    "🤲",
+    "🤝",
+    "🙏",
+    "✍️",
+    "❤️",
+    "🧡",
+    "💛",
+    "💚",
+    "💙",
+    "💜",
+    "🤎",
+    "🖤",
+    "🤍",
+    "💔",
+    "❣️",
+    "💕",
+    "💞",
+    "💓",
+    "💗",
+    "💖",
+    "💘",
+    "💝",
+    "💟",
+    "☮️",
+    "✝️",
+    "☪️",
+    "🕉️",
+    "☸️",
+    "✡️",
+    "🔯",
+    "🕎",
+    "☯️",
+    "☦️",
+    "🛐",
+    "⛎",
+    "♈",
+    "♉",
+    "♊",
+    "♋",
+    "♌",
+    "♍",
+    "♎",
+    "♏",
+    "♐",
+    "♑",
+    "♒",
+    "♓",
+    "🆔",
+    "⚛️",
+    "🉑",
+    "☢️",
+    "☣️",
   ];
 
   const addEmoji = (emoji: string) => {
@@ -92,7 +260,7 @@ export function MessageInput({
       const end = textarea.selectionEnd;
       const newValue = value.substring(0, start) + emoji + value.substring(end);
       onChange(newValue);
-      
+
       // Focus back to textarea and set cursor position
       setTimeout(() => {
         textarea.focus();
@@ -114,10 +282,10 @@ export function MessageInput({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={`resize-none pr-12 ${isOverLimit ? 'border-destructive' : ''}`}
-            style={{ minHeight: '40px', maxHeight: '120px' }}
+            className={`resize-none pr-12 ${isOverLimit ? "border-destructive" : ""}`}
+            style={{ minHeight: "40px", maxHeight: "120px" }}
           />
-          
+
           {/* Emoji button */}
           <Button
             type="button"
@@ -130,7 +298,7 @@ export function MessageInput({
           >
             <Smile className="h-4 w-4" />
           </Button>
-          
+
           {/* Emoji picker */}
           {showEmojiPicker && (
             <div className="absolute right-0 top-12 z-50 w-80 max-h-64 overflow-y-auto bg-background border rounded-lg shadow-lg p-3">
@@ -167,23 +335,17 @@ export function MessageInput({
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-            <span className={isNearLimit ? (isOverLimit ? 'text-destructive' : 'text-amber-500') : ''}>
+            <span className={isNearLimit ? (isOverLimit ? "text-destructive" : "text-amber-500") : ""}>
               {characterCount}/{maxCharacters}
             </span>
-            {isOverLimit && (
-              <span className="text-destructive">
-                Wiadomość jest za długa
-              </span>
-            )}
+            {isOverLimit && <span className="text-destructive">Wiadomość jest za długa</span>}
           </div>
 
           <div className="flex items-center space-x-2">
-            <div className="text-xs text-muted-foreground">
-              Enter - wyślij, Shift+Enter - nowa linia
-            </div>
-            
-            <Button 
-              type="submit" 
+            <div className="text-xs text-muted-foreground">Enter - wyślij, Shift+Enter - nowa linia</div>
+
+            <Button
+              type="submit"
               size="sm"
               disabled={disabled || !value.trim() || isOverLimit}
               className="min-w-[80px]"

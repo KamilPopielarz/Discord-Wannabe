@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import type { CreateServerCommand, CreateServerResponseDto } from '../../types';
-import type { ServersViewModel } from '../../types/viewModels';
+import { useState, useEffect } from "react";
+import type { CreateServerCommand, CreateServerResponseDto } from "../../types";
+import type { ServersViewModel } from "../../types/viewModels";
 
 export function useServers() {
   const [state, setState] = useState<ServersViewModel>({
     servers: [],
     loading: false,
-    error: undefined
+    error: undefined,
   });
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -18,70 +18,69 @@ export function useServers() {
   }, []);
 
   const loadServers = async () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       loading: true,
-      error: undefined
+      error: undefined,
     }));
 
     try {
       // Note: This endpoint might not exist yet, but we're preparing for it
       // For now, we'll simulate with empty array or handle 404
-      const response = await fetch('/api/servers', {
-        method: 'GET',
+      const response = await fetch("/api/servers", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (response.status === 404) {
         // Endpoint doesn't exist yet, use empty array
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           loading: false,
-          servers: []
+          servers: [],
         }));
         return;
       }
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas ładowania serwerów';
-        
+        let errorMessage = "Wystąpił błąd podczas ładowania serwerów";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do przeglądania serwerów';
+            errorMessage = "Brak uprawnień do przeglądania serwerów";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
           loading: false,
-          error: errorMessage
+          error: errorMessage,
         }));
         return;
       }
 
       const data = await response.json();
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         loading: false,
-        servers: data.servers || []
+        servers: data.servers || [],
       }));
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
     }
   };
@@ -92,56 +91,56 @@ export function useServers() {
     try {
       const payload: CreateServerCommand = {};
 
-      const response = await fetch('/api/servers', {
-        method: 'POST',
+      const response = await fetch("/api/servers", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas tworzenia serwera';
-        
+        let errorMessage = "Wystąpił błąd podczas tworzenia serwera";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do tworzenia serwerów';
+            errorMessage = "Brak uprawnień do tworzenia serwerów";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           case 400:
-            errorMessage = 'Nieprawidłowe dane serwera';
+            errorMessage = "Nieprawidłowe dane serwera";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
-          error: errorMessage
+          error: errorMessage,
         }));
         setCreating(false);
         return;
       }
 
       const data: CreateServerResponseDto = await response.json();
-      
+
       // Add new server to the list
       const newServer = {
         serverId: data.serverId,
         inviteLink: data.inviteLink,
         name: undefined, // Will be set later if needed
-        ttlExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24h from now
+        ttlExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h from now
       };
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         servers: [newServer, ...prev.servers],
-        error: undefined
+        error: undefined,
       }));
 
       setCreating(false);
@@ -158,69 +157,67 @@ export function useServers() {
       } else {
         alert(`Serwer utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
       }
-      
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
       setCreating(false);
     }
   };
 
   const deleteServer = async (serverId: string) => {
-    if (!confirm('Czy na pewno chcesz usunąć ten serwer? Ta akcja jest nieodwracalna.')) {
+    if (!confirm("Czy na pewno chcesz usunąć ten serwer? Ta akcja jest nieodwracalna.")) {
       return;
     }
 
     try {
       const response = await fetch(`/api/servers/${serverId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        let errorMessage = 'Wystąpił błąd podczas usuwania serwera';
-        
+        let errorMessage = "Wystąpił błąd podczas usuwania serwera";
+
         switch (response.status) {
           case 401:
-            errorMessage = 'Brak autoryzacji. Zaloguj się ponownie';
+            errorMessage = "Brak autoryzacji. Zaloguj się ponownie";
             break;
           case 403:
-            errorMessage = 'Brak uprawnień do usuwania tego serwera';
+            errorMessage = "Brak uprawnień do usuwania tego serwera";
             break;
           case 404:
-            errorMessage = 'Serwer nie został znaleziony';
+            errorMessage = "Serwer nie został znaleziony";
             break;
           case 429:
-            errorMessage = 'Za dużo żądań. Spróbuj ponownie później';
+            errorMessage = "Za dużo żądań. Spróbuj ponownie później";
             break;
           default:
-            errorMessage = 'Błąd serwera. Spróbuj ponownie później';
+            errorMessage = "Błąd serwera. Spróbuj ponownie później";
         }
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
-          error: errorMessage
+          error: errorMessage,
         }));
         return;
       }
 
       // Remove server from the list
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        servers: prev.servers.filter(server => server.serverId !== serverId),
-        error: undefined
+        servers: prev.servers.filter((server) => server.serverId !== serverId),
+        error: undefined,
       }));
 
-      alert('Serwer został usunięty pomyślnie');
-      
+      alert("Serwer został usunięty pomyślnie");
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Błąd połączenia. Sprawdź połączenie internetowe'
+        error: "Błąd połączenia. Sprawdź połączenie internetowe",
       }));
     }
   };
@@ -232,6 +229,6 @@ export function useServers() {
     creating,
     loadServers,
     createServer,
-    deleteServer
+    deleteServer,
   };
 }

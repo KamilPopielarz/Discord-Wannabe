@@ -1,10 +1,10 @@
-import React from 'react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { ErrorBanner } from '../ui/ErrorBanner';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import type { LoginCommand } from '../../types';
+import React from "react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { ErrorBanner } from "../ui/ErrorBanner";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import type { LoginCommand } from "../../types";
 
 interface LoginFormProps {
   onSubmit: (payload: LoginCommand) => void;
@@ -16,34 +16,32 @@ interface LoginFormProps {
   onPasswordChange: (password: string) => void;
 }
 
-export function LoginForm({ 
-  onSubmit, 
-  loading, 
-  error, 
-  email, 
-  password, 
-  onEmailChange, 
-  onPasswordChange 
+export function LoginForm({
+  onSubmit,
+  loading,
+  error,
+  email,
+  password,
+  onEmailChange,
+  onPasswordChange,
 }: LoginFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({ email, password });
   };
 
-  const isFormValid = email.trim() !== '' && password.trim() !== '';
+  const isFormValid = email.trim() !== "" && password.trim() !== "";
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">Logowanie</CardTitle>
-        <CardDescription className="text-center">
-          Wprowadź swoje dane, aby się zalogować
-        </CardDescription>
+        <CardDescription className="text-center">Wprowadź swoje dane, aby się zalogować</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <ErrorBanner error={error} className="mb-4" />
-          
+
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               E-mail
@@ -78,18 +76,14 @@ export function LoginForm({
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={loading || !isFormValid}
-          >
+          <Button type="submit" className="w-full" disabled={loading || !isFormValid}>
             {loading ? (
               <>
                 <LoadingSpinner size="sm" className="mr-2" />
                 Logowanie...
               </>
             ) : (
-              'Zaloguj się'
+              "Zaloguj się"
             )}
           </Button>
 

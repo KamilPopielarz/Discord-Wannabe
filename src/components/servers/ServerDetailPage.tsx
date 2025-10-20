@@ -1,29 +1,22 @@
-import React from 'react';
-import { RoomList } from './RoomList';
-import { CreateRoomModal } from './CreateRoomModal';
-import { ThemeToggle } from '../ui/ThemeToggle';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { ArrowLeft, Clock } from 'lucide-react';
-import { useServerRooms } from '../../lib/hooks/useServerRooms';
+import React from "react";
+import { RoomList } from "./RoomList";
+import { CreateRoomModal } from "./CreateRoomModal";
+import { ThemeToggle } from "../ui/ThemeToggle";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { ArrowLeft, Clock } from "lucide-react";
+import { useServerRooms } from "../../lib/hooks/useServerRooms";
 
 interface ServerDetailPageProps {
   inviteLink?: string;
 }
 
 export function ServerDetailPage({ inviteLink }: ServerDetailPageProps) {
-  const { 
-    state, 
-    createModalOpen, 
-    setCreateModalOpen, 
-    creating, 
-    loadRooms, 
-    createRoom, 
-    deleteRoom 
-  } = useServerRooms(inviteLink);
+  const { state, createModalOpen, setCreateModalOpen, creating, loadRooms, createRoom, deleteRoom } =
+    useServerRooms(inviteLink);
 
   const goBack = () => {
-    window.location.href = '/servers';
+    window.location.href = "/servers";
   };
 
   const serverExpiresAt = state.serverInfo?.ttlExpiresAt ? new Date(state.serverInfo.ttlExpiresAt) : null;
@@ -50,7 +43,12 @@ export function ServerDetailPage({ inviteLink }: ServerDetailPageProps) {
         <div className="text-center max-w-md p-6">
           <div className="mx-auto w-24 h-24 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
             <svg className="w-12 h-12 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
             </svg>
           </div>
           <h1 className="text-2xl font-bold mb-2">Błąd ładowania serwera</h1>
@@ -79,7 +77,9 @@ export function ServerDetailPage({ inviteLink }: ServerDetailPageProps) {
                 <h1 className="text-2xl font-bold flex items-center">
                   {state.serverInfo?.name || `Serwer ${state.serverInfo?.serverId?.slice(-6)}`}
                   {isServerExpired ? (
-                    <Badge variant="destructive" className="ml-2">Wygasł</Badge>
+                    <Badge variant="destructive" className="ml-2">
+                      Wygasł
+                    </Badge>
                   ) : (
                     <Badge variant="secondary" className="ml-2">
                       <Clock className="h-3 w-3 mr-1" />
@@ -116,9 +116,7 @@ export function ServerDetailPage({ inviteLink }: ServerDetailPageProps) {
               <Clock className="w-12 h-12 text-destructive" />
             </div>
             <h2 className="text-xl font-bold mb-2">Serwer wygasł</h2>
-            <p className="text-muted-foreground mb-4">
-              Ten serwer wygasł {serverExpiresAt?.toLocaleString('pl-PL')}
-            </p>
+            <p className="text-muted-foreground mb-4">Ten serwer wygasł {serverExpiresAt?.toLocaleString("pl-PL")}</p>
             <Button onClick={goBack}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Powrót do serwerów

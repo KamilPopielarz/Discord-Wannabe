@@ -1,12 +1,6 @@
-import React from 'react';
-import { Button } from '../ui/button';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ChevronsLeft, 
-  ChevronsRight,
-  RefreshCw 
-} from 'lucide-react';
+import React from "react";
+import { Button } from "../ui/button";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw } from "lucide-react";
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -17,13 +11,13 @@ interface PaginationControlsProps {
   totalPages?: number;
 }
 
-export function PaginationControls({ 
-  currentPage, 
-  hasNextPage, 
-  onPageChange, 
+export function PaginationControls({
+  currentPage,
+  hasNextPage,
+  onPageChange,
   onRefresh,
   loading,
-  totalPages 
+  totalPages,
 }: PaginationControlsProps) {
   const hasPreviousPage = currentPage > 1;
 
@@ -54,13 +48,8 @@ export function PaginationControls({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onRefresh}
-          disabled={loading}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+        <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           Odśwież
         </Button>
       </div>

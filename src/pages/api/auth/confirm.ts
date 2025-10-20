@@ -13,8 +13,8 @@ const ConfirmEmailSchema = z.object({
 // GET handler for easy link-based confirmation
 export const GET: APIRoute = async ({ url, locals }) => {
   try {
-    const token = url.searchParams.get('token');
-    
+    const token = url.searchParams.get("token");
+
     if (!token) {
       return new Response(
         `<html><body><h1>❌ Missing Token</h1><p>No confirmation token provided in URL.</p></body></html>`,
@@ -48,7 +48,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
       } else if (err instanceof TokenExpiredError) {
         errorMessage = "Confirmation token has expired";
       }
-      
+
       return new Response(
         `<html><body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
           <h1 style="color: red;">❌ Confirmation Failed</h1>
@@ -60,10 +60,10 @@ export const GET: APIRoute = async ({ url, locals }) => {
     }
   } catch (error) {
     console.error("Email confirmation error:", error);
-    return new Response(
-      `<html><body><h1>❌ Server Error</h1><p>Internal server error occurred.</p></body></html>`,
-      { status: 500, headers: { "Content-Type": "text/html" } }
-    );
+    return new Response(`<html><body><h1>❌ Server Error</h1><p>Internal server error occurred.</p></body></html>`, {
+      status: 500,
+      headers: { "Content-Type": "text/html" },
+    });
   }
 };
 

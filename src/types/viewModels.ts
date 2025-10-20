@@ -1,6 +1,6 @@
 // src/types/viewModels.ts
 
-import type { MessageDto, AuditLogDto } from '../types';
+import type { MessageDto, AuditLogDto } from "../types";
 
 // Auth ViewModels
 export interface AuthViewModel {
@@ -26,19 +26,19 @@ export interface GuestJoinViewModel {
 
 // Servers ViewModels
 export interface ServersViewModel {
-  servers: Array<{
+  servers: {
     serverId: string;
     inviteLink: string;
     name?: string;
     ttlExpiresAt: string;
-  }>;
+  }[];
   loading: boolean;
   error?: string;
 }
 
 // Rooms ViewModels
 export interface RoomsViewModel {
-  rooms: Array<{
+  rooms: {
     roomId: string;
     name: string;
     inviteLink: string;
@@ -46,7 +46,7 @@ export interface RoomsViewModel {
     isPermanent?: boolean;
     createdAt?: string;
     lastActivity?: string;
-  }>;
+  }[];
   loading: boolean;
   error?: string;
 }

@@ -45,25 +45,28 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     const supabase = locals.supabase;
     const userId = locals.userId;
     const sessionId = locals.sessionId;
-    
-    console.log('API Messages GET - locals:', { userId, sessionId, hasSupabase: !!supabase });
+
+    console.log("API Messages GET - locals:", { userId, sessionId, hasSupabase: !!supabase });
 
     if (!supabase) {
       // Mock mode - return empty messages list
       console.log("Mock mode: Returning empty messages for room:", roomId);
-      return new Response(JSON.stringify({ 
-        messages: [],
-        nextPage: undefined
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          messages: [],
+          nextPage: undefined,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Check if user/guest has access to this room
     let hasAccess = false;
-    
-    console.log('POST Messages - Access check:', { userId, sessionId, roomId });
+
+    console.log("POST Messages - Access check:", { userId, sessionId, roomId });
 
     if (userId) {
       // Check user room membership first
@@ -74,11 +77,11 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
         .eq("room_id", roomId)
         .single();
 
-      console.log('POST Messages - Membership check:', { membership, membershipError });
+      console.log("POST Messages - Membership check:", { membership, membershipError });
 
       if (membership) {
         hasAccess = true;
-        console.log('POST Messages - Access granted via membership');
+        console.log("POST Messages - Access granted via membership");
       } else {
         // If no direct membership, check if user can access via valid invite link
         // This allows users to access rooms through invite links without being explicitly added to user_room
@@ -87,30 +90,31 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
           .select("expires_at, max_uses, uses, revoked")
           .eq("room_id", roomId);
 
-        console.log('POST Messages - Invitations check:', { invitations, invitationsError });
+        console.log("POST Messages - Invitations check:", { invitations, invitationsError });
 
         // Check if there's any valid invitation for this room
-        const validInvitation = invitations?.find(invitation => 
-          !invitation.revoked && 
-          (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
-          (!invitation.max_uses || invitation.uses < invitation.max_uses)
+        const validInvitation = invitations?.find(
+          (invitation) =>
+            !invitation.revoked &&
+            (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
+            (!invitation.max_uses || invitation.uses < invitation.max_uses)
         );
 
-        console.log('POST Messages - Valid invitation found:', !!validInvitation);
+        console.log("POST Messages - Valid invitation found:", !!validInvitation);
 
         if (validInvitation) {
           hasAccess = true;
-          console.log('POST Messages - Access granted via invitation');
+          console.log("POST Messages - Access granted via invitation");
         }
       }
     } else if (sessionId) {
       // For guests, check if they have a valid session
       // Guests can access rooms through server invites
       hasAccess = true; // Middleware already validated guest session
-      console.log('POST Messages - Access granted for guest session');
+      console.log("POST Messages - Access granted for guest session");
     }
-    
-    console.log('POST Messages - Final access decision:', hasAccess);
+
+    console.log("POST Messages - Final access decision:", hasAccess);
 
     if (!hasAccess) {
       return new Response(JSON.stringify({ error: "Access denied to this room" }), {
@@ -122,9 +126,11 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     // Build query with user/session info for author names
     let query = supabase
       .from("messages")
-      .select(`
+      .select(
+        `
         id, user_id, session_id, content, metadata, created_at
-      `)
+      `
+      )
       .eq("room_id", roomId)
       .order("created_at", { ascending: false });
 
@@ -154,70 +160,84 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     const hasNextPage = offset + limit < totalMessages;
 
     // Process messages to add author names
-    console.log('Processing messages - locals info:', { userId, username: locals.username, sessionId, guestNick: locals.guestNick });
-    const processedMessages = await Promise.all((messages || []).map(async (message: any) => {
-      let authorName = 'Nieznany';
-      
-      if (message.user_id) {
-        console.log('Processing message from user:', message.user_id, 'current user:', userId, 'username in locals:', locals.username);
-        // If this is the current user's message, use username from locals
-        if (message.user_id === userId && locals.username) {
-          console.log('Using username from locals:', locals.username);
-          authorName = locals.username;
-        } else {
-          // Try to get username from auth.users metadata for other users
-          try {
-            if (supabaseAdminClient) {
-              const { data: userData } = await supabaseAdminClient.auth.admin.getUserById(message.user_id);
-              if (userData.user?.user_metadata?.username) {
-                authorName = userData.user.user_metadata.username;
-              } else if (userData.user?.email) {
-                // Fallback: use email as username
-                authorName = userData.user.email.split('@')[0];
+    console.log("Processing messages - locals info:", {
+      userId,
+      username: locals.username,
+      sessionId,
+      guestNick: locals.guestNick,
+    });
+    const processedMessages = await Promise.all(
+      (messages || []).map(async (message: any) => {
+        let authorName = "Nieznany";
+
+        if (message.user_id) {
+          console.log(
+            "Processing message from user:",
+            message.user_id,
+            "current user:",
+            userId,
+            "username in locals:",
+            locals.username
+          );
+          // If this is the current user's message, use username from locals
+          if (message.user_id === userId && locals.username) {
+            console.log("Using username from locals:", locals.username);
+            authorName = locals.username;
+          } else {
+            // Try to get username from auth.users metadata for other users
+            try {
+              if (supabaseAdminClient) {
+                const { data: userData } = await supabaseAdminClient.auth.admin.getUserById(message.user_id);
+                if (userData.user?.user_metadata?.username) {
+                  authorName = userData.user.user_metadata.username;
+                } else if (userData.user?.email) {
+                  // Fallback: use email as username
+                  authorName = userData.user.email.split("@")[0];
+                } else {
+                  authorName = `Użytkownik ${message.user_id.slice(-6)}`;
+                }
               } else {
                 authorName = `Użytkownik ${message.user_id.slice(-6)}`;
               }
-            } else {
+            } catch (error) {
               authorName = `Użytkownik ${message.user_id.slice(-6)}`;
             }
-          } catch (error) {
-            authorName = `Użytkownik ${message.user_id.slice(-6)}`;
           }
-        }
-      } else if (message.session_id) {
-        // If this is the current guest's message, use guestNick from locals
-        if (message.session_id === sessionId && locals.guestNick) {
-          authorName = locals.guestNick;
-        } else {
-          // Try to get guest nick from sessions table for other guests
-          try {
-            const { data: sessionData } = await supabase
-              .from("sessions")
-              .select("guest_nick")
-              .eq("session_id", message.session_id)
-              .single();
-            
-            if (sessionData?.guest_nick) {
-              authorName = sessionData.guest_nick;
-            } else {
+        } else if (message.session_id) {
+          // If this is the current guest's message, use guestNick from locals
+          if (message.session_id === sessionId && locals.guestNick) {
+            authorName = locals.guestNick;
+          } else {
+            // Try to get guest nick from sessions table for other guests
+            try {
+              const { data: sessionData } = await supabase
+                .from("sessions")
+                .select("guest_nick")
+                .eq("session_id", message.session_id)
+                .single();
+
+              if (sessionData?.guest_nick) {
+                authorName = sessionData.guest_nick;
+              } else {
+                authorName = `Gość ${message.session_id.slice(-6)}`;
+              }
+            } catch (error) {
               authorName = `Gość ${message.session_id.slice(-6)}`;
             }
-          } catch (error) {
-            authorName = `Gość ${message.session_id.slice(-6)}`;
           }
         }
-      }
 
-      return {
-        id: message.id,
-        userId: message.user_id,
-        sessionId: message.session_id,
-        content: message.content,
-        metadata: message.metadata,
-        createdAt: message.created_at,
-        authorName: authorName
-      };
-    }));
+        return {
+          id: message.id,
+          userId: message.user_id,
+          sessionId: message.session_id,
+          content: message.content,
+          metadata: message.metadata,
+          createdAt: message.created_at,
+          authorName: authorName,
+        };
+      })
+    );
 
     const response: ListMessagesResponseDto = {
       messages: processedMessages,
@@ -285,25 +305,28 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     const supabase = locals.supabase;
     const userId = locals.userId;
     const sessionId = locals.sessionId;
-    
-    console.log('API Messages POST - locals:', { userId, sessionId, hasSupabase: !!supabase });
+
+    console.log("API Messages POST - locals:", { userId, sessionId, hasSupabase: !!supabase });
 
     if (!supabase) {
       // Mock mode - simulate successful message send
       console.log("Mock mode: Simulating message send for user:", userId, "room:", roomId, "content:", content);
-      return new Response(JSON.stringify({ 
-        id: Date.now(),
-        created_at: new Date().toISOString()
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          id: Date.now(),
+          created_at: new Date().toISOString(),
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Check if user/guest has access to this room
     let hasAccess = false;
-    
-    console.log('POST Messages - Access check:', { userId, sessionId, roomId });
+
+    console.log("POST Messages - Access check:", { userId, sessionId, roomId });
 
     if (userId) {
       // Check user room membership first
@@ -314,11 +337,11 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
         .eq("room_id", roomId)
         .single();
 
-      console.log('POST Messages - Membership check:', { membership, membershipError });
+      console.log("POST Messages - Membership check:", { membership, membershipError });
 
       if (membership) {
         hasAccess = true;
-        console.log('POST Messages - Access granted via membership');
+        console.log("POST Messages - Access granted via membership");
       } else {
         // If no direct membership, check if user can access via valid invite link
         // This allows users to access rooms through invite links without being explicitly added to user_room
@@ -327,29 +350,30 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
           .select("expires_at, max_uses, uses, revoked")
           .eq("room_id", roomId);
 
-        console.log('POST Messages - Invitations check:', { invitations, invitationsError });
+        console.log("POST Messages - Invitations check:", { invitations, invitationsError });
 
         // Check if there's any valid invitation for this room
-        const validInvitation = invitations?.find(invitation => 
-          !invitation.revoked && 
-          (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
-          (!invitation.max_uses || invitation.uses < invitation.max_uses)
+        const validInvitation = invitations?.find(
+          (invitation) =>
+            !invitation.revoked &&
+            (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
+            (!invitation.max_uses || invitation.uses < invitation.max_uses)
         );
 
-        console.log('POST Messages - Valid invitation found:', !!validInvitation);
+        console.log("POST Messages - Valid invitation found:", !!validInvitation);
 
         if (validInvitation) {
           hasAccess = true;
-          console.log('POST Messages - Access granted via invitation');
+          console.log("POST Messages - Access granted via invitation");
         }
       }
     } else if (sessionId) {
       // For guests, check if they have a valid session
       hasAccess = true; // Middleware already validated guest session
-      console.log('POST Messages - Access granted for guest session');
+      console.log("POST Messages - Access granted for guest session");
     }
-    
-    console.log('POST Messages - Final access decision:', hasAccess);
+
+    console.log("POST Messages - Final access decision:", hasAccess);
 
     if (!hasAccess) {
       return new Response(JSON.stringify({ error: "Access denied to this room" }), {

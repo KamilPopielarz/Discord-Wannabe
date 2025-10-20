@@ -1,6 +1,6 @@
-import React from 'react';
-import { Alert, AlertDescription } from './alert';
-import { AlertCircle } from 'lucide-react';
+import React from "react";
+import { Alert, AlertDescription } from "./alert";
+import { AlertCircle } from "lucide-react";
 
 interface ErrorBannerProps {
   error?: string;
