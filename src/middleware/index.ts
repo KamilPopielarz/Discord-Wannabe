@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { supabaseClient, supabaseAdminClient } from "../db/supabase.client.ts";
+import { supabaseClient } from "../db/supabase.client.ts";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Add Supabase client to locals (can be null in development)
@@ -62,7 +62,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (sessionId) {
         const { data: userSession, error: sessionError } = await supabase
           .from("auth_sessions")
-          .select("user_id, expires_at")
+          .select("user_id, expires_at, username")
           .eq("session_id", sessionId)
           .single();
 
@@ -72,25 +72,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
             context.locals.userId = userSession.user_id;
             context.locals.sessionId = sessionId;
 
-            // Try to get username from auth.users metadata using admin client
-
-            try {
-              if (supabaseAdminClient) {
-                const { data: userData } = await supabaseAdminClient.auth.admin.getUserById(userSession.user_id);
-                // getUserById result logged in development mode only
-                if (userData.user?.user_metadata?.username) {
-                  context.locals.username = userData.user.user_metadata.username;
-                } else {
-                  // Fallback: use email as username (temporary solution)
-                  if (userData.user?.email) {
-                    context.locals.username = userData.user.email.split("@")[0];
-                  }
-                }
-              } else {
-                // Fallback: use user ID as username when admin client is not available
-                context.locals.username = `User-${userSession.user_id.slice(-6)}`;
-              }
-            } catch {
+            // Try to get username from session first (new approach)
+            if (userSession.username) {
+              context.locals.username = userSession.username;
+            } else {
               // Fallback: use user ID as username
               context.locals.username = `User-${userSession.user_id.slice(-6)}`;
             }

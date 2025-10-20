@@ -45,12 +45,14 @@ export class AuthService {
 
         if (updateError) {
           // Don't throw error here, user is still created
+          // eslint-disable-next-line no-console
+          console.log("Warning: Failed to update user metadata:", updateError.message);
         }
-      } else {
-        // No admin client available for updating user metadata
       }
-    } catch {
+    } catch (error) {
       // Don't throw error here, user is still created
+      // eslint-disable-next-line no-console
+      console.log("Warning: Error updating user metadata:", (error as Error).message);
     }
 
     // ✅ Skip email confirmation token generation - not needed anymore
@@ -115,8 +117,18 @@ export class AuthService {
     }
     const userId = signInData.user.id;
 
-    // Create custom session in your auth_sessions table
-    const sessionId = await this.createUserSession(userId);
+    // Extract username from user metadata or email as fallback
+    let username: string | undefined;
+    if (signInData.user.user_metadata?.username) {
+      username = signInData.user.user_metadata.username;
+    } else if (signInData.user.email) {
+      username = signInData.user.email.split("@")[0];
+    } else {
+      username = `User-${userId.slice(-6)}`;
+    }
+
+    // Create custom session in your auth_sessions table with username
+    const sessionId = await this.createUserSession(userId, username);
     return { userId, sessionId };
   }
 
@@ -239,7 +251,7 @@ export class AuthService {
   /**
    * Create user session
    */
-  private async createUserSession(userId: string): Promise<string> {
+  private async createUserSession(userId: string, username?: string): Promise<string> {
     const crypto = await import("crypto");
     const sessionId = crypto.randomUUID();
     const accessToken = crypto.randomBytes(32).toString("hex");
@@ -253,6 +265,7 @@ export class AuthService {
       access_token: accessToken,
       refresh_token: refreshToken,
       expires_at: expiresAt.toISOString(),
+      username: username || null,
     });
 
     if (error) {

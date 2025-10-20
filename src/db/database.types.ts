@@ -58,6 +58,7 @@ export interface Database {
           refresh_token: string;
           session_id: string;
           user_id: string;
+          username: string | null;
         };
         Insert: {
           access_token: string;
@@ -66,6 +67,7 @@ export interface Database {
           refresh_token: string;
           session_id?: string;
           user_id: string;
+          username?: string | null;
         };
         Update: {
           access_token?: string;
@@ -74,6 +76,7 @@ export interface Database {
           refresh_token?: string;
           session_id?: string;
           user_id?: string;
+          username?: string | null;
         };
         Relationships: [];
       };
