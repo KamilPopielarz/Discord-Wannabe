@@ -1,4 +1,5 @@
 import type { DatabaseSupabaseClient as SupabaseClient } from "../../db/supabase.client.ts";
+import { supabaseAdminClient } from "../../db/supabase.client.ts";
 import type {
   RegisterUserCommand,
   RegisterUserResponseDto,
@@ -30,21 +31,37 @@ export class AuthService {
     });
 
     if (signUpError || !authData.user) {
-      throw new DatabaseError("Failed to create user account");
+      console.error("Supabase signUp error:", signUpError);
+      console.error("Auth data:", authData);
+      throw new DatabaseError(`Failed to create user account: ${signUpError?.message || "Unknown error"}`);
     }
 
     const userId = authData.user.id;
 
     // Update user metadata with username using admin API
     try {
-      const { error: updateError } = await this.supabase.auth.admin.updateUserById(userId, {
-        user_metadata: { username: username },
-      });
+      console.log("AuthService: Admin client available:", !!supabaseAdminClient);
+      if (supabaseAdminClient) {
+        console.log("AuthService: Updating user metadata for userId:", userId, "with username:", username);
+        const { data: updateData, error: updateError } = await supabaseAdminClient.auth.admin.updateUserById(userId, {
+          user_metadata: { username: username },
+        });
 
-      if (updateError) {
-        // Don't throw error here, user is still created
+        if (updateError) {
+          console.error("AuthService: Failed to update user metadata:", updateError);
+          // Don't throw error here, user is still created
+        } else {
+          console.log("AuthService: Successfully updated user metadata:", updateData.user?.user_metadata);
+        }
+      } else {
+        console.warn("AuthService: No admin client available for updating user metadata");
+        console.log(
+          "AuthService: Environment check - SUPABASE_SERVICE_ROLE_KEY:",
+          !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+        );
       }
-    } catch {
+    } catch (error) {
+      console.error("AuthService: Error updating user metadata:", error);
       // Don't throw error here, user is still created
     }
 
@@ -82,11 +99,15 @@ export class AuthService {
       throw new DatabaseError("Failed to update confirmation token");
     }
     // Confirm user email via Supabase Auth Admin API
-    const { error: confirmUserError } = await this.supabase.auth.admin.updateUserById(confirmation.user_id, {
-      email_confirm: true,
-    });
-    if (confirmUserError) {
-      throw new DatabaseError("Failed to confirm user email");
+    if (supabaseAdminClient) {
+      const { error: confirmUserError } = await supabaseAdminClient.auth.admin.updateUserById(confirmation.user_id, {
+        email_confirm: true,
+      });
+      if (confirmUserError) {
+        throw new DatabaseError("Failed to confirm user email");
+      }
+    } else {
+      throw new DatabaseError("Admin client not available for email confirmation");
     }
   }
 
@@ -131,7 +152,10 @@ export class AuthService {
     }
 
     // Find user via Supabase Auth Admin API
-    const { data: listResult } = await this.supabase.auth.admin.listUsers();
+    if (!supabaseAdminClient) {
+      throw new DatabaseError("Admin client not available for password reset");
+    }
+    const { data: listResult } = await supabaseAdminClient.auth.admin.listUsers();
     const found = listResult.users.find((u) => u.email === email);
     if (!found) {
       // Don't reveal if user exists - return success anyway
@@ -183,8 +207,11 @@ export class AuthService {
     }
 
     // Update password via Supabase Auth
+    if (!supabaseAdminClient) {
+      throw new DatabaseError("Admin client not available for password update");
+    }
     // prettier-ignore
-    const { error: updateError } = await this.supabase.auth.admin.updateUserById(resetToken.user_id, { password: newPassword });
+    const { error: updateError } = await supabaseAdminClient.auth.admin.updateUserById(resetToken.user_id, { password: newPassword });
 
     if (updateError) {
       throw new DatabaseError("Failed to update password");

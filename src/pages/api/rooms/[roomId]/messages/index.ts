@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import type { SendMessageCommand, SendMessageResponseDto, ListMessagesResponseDto } from "../../../../../types";
 import { SendMessageSchema, UUIDSchema, MessageQuerySchema } from "../../../../../lib/validators/auth.validators";
+import { supabaseAdminClient } from "../../../../../db/supabase.client.ts";
 
 export const prerender = false;
 
@@ -153,37 +154,57 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     const hasNextPage = offset + limit < totalMessages;
 
     // Process messages to add author names
+    console.log('Processing messages - locals info:', { userId, username: locals.username, sessionId, guestNick: locals.guestNick });
     const processedMessages = await Promise.all((messages || []).map(async (message: any) => {
       let authorName = 'Nieznany';
       
       if (message.user_id) {
-        // Try to get username from auth.users metadata
-        try {
-          const { data: userData } = await supabase.auth.admin.getUserById(message.user_id);
-          if (userData.user?.user_metadata?.username) {
-            authorName = userData.user.user_metadata.username;
-          } else {
+        console.log('Processing message from user:', message.user_id, 'current user:', userId, 'username in locals:', locals.username);
+        // If this is the current user's message, use username from locals
+        if (message.user_id === userId && locals.username) {
+          console.log('Using username from locals:', locals.username);
+          authorName = locals.username;
+        } else {
+          // Try to get username from auth.users metadata for other users
+          try {
+            if (supabaseAdminClient) {
+              const { data: userData } = await supabaseAdminClient.auth.admin.getUserById(message.user_id);
+              if (userData.user?.user_metadata?.username) {
+                authorName = userData.user.user_metadata.username;
+              } else if (userData.user?.email) {
+                // Fallback: use email as username
+                authorName = userData.user.email.split('@')[0];
+              } else {
+                authorName = `Użytkownik ${message.user_id.slice(-6)}`;
+              }
+            } else {
+              authorName = `Użytkownik ${message.user_id.slice(-6)}`;
+            }
+          } catch (error) {
             authorName = `Użytkownik ${message.user_id.slice(-6)}`;
           }
-        } catch (error) {
-          authorName = `Użytkownik ${message.user_id.slice(-6)}`;
         }
       } else if (message.session_id) {
-        // Try to get guest nick from sessions table
-        try {
-          const { data: sessionData } = await supabase
-            .from("sessions")
-            .select("guest_nick")
-            .eq("session_id", message.session_id)
-            .single();
-          
-          if (sessionData?.guest_nick) {
-            authorName = sessionData.guest_nick;
-          } else {
+        // If this is the current guest's message, use guestNick from locals
+        if (message.session_id === sessionId && locals.guestNick) {
+          authorName = locals.guestNick;
+        } else {
+          // Try to get guest nick from sessions table for other guests
+          try {
+            const { data: sessionData } = await supabase
+              .from("sessions")
+              .select("guest_nick")
+              .eq("session_id", message.session_id)
+              .single();
+            
+            if (sessionData?.guest_nick) {
+              authorName = sessionData.guest_nick;
+            } else {
+              authorName = `Gość ${message.session_id.slice(-6)}`;
+            }
+          } catch (error) {
             authorName = `Gość ${message.session_id.slice(-6)}`;
           }
-        } catch (error) {
-          authorName = `Gość ${message.session_id.slice(-6)}`;
         }
       }
 

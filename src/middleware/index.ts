@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { supabaseClient } from "../db/supabase.client.ts";
+import { supabaseClient, supabaseAdminClient } from "../db/supabase.client.ts";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Add Supabase client to locals (can be null in development)
@@ -78,6 +78,48 @@ export const onRequest = defineMiddleware(async (context, next) => {
           if (new Date(userSession.expires_at) > new Date()) {
             context.locals.userId = userSession.user_id;
             context.locals.sessionId = sessionId;
+
+            // Try to get username from auth.users metadata using admin client
+            console.log("Middleware: Admin client available:", !!supabaseAdminClient);
+            console.log("Middleware: Environment vars:", {
+              SUPABASE_SERVICE_ROLE_KEY: !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+              SUPABASE_URL: !!import.meta.env.SUPABASE_URL,
+            });
+
+            try {
+              if (supabaseAdminClient) {
+                const { data: userData, error: getUserError } = await supabaseAdminClient.auth.admin.getUserById(
+                  userSession.user_id
+                );
+                console.log("Middleware: getUserById result:", {
+                  userData: userData.user,
+                  metadata: userData.user?.user_metadata,
+                  error: getUserError,
+                });
+                if (userData.user?.user_metadata?.username) {
+                  context.locals.username = userData.user.user_metadata.username;
+                  console.log("Middleware: Set username in locals:", userData.user.user_metadata.username);
+                } else {
+                  console.log("Middleware: No username found in user_metadata");
+                  // Fallback: use email as username (temporary solution)
+                  if (userData.user?.email) {
+                    context.locals.username = userData.user.email.split("@")[0];
+                    console.log("Middleware: Using email as fallback username:", context.locals.username);
+                  }
+                }
+              } else {
+                console.log("Middleware: No admin client available for getUserById");
+                // Fallback: use user ID as username when admin client is not available
+                context.locals.username = `User-${userSession.user_id.slice(-6)}`;
+                console.log("Middleware: Using fallback username:", context.locals.username);
+              }
+            } catch (error) {
+              console.log("Failed to get username from metadata:", error);
+              // Fallback: use user ID as username
+              context.locals.username = `User-${userSession.user_id.slice(-6)}`;
+              console.log("Middleware: Using error fallback username:", context.locals.username);
+            }
+
             isAuthenticated = true;
           } else {
             // Clean up expired session
@@ -134,6 +176,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         pathname: context.url.pathname,
         userId: context.locals.userId,
         sessionId: context.locals.sessionId,
+        username: context.locals.username,
         guestNick: context.locals.guestNick,
       });
     }

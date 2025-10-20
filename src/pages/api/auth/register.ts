@@ -65,9 +65,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     try {
+      console.log('Register API: Starting registration for email:', email, 'username:', username);
+      console.log('Register API: Supabase client available:', !!supabase);
+      
       // Delegate registration to AuthService
       const authService = new AuthService(supabase);
       const { userId } = await authService.registerUser({ email, password, username });
+      
+      console.log('Register API: Registration successful for userId:', userId);
       return new Response(JSON.stringify({ userId }), {
         status: 201,
         headers: { "Content-Type": "application/json" },
