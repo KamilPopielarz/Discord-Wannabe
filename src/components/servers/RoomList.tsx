@@ -25,19 +25,25 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
   if (loading && rooms.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <LoadingSpinner size="lg" className="mb-4" />
-        <p className="text-muted-foreground">Ładowanie pokoi...</p>
+        <LoadingSpinner size="lg" className="mb-4 matrix-spinner" />
+        <p className="text-muted-foreground matrix-text">SKANOWANIE POKOI...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Pokoje ({rooms.length})</h2>
-        <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
+        <h2 className="text-xl font-semibold matrix-title">AKTYWNE POKOJE ({rooms.length})</h2>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onRefresh} 
+          disabled={loading}
+          className="matrix-button"
+        >
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-          Odśwież
+          ODŚWIEŻ
         </Button>
       </div>
 
@@ -45,8 +51,8 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
 
       {rooms.length === 0 ? (
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-            <svg className="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto w-24 h-24 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-12 h-12 text-matrix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -55,13 +61,13 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium mb-2">Brak pokoi</h3>
-          <p className="text-muted-foreground mb-4">
-            Ten serwer nie ma jeszcze żadnych pokoi. Utwórz pierwszy pokój, aby rozpocząć rozmowy!
+          <h3 className="text-lg font-medium mb-2 matrix-title">BRAK AKTYWNYCH POKOI</h3>
+          <p className="text-muted-foreground mb-4 matrix-text">
+            Serwer nie posiada żadnych pokoi komunikacyjnych. Zainicjuj pierwszy pokój.
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {rooms.map((room) => (
             <RoomCard key={room.roomId} room={room} onDelete={onDeleteRoom} />
           ))}

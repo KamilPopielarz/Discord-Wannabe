@@ -40,62 +40,96 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg flex items-center">
-              {room.name}
-              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-muted-foreground" />}
+            <CardTitle className="text-lg flex items-center matrix-title">
+              {room.name.toUpperCase()}
+              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-matrix-green" />}
               {room.isPermanent && (
-                <Badge variant="outline" className="ml-2 text-xs">
-                  24h
+                <Badge variant="outline" className="ml-2 text-xs bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                  24H
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>ID: {room.roomId.slice(-8)}</CardDescription>
+            <CardDescription className="matrix-text">
+              ROOM: {room.roomId.slice(-8).toUpperCase()}
+            </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
             {room.requiresPassword ? (
-              <Badge variant="secondary">Chroniony hasłem</Badge>
+              <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                SECURED
+              </Badge>
             ) : (
-              <Badge variant="outline">Publiczny</Badge>
+              <Badge variant="outline" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                PUBLIC
+              </Badge>
             )}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="text-sm text-muted-foreground">
-          <p>
-            Link: <code className="text-xs bg-muted px-1 py-0.5 rounded">{room.inviteLink}</code>
+      <CardContent className="space-y-4">
+        <div className="text-sm text-muted-foreground matrix-text">
+          <p className="flex items-center space-x-2">
+            <span>LINK:</span>
+            <code className="text-xs bg-matrix-green/10 border border-matrix-green/30 px-2 py-1 rounded font-mono text-matrix-green">
+              {room.inviteLink}
+            </code>
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="default" size="sm" onClick={() => joinRoom("chat")} className="flex items-center">
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={() => joinRoom("chat")} 
+            className="flex items-center matrix-button"
+          >
             <MessageCircle className="h-4 w-4 mr-2" />
-            Czat
+            CHAT
           </Button>
 
-          <Button variant="outline" size="sm" onClick={() => joinRoom("voice")} className="flex items-center">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => joinRoom("voice")} 
+            className="flex items-center matrix-button"
+          >
             <Mic className="h-4 w-4 mr-2" />
-            Głos
+            VOICE
           </Button>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={openRoomJoin} className="flex-1 min-w-0">
-            Dołącz przez link
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={openRoomJoin} 
+            className="flex-1 min-w-0 matrix-button"
+          >
+            JOIN VIA LINK
           </Button>
 
-          <Button variant="outline" size="sm" onClick={copyInviteLink}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={copyInviteLink}
+            className="matrix-button"
+          >
             <Copy className="h-4 w-4 mr-2" />
-            Kopiuj
+            COPY
           </Button>
 
-          <Button variant="destructive" size="sm" onClick={() => onDelete(room.roomId)}>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={() => onDelete(room.roomId)}
+            className="hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
+          >
             <Trash2 className="h-4 w-4 mr-2" />
-            Usuń
+            DELETE
           </Button>
         </div>
       </CardContent>
