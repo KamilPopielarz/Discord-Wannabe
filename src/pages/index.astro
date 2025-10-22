@@ -1,57 +1,65 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { ThemeToggle } from "../components/ui/ThemeToggle";
+import { MatrixBackground } from "../components/ui/MatrixBackground";
+import { GlitchText } from "../components/ui/GlitchText";
+import { TypingAnimation } from "../components/ui/TypingAnimation";
 ---
 
 <Layout title="Discord Wannabe - Komunikator">
-  <main
-    class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 flex items-center justify-center p-4"
-  >
-    <div
-      class="max-w-md w-full backdrop-blur-xl bg-gradient-to-b from-white/10 to-white/5 rounded-2xl shadow-2xl p-8 text-white border border-white/10"
-    >
-      <div class="text-center space-y-6">
-        <div>
-          <h1
-            class="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 text-transparent bg-clip-text"
-          >
+  <main class="relative min-h-screen flex items-center justify-center bg-background overflow-hidden p-4">
+    <!-- Animated matrix rain background -->
+    <MatrixBackground client:load />
+
+    <!-- Utilities (theme) -->
+    <div class="absolute top-4 right-4 z-20">
+      <ThemeToggle client:load />
+    </div>
+
+    <!-- Hero card -->
+    <section class="relative z-10 w-full max-w-xl">
+      <div class="matrix-form rounded-xl p-8 border">
+        <header class="text-center space-y-3 mb-6">
+          <h1 class="text-4xl md:text-5xl font-extrabold tracking-widest matrix-title">
             Discord Wannabe
           </h1>
-          <p class="text-blue-100/90">Komunikator do czatu tekstowego i rozmów głosowych</p>
-        </div>
+          <p class="text-sm md:text-base">
+            <GlitchText client:load text="Komunikator do czatu i rozmów głosowych" />
+          </p>
+        </header>
 
-        <div class="space-y-4">
-          <a
-            href="/login"
-            class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg"
-          >
+        <nav class="space-y-3" aria-label="Główne działania">
+          <a href="/login" class="matrix-button block w-full text-center py-3 px-4 rounded-md" aria-label="Przejdź do logowania">
             Zaloguj się
           </a>
-
-          <a
-            href="/register"
-            class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg"
-          >
+          <a href="/register" class="matrix-button block w-full text-center py-3 px-4 rounded-md" aria-label="Przejdź do rejestracji">
             Zarejestruj się
           </a>
-
-          <a
-            href="/guest"
-            class="block w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg"
-          >
+          <a href="/guest" class="matrix-button block w-full text-center py-3 px-4 rounded-md" aria-label="Dołącz jako gość">
             Dołącz jako gość
           </a>
-        </div>
+        </nav>
 
-        <div class="bg-white/5 rounded-lg p-4 text-sm text-blue-100/80">
-          <h3 class="font-medium mb-2">Funkcje:</h3>
-          <ul class="space-y-1 text-left">
-            <li>• Czat tekstowy w czasie rzeczywistym</li>
-            <li>• Rozmowy głosowe (WebRTC)</li>
-            <li>• Tworzenie serwerów i pokoi</li>
-            <li>• Sesje gościa (24h)</li>
-          </ul>
+        <div class="mt-8 grid grid-cols-1 gap-3 text-sm">
+          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
+            <p class="matrix-text"><TypingAnimation client:load text="• Czat tekstowy w czasie rzeczywistym" speed={30} /></p>
+          </div>
+          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
+            <p class="matrix-text">• Rozmowy głosowe (WebRTC)</p>
+          </div>
+          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
+            <p class="matrix-text">• Tworzenie serwerów i pokoi</p>
+          </div>
+          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
+            <p class="matrix-text">• Sesje gościa (24h)</p>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- Footnote CTA -->
+      <p class="mt-4 text-center text-xs matrix-text opacity-70">
+        Tip: Motyw możesz przełączyć w prawym górnym rogu.
+      </p>
+    </section>
   </main>
 </Layout>
