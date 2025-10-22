@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
+import { UserList, type RoomUser } from "./UserList";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
 import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { ArrowLeft, MessageCircle, Mic, MicOff, Volume2, VolumeX, Users } from "lucide-react";
+import { ArrowLeft, MessageCircle, Mic, MicOff, Volume2, VolumeX, Users, Settings, UserX, Shield } from "lucide-react";
 import { useChat } from "../../lib/hooks/useChat";
 import type { GetRoomResponseDto } from "../../types";
 
@@ -167,6 +168,63 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [isDeafened, setIsDeafened] = useState(false);
 
+  // Mock user data - in real app this would come from API
+  const [roomUsers, setRoomUsers] = useState<RoomUser[]>([
+    {
+      id: 'current-user',
+      username: 'Neo',
+      role: 'admin',
+      isOnline: true,
+      isInVoice: isVoiceConnected,
+      isMuted: isMuted,
+      isDeafened: isDeafened,
+      joinedAt: new Date().toISOString()
+    },
+    {
+      id: 'user-2',
+      username: 'Trinity',
+      role: 'moderator',
+      isOnline: true,
+      isInVoice: false,
+      isMuted: false,
+      isDeafened: false,
+      joinedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'user-3',
+      username: 'Morpheus',
+      role: 'owner',
+      isOnline: true,
+      isInVoice: isVoiceConnected,
+      isMuted: false,
+      isDeafened: false,
+      joinedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'user-4',
+      username: 'Agent_Smith',
+      role: 'member',
+      isOnline: false,
+      isInVoice: false,
+      isMuted: false,
+      isDeafened: false,
+      joinedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'user-5',
+      username: 'Cypher',
+      role: 'member',
+      isOnline: true,
+      isInVoice: isVoiceConnected,
+      isMuted: true,
+      isDeafened: false,
+      joinedAt: new Date(Date.now() - 45 * 60 * 1000).toISOString()
+    }
+  ]);
+
+  const currentUser = roomUsers.find(user => user.id === 'current-user');
+  const currentUserRole = currentUser?.role || 'member';
+
   const goBack = () => {
     window.history.back();
   };
@@ -196,6 +254,90 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
       setIsMuted(true); // Deafening also mutes
     }
     // TODO: Implement actual deafen logic
+  };
+
+  // Update current user's voice state when voice settings change
+  useEffect(() => {
+    setRoomUsers(prev => prev.map(user => 
+      user.id === 'current-user' 
+        ? { ...user, isInVoice: isVoiceConnected, isMuted, isDeafened }
+        : user
+    ));
+  }, [isVoiceConnected, isMuted, isDeafened]);
+
+  // Admin functions
+  const handleKickUser = async (userId: string) => {
+    try {
+      // TODO: Implement API call to kick user
+      console.log('Kicking user:', userId);
+      
+      // Remove user from room (mock implementation)
+      setRoomUsers(prev => prev.filter(user => user.id !== userId));
+      
+      // Show success message
+      alert('Użytkownik został wyrzucony z pokoju');
+    } catch (error) {
+      console.error('Error kicking user:', error);
+      alert('Błąd podczas wyrzucania użytkownika');
+    }
+  };
+
+  const handleChangeRole = async (userId: string, newRole: RoomUser['role']) => {
+    try {
+      // TODO: Implement API call to change user role
+      console.log('Changing role for user:', userId, 'to:', newRole);
+      
+      // Update user role (mock implementation)
+      setRoomUsers(prev => prev.map(user => 
+        user.id === userId ? { ...user, role: newRole } : user
+      ));
+      
+      // Show success message
+      alert(`Rola użytkownika została zmieniona`);
+    } catch (error) {
+      console.error('Error changing user role:', error);
+      alert('Błąd podczas zmiany roli użytkownika');
+    }
+  };
+
+  const handleMuteUser = async (userId: string) => {
+    try {
+      // TODO: Implement API call to mute/unmute user
+      console.log('Toggling mute for user:', userId);
+      
+      // Toggle user mute state (mock implementation)
+      setRoomUsers(prev => prev.map(user => 
+        user.id === userId ? { ...user, isMuted: !user.isMuted } : user
+      ));
+      
+      const user = roomUsers.find(u => u.id === userId);
+      alert(`Użytkownik został ${user?.isMuted ? 'odciszony' : 'wyciszony'}`);
+    } catch (error) {
+      console.error('Error muting user:', error);
+      alert('Błąd podczas zmiany stanu mikrofonu');
+    }
+  };
+
+  const handleDeafenUser = async (userId: string) => {
+    try {
+      // TODO: Implement API call to deafen/undeafen user
+      console.log('Toggling deafen for user:', userId);
+      
+      // Toggle user deafen state (mock implementation)
+      setRoomUsers(prev => prev.map(user => 
+        user.id === userId ? { 
+          ...user, 
+          isDeafened: !user.isDeafened,
+          isMuted: !user.isDeafened ? true : user.isMuted // Deafening also mutes
+        } : user
+      ));
+      
+      const user = roomUsers.find(u => u.id === userId);
+      alert(`Słuchawki użytkownika zostały ${user?.isDeafened ? 'włączone' : 'wyłączone'}`);
+    } catch (error) {
+      console.error('Error deafening user:', error);
+      alert('Błąd podczas zmiany stanu słuchawek');
+    }
   };
 
   // Show loading screen while fetching room info
@@ -309,9 +451,21 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
                 )}
               </Button>
 
+              {/* Room Settings (for admins) */}
+              {(currentUserRole === 'admin' || currentUserRole === 'owner') && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="matrix-button"
+                  title="Ustawienia pokoju"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              )}
+
               <UserMenu 
-                username="Neo" 
-                isAdmin={false} 
+                username={currentUser?.username || "Neo"} 
+                isAdmin={currentUserRole === 'admin' || currentUserRole === 'owner'} 
                 onLogout={handleLogout}
               />
               <ThemeToggle />
@@ -326,59 +480,146 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
           {view === "voice" ? (
             // Voice View
             <div className="flex-1 flex flex-col items-center justify-center p-8">
-              <div className="text-center max-w-md">
-                <div className="mx-auto w-24 h-24 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-6">
-                  <Mic className="w-12 h-12 text-matrix-green" />
+              <div className="text-center max-w-lg">
+                {/* Voice Status Indicator */}
+                <div className={`mx-auto w-32 h-32 rounded-full flex items-center justify-center mb-6 transition-all duration-300 ${
+                  isVoiceConnected 
+                    ? 'bg-matrix-green/20 border-2 border-matrix-green animate-pulse' 
+                    : 'bg-matrix-green/10 border border-matrix-green/30'
+                }`}>
+                  {isVoiceConnected ? (
+                    <div className="relative">
+                      <Mic className={`w-16 h-16 ${isMuted ? 'text-destructive' : 'text-matrix-green'}`} />
+                      {isMuted && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-20 h-1 bg-destructive rotate-45 rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Mic className="w-16 h-16 text-matrix-green/50" />
+                  )}
                 </div>
 
-                <h2 className="text-2xl font-bold mb-2 matrix-title">KANAŁ GŁOSOWY</h2>
-                <p className="text-muted-foreground mb-6 matrix-text">
-                  {isVoiceConnected
-                    ? "POŁĄCZENIE AKTYWNE - TRANSMISJA GŁOSOWA"
-                    : "KLIKNIJ ABY ZAINICJOWAĆ POŁĄCZENIE GŁOSOWE"}
-                </p>
+                <h2 className="text-3xl font-bold mb-2 matrix-title">
+                  <TypingAnimation 
+                    text="KANAŁ GŁOSOWY MATRIX" 
+                    speed={60}
+                  />
+                </h2>
+                
+                <div className="mb-6">
+                  {isVoiceConnected ? (
+                    <div className="space-y-2">
+                      <p className="text-matrix-green matrix-text font-medium">
+                        ● POŁĄCZENIE AKTYWNE - TRANSMISJA GŁOSOWA
+                      </p>
+                      <div className="flex items-center justify-center space-x-4 text-sm">
+                        <span className={`flex items-center space-x-1 ${isMuted ? 'text-destructive' : 'text-matrix-green'}`}>
+                          {isMuted ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
+                          <span>{isMuted ? 'WYCISZONY' : 'MIKROFON AKTYWNY'}</span>
+                        </span>
+                        <span className={`flex items-center space-x-1 ${isDeafened ? 'text-destructive' : 'text-matrix-green'}`}>
+                          {isDeafened ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                          <span>{isDeafened ? 'SŁUCHAWKI WYŁĄCZONE' : 'SŁUCHAWKI AKTYWNE'}</span>
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground matrix-text">
+                      KLIKNIJ ABY ZAINICJOWAĆ BEZPIECZNE POŁĄCZENIE GŁOSOWE
+                    </p>
+                  )}
+                </div>
 
+                {/* Voice Controls */}
                 <div className="flex flex-col space-y-4">
                   <Button 
                     onClick={toggleVoice} 
                     variant={isVoiceConnected ? "destructive" : "default"} 
                     size="lg"
-                    className={isVoiceConnected ? "hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20" : "matrix-button"}
+                    className={`text-lg px-8 py-4 ${
+                      isVoiceConnected 
+                        ? "bg-destructive hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/20" 
+                        : "matrix-button text-matrix-black"
+                    }`}
                   >
-                    {isVoiceConnected ? "ROZŁĄCZ TRANSMISJĘ" : "POŁĄCZ Z KANAŁEM"}
+                    {isVoiceConnected ? (
+                      <>
+                        <UserX className="h-5 w-5 mr-2" />
+                        ROZŁĄCZ TRANSMISJĘ
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="h-5 w-5 mr-2" />
+                        POŁĄCZ Z KANAŁEM
+                      </>
+                    )}
                   </Button>
 
                   {isVoiceConnected && (
-                    <div className="flex justify-center space-x-2">
+                    <div className="flex justify-center space-x-3">
                       <Button 
                         variant={isMuted ? "destructive" : "outline"} 
-                        size="sm" 
+                        size="lg" 
                         onClick={toggleMute}
-                        className={isMuted ? "hover:bg-red-600" : "matrix-button"}
+                        className={`px-6 ${
+                          isMuted 
+                            ? "bg-destructive hover:bg-destructive/90" 
+                            : "matrix-button border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                        }`}
+                        title={isMuted ? "Włącz mikrofon" : "Wyłącz mikrofon"}
                       >
-                        {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                        {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                        <span className="ml-2 hidden sm:inline">
+                          {isMuted ? 'ODCISZ' : 'WYCISZ'}
+                        </span>
                       </Button>
 
                       <Button 
                         variant={isDeafened ? "destructive" : "outline"} 
-                        size="sm" 
+                        size="lg" 
                         onClick={toggleDeafen}
-                        className={isDeafened ? "hover:bg-red-600" : "matrix-button"}
+                        className={`px-6 ${
+                          isDeafened 
+                            ? "bg-destructive hover:bg-destructive/90" 
+                            : "matrix-button border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                        }`}
+                        title={isDeafened ? "Włącz słuchawki" : "Wyłącz słuchawki"}
                       >
-                        {isDeafened ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                        {isDeafened ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                        <span className="ml-2 hidden sm:inline">
+                          {isDeafened ? 'WŁĄCZ' : 'WYŁĄCZ'}
+                        </span>
                       </Button>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-8 p-4 matrix-form rounded-lg text-sm">
-                  <p className="font-medium mb-2 matrix-title">FUNKCJE SYSTEMU:</p>
-                  <ul className="text-muted-foreground matrix-text space-y-1">
-                    <li>• TRANSMISJA GŁOSOWA W CZASIE RZECZYWISTYM</li>
-                    <li>• KONTROLA MIKROFONU</li>
-                    <li>• KONTROLA SŁUCHAWEK</li>
-                    <li>• WSKAŹNIKI AKTYWNOŚCI GŁOSOWEJ</li>
-                  </ul>
+                {/* System Info */}
+                <div className="mt-8 p-6 matrix-form rounded-lg text-sm">
+                  <p className="font-medium mb-3 matrix-title flex items-center justify-center">
+                    <Shield className="h-4 w-4 mr-2" />
+                    ZABEZPIECZENIA SYSTEMU MATRIX:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground matrix-text">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <span>SZYFROWANIE END-TO-END</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <span>KONTROLA MIKROFONU</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <span>KONTROLA SŁUCHAWEK</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <span>WSKAŹNIKI AKTYWNOŚCI</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -406,33 +647,17 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
           )}
         </div>
 
-        {/* Sidebar - Members (placeholder) */}
-        <div className="w-64 border-l border-matrix-green/20 bg-muted/30 p-4 hidden lg:block">
-          <div className="flex items-center space-x-2 mb-4">
-            <Users className="h-4 w-4 text-matrix-green" />
-            <span className="font-medium matrix-title">UŻYTKOWNICY</span>
-            <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">1</Badge>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2 p-2 rounded-md bg-background/50 matrix-form">
-              <div className="w-6 h-6 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center">
-                <span className="text-xs font-medium text-matrix-green">N</span>
-              </div>
-              <span className="text-sm matrix-text">Neo</span>
-              {isVoiceConnected && (
-                <div className="ml-auto flex space-x-1">
-                  {isMuted && <MicOff className="h-3 w-3 text-destructive" />}
-                  {isDeafened && <VolumeX className="h-3 w-3 text-destructive" />}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-6 p-3 matrix-form rounded-lg text-xs text-muted-foreground">
-            <p className="matrix-text">SYSTEM CZŁONKÓW BĘDZIE ROZSZERZONY W PRZYSZŁYCH WERSJACH</p>
-          </div>
-        </div>
+        {/* Enhanced User List */}
+        <UserList
+          users={roomUsers}
+          currentUserId="current-user"
+          currentUserRole={currentUserRole}
+          isVoiceMode={view === "voice"}
+          onKickUser={handleKickUser}
+          onChangeRole={handleChangeRole}
+          onMuteUser={handleMuteUser}
+          onDeafenUser={handleDeafenUser}
+        />
       </div>
       </div>
     </>

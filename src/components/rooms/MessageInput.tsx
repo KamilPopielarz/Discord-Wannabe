@@ -271,8 +271,8 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t bg-background p-4">
-      <form onSubmit={handleSubmit} className="space-y-2">
+    <div className="border-t border-matrix-green/20 bg-background/95 backdrop-blur p-4">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div className="relative">
           <Textarea
             ref={textareaRef}
@@ -282,7 +282,7 @@ export function MessageInput({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={`resize-none pr-12 ${isOverLimit ? "border-destructive" : ""}`}
+            className={`matrix-input resize-none pr-12 font-mono ${isOverLimit ? "border-destructive matrix-error" : ""}`}
             style={{ minHeight: "40px", maxHeight: "120px" }}
           />
 
@@ -291,7 +291,7 @@ export function MessageInput({
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-2 top-2 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+            className="absolute right-2 top-2 h-8 w-8 p-0 text-matrix-green/70 hover:text-matrix-green hover:bg-matrix-green/10 matrix-button"
             disabled={disabled}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             title="Dodaj emoji"
@@ -301,14 +301,14 @@ export function MessageInput({
 
           {/* Emoji picker */}
           {showEmojiPicker && (
-            <div className="absolute right-0 top-12 z-50 w-80 max-h-64 overflow-y-auto bg-background border rounded-lg shadow-lg p-3">
+            <div className="absolute right-0 top-12 z-50 w-80 max-h-64 overflow-y-auto matrix-form border border-matrix-green/30 rounded-lg shadow-lg p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Wybierz emoji</span>
+                <span className="text-sm font-medium matrix-title">WYBIERZ EMOJI</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 matrix-button hover:bg-matrix-green/10"
                   onClick={() => setShowEmojiPicker(false)}
                 >
                   <X className="h-3 w-3" />
@@ -321,7 +321,7 @@ export function MessageInput({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-lg hover:bg-muted"
+                    className="h-8 w-8 p-0 text-lg hover:bg-matrix-green/10 matrix-button"
                     onClick={() => addEmoji(emoji)}
                     disabled={disabled}
                   >
@@ -334,31 +334,33 @@ export function MessageInput({
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-            <span className={isNearLimit ? (isOverLimit ? "text-destructive" : "text-amber-500") : ""}>
-              {characterCount}/{maxCharacters}
+          <div className="flex items-center space-x-3 text-xs">
+            <span className={`font-mono ${isNearLimit ? (isOverLimit ? "text-destructive matrix-error" : "text-amber-500") : "text-muted-foreground"}`}>
+              [{characterCount}/{maxCharacters}]
             </span>
-            {isOverLimit && <span className="text-destructive">Wiadomość jest za długa</span>}
+            {isOverLimit && <span className="text-destructive matrix-error font-mono">PRZEKROCZONO LIMIT ZNAKÓW</span>}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <div className="text-xs text-muted-foreground">Enter - wyślij, Shift+Enter - nowa linia</div>
+          <div className="flex items-center space-x-3">
+            <div className="text-xs text-muted-foreground font-mono">
+              [ENTER] - TRANSMITUJ | [SHIFT+ENTER] - NOWA LINIA
+            </div>
 
             <Button
               type="submit"
               size="sm"
               disabled={disabled || !value.trim() || isOverLimit}
-              className="min-w-[80px]"
+              className="min-w-[100px] matrix-button font-mono tracking-wide"
             >
               {disabled ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />
-                  Wysyłanie...
+                  TRANSMISJA...
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4 mr-2" />
-                  Wyślij
+                  TRANSMITUJ
                 </>
               )}
             </Button>
