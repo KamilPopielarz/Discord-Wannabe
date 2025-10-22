@@ -175,11 +175,11 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('/api/debug/user-metadata');
+        const response = await fetch('/api/me');
         if (response.ok) {
           const userData = await response.json();
           setCurrentUserData({
-            username: userData.user_metadata?.username || userData.email?.split('@')[0] || 'Użytkownik',
+            username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
             isAdmin: false // Will be determined by actual permissions later
           });
         }
