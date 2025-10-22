@@ -6,6 +6,7 @@ interface TurnstileCaptchaProps {
   onExpire?: () => void;
   theme?: 'light' | 'dark' | 'auto';
   size?: 'normal' | 'compact';
+  disabled?: boolean;
 }
 
 declare global {
@@ -31,6 +32,7 @@ export function TurnstileCaptcha({
   onExpire,
   theme = 'auto',
   size = 'normal',
+  disabled = false,
 }: TurnstileCaptchaProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
@@ -69,5 +71,10 @@ export function TurnstileCaptcha({
     };
   }, [onVerify, onError, onExpire, theme, size]);
 
-  return <div ref={containerRef} className="turnstile-container" />;
+  return (
+    <div 
+      ref={containerRef} 
+      className={`turnstile-container ${disabled ? 'opacity-50 pointer-events-none' : ''}`} 
+    />
+  );
 }

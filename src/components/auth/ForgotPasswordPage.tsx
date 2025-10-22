@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { MatrixBackground } from '../ui/MatrixBackground';
 import type { PasswordResetRequestCommand } from '../../types';
 
 export function ForgotPasswordPage() {
@@ -35,12 +36,13 @@ export function ForgotPasswordPage() {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full min-h-screen">
+      <MatrixBackground />
       <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />
       </div>
 
-      <div className="flex items-center justify-center p-4">
+      <div className="flex items-center justify-center p-4 min-h-screen relative z-10">
         <ForgotPasswordForm
           onSubmit={handleSubmit}
           loading={loading}

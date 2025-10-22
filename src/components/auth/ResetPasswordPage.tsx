@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ResetPasswordForm } from './ResetPasswordForm';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { MatrixBackground } from '../ui/MatrixBackground';
 import type { PasswordResetConfirmCommand } from '../../types';
 
 interface ResetPasswordPageProps {
@@ -17,12 +18,15 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch(`/api/auth/reset-password?token=${encodeURIComponent(token)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          token: token,
+          newPassword: payload.newPassword
+        }),
       });
 
       if (response.ok) {
@@ -34,7 +38,7 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
         } else if (response.status === 429) {
           setError('Zbyt wiele prób. Spróbuj ponownie później');
         } else {
-          setError(errorData.message || 'Wystąpił błąd podczas zmiany hasła');
+          setError(errorData.error || errorData.message || 'Wystąpił błąd podczas zmiany hasła');
         }
       }
     } catch (err) {
@@ -45,12 +49,13 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full min-h-screen">
+      <MatrixBackground />
       <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />
       </div>
 
-      <div className="flex items-center justify-center p-4">
+      <div className="flex items-center justify-center p-4 min-h-screen relative z-10">
         <ResetPasswordForm
           onSubmit={handleSubmit}
           loading={loading}
