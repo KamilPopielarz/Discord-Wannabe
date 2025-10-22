@@ -3,6 +3,83 @@ import type { CreateServerCommand, CreateServerResponseDto } from "../../../type
 
 export const prerender = false;
 
+export const GET: APIRoute = async ({ locals }) => {
+  try {
+    const supabase = locals.supabase;
+    const userId = locals.userId;
+
+    if (!supabase) {
+      return new Response(JSON.stringify({ error: "Database connection not available" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Get servers where the user is a member
+    const { data: memberships, error: memberError } = await supabase
+      .from("user_server")
+      .select("server_id")
+      .eq("user_id", userId);
+
+    if (memberError) {
+      console.error("Failed to load memberships:", memberError);
+      return new Response(JSON.stringify({ error: "Failed to load servers" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const serverIds = (memberships ?? []).map((m) => m.server_id);
+
+    if (serverIds.length === 0) {
+      return new Response(JSON.stringify({ servers: [] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: servers, error: serversError } = await supabase
+      .from("servers")
+      .select("id, invite_link, last_activity")
+      .in("id", serverIds);
+
+    if (serversError) {
+      console.error("Failed to load servers:", serversError);
+      return new Response(JSON.stringify({ error: "Failed to load servers" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const response = {
+      servers: (servers ?? []).map((s) => ({
+        serverId: s.id,
+        inviteLink: s.invite_link,
+        name: undefined,
+        ttlExpiresAt: new Date(new Date(s.last_activity).getTime() + 24 * 60 * 60 * 1000).toISOString(),
+      })),
+    };
+
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Servers list error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
 export const POST: APIRoute = async ({ locals }) => {
   try {
     // Get Supabase client and user info from locals

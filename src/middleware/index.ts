@@ -21,6 +21,13 @@ const PUBLIC_PATHS = [
 
 export const onRequest = defineMiddleware(
   async ({ locals, cookies, url, request, redirect }, next) => {
+    // Always attach Supabase client to locals so public API routes can use it
+    const supabase = createSupabaseServerInstance({
+      cookies,
+      headers: request.headers,
+    });
+    locals.supabase = supabase;
+
     // Skip auth check for public paths
     if (PUBLIC_PATHS.some(path => url.pathname.startsWith(path))) {
       return next();
@@ -32,11 +39,6 @@ export const onRequest = defineMiddleware(
       return next();
     }
 
-    const supabase = createSupabaseServerInstance({
-      cookies,
-      headers: request.headers,
-    });
-
     // IMPORTANT: Always get user session first before any other operations
     const {
       data: { user },
@@ -47,6 +49,11 @@ export const onRequest = defineMiddleware(
         email: user.email,
         id: user.id,
       };
+      locals.userId = user.id;
+      // Derive username from user metadata (fallback to email local-part)
+      const metadataUsername = (user.user_metadata as any)?.username as string | undefined;
+      const emailFallback = user.email ? user.email.split("@")[0] : undefined;
+      locals.username = metadataUsername || emailFallback;
     } else {
       // For API routes, return 401
       if (url.pathname.startsWith('/api/')) {

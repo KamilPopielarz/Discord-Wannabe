@@ -10,6 +10,12 @@ declare global {
         email: string | undefined;
         id: string;
       };
+      // Supabase client and identifiers available to API routes
+      supabase?: SupabaseClient<Database>;
+      userId?: string;
+      sessionId?: string;
+      username?: string;
+      guestNick?: string;
     }
   }
 }
