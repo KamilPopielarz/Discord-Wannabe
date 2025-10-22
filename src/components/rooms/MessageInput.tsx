@@ -343,7 +343,7 @@ export function MessageInput({
 
           <div className="flex items-center space-x-3">
             <div className="text-xs text-muted-foreground font-mono">
-              [ENTER] - TRANSMITUJ | [SHIFT+ENTER] - NOWA LINIA
+              [ENTER] - WYŚLIJ | [SHIFT+ENTER] - NOWA LINIA
             </div>
 
             <Button
@@ -355,12 +355,12 @@ export function MessageInput({
               {disabled ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />
-                  TRANSMISJA...
+                  WYSYŁANIE...
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4 mr-2" />
-                  TRANSMITUJ
+                  WYŚLIJ
                 </>
               )}
             </Button>

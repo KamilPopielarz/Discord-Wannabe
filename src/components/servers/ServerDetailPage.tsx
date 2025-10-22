@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { RoomList } from "./RoomList";
 import { CreateRoomModal } from "./CreateRoomModal";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -17,6 +17,33 @@ interface ServerDetailPageProps {
 export function ServerDetailPage({ inviteLink }: ServerDetailPageProps) {
   const { state, createModalOpen, setCreateModalOpen, creating, loadRooms, createRoom, deleteRoom } =
     useServerRooms(inviteLink);
+
+  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(null);
+  
+  // Get current user data from server
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/debug/user-metadata');
+        if (response.ok) {
+          const userData = await response.json();
+          setCurrentUserData({
+            username: userData.user_metadata?.username || userData.email?.split('@')[0] || 'Użytkownik',
+            isAdmin: false // Will be determined by actual permissions later
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        // Fallback to default
+        setCurrentUserData({
+          username: 'Użytkownik',
+          isAdmin: false
+        });
+      }
+    };
+    
+    fetchUserData();
+  }, []);
 
   const goBack = () => {
     window.location.href = "/servers";
@@ -121,8 +148,8 @@ export function ServerDetailPage({ inviteLink }: ServerDetailPageProps) {
                   />
                 )}
                 <UserMenu 
-                  username="Neo" 
-                  isAdmin={true} 
+                  username={currentUserData?.username || "Użytkownik"} 
+                  isAdmin={currentUserData?.isAdmin || false} 
                   onLogout={handleLogout}
                 />
                 <ThemeToggle />

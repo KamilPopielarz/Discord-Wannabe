@@ -62,10 +62,10 @@ export function LoginForm({
       <Card className="w-full max-w-md mx-auto matrix-form relative z-10">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center matrix-title">
-            <TypingAnimation text="DOSTĘP DO SYSTEMU" speed={100} />
+            <TypingAnimation text="LOGOWANIE" speed={100} />
           </CardTitle>
           <CardDescription className="text-center matrix-text">
-            <GlitchText text="Wprowadź dane uwierzytelniające" trigger={!!error} />
+            <GlitchText text="Wprowadź swoje dane logowania" trigger={!!error} />
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,7 +87,7 @@ export function LoginForm({
               <Input
                 id="email"
                 type="email"
-                placeholder="user@matrix.net"
+                placeholder="twoj@email.com"
                 value={email}
                 onChange={(e) => handleEmailChange(e.target.value)}
                 disabled={loading || showRateLimit}

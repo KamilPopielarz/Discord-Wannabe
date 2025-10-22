@@ -168,59 +168,53 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [isDeafened, setIsDeafened] = useState(false);
 
-  // Mock user data - in real app this would come from API
-  const [roomUsers, setRoomUsers] = useState<RoomUser[]>([
-    {
-      id: 'current-user',
-      username: 'Neo',
-      role: 'admin',
-      isOnline: true,
-      isInVoice: isVoiceConnected,
-      isMuted: isMuted,
-      isDeafened: isDeafened,
-      joinedAt: new Date().toISOString()
-    },
-    {
-      id: 'user-2',
-      username: 'Trinity',
-      role: 'moderator',
-      isOnline: true,
-      isInVoice: false,
-      isMuted: false,
-      isDeafened: false,
-      joinedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'user-3',
-      username: 'Morpheus',
-      role: 'owner',
-      isOnline: true,
-      isInVoice: isVoiceConnected,
-      isMuted: false,
-      isDeafened: false,
-      joinedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'user-4',
-      username: 'Agent_Smith',
-      role: 'member',
-      isOnline: false,
-      isInVoice: false,
-      isMuted: false,
-      isDeafened: false,
-      joinedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'user-5',
-      username: 'Cypher',
-      role: 'member',
-      isOnline: true,
-      isInVoice: isVoiceConnected,
-      isMuted: true,
-      isDeafened: false,
-      joinedAt: new Date(Date.now() - 45 * 60 * 1000).toISOString()
+  // Current user data - only show the actual logged-in user
+  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(null);
+  
+  // Get current user data from server
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/debug/user-metadata');
+        if (response.ok) {
+          const userData = await response.json();
+          setCurrentUserData({
+            username: userData.user_metadata?.username || userData.email?.split('@')[0] || 'Użytkownik',
+            isAdmin: false // Will be determined by actual permissions later
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        // Fallback to default
+        setCurrentUserData({
+          username: 'Użytkownik',
+          isAdmin: false
+        });
+      }
+    };
+    
+    fetchUserData();
+  }, []);
+
+  const [roomUsers, setRoomUsers] = useState<RoomUser[]>([]);
+  
+  // Update room users when current user data is available
+  useEffect(() => {
+    if (currentUserData) {
+      setRoomUsers([
+        {
+          id: 'current-user',
+          username: currentUserData.username,
+          role: 'member', // Default role, will be updated based on actual permissions
+          isOnline: true,
+          isInVoice: isVoiceConnected,
+          isMuted: isMuted,
+          isDeafened: isDeafened,
+          joinedAt: new Date().toISOString()
+        }
+      ]);
     }
-  ]);
+  }, [currentUserData, isVoiceConnected, isMuted, isDeafened]);
 
   const currentUser = roomUsers.find(user => user.id === 'current-user');
   const currentUserRole = currentUser?.role || 'member';
@@ -464,7 +458,7 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
               )}
 
               <UserMenu 
-                username={currentUser?.username || "Neo"} 
+                username={currentUser?.username || currentUserData?.username || "Użytkownik"} 
                 isAdmin={currentUserRole === 'admin' || currentUserRole === 'owner'} 
                 onLogout={handleLogout}
               />

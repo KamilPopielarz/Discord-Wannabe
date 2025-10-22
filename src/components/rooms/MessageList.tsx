@@ -103,15 +103,15 @@ export function MessageList({
               />
             </svg>
           </div>
-          <h3 className="text-xl font-medium mb-2 matrix-title">KANAŁ KOMUNIKACYJNY PUSTY</h3>
+          <h3 className="text-xl font-medium mb-2 matrix-title">KANAŁ JEST PUSTY</h3>
           <p className="text-muted-foreground matrix-text font-mono">
-            Zainicjuj bezpieczną transmisję danych wysyłając pierwszą wiadomość do systemu Matrix.
+            Rozpocznij rozmowę wysyłając pierwszą wiadomość na tym kanale.
           </p>
           <div className="mt-4 p-3 matrix-form rounded-lg text-xs">
             <p className="matrix-text">
-              ● WSZYSTKIE WIADOMOŚCI SĄ SZYFROWANE<br/>
-              ● TRANSMISJA W CZASIE RZECZYWISTYM<br/>
-              ● PEŁNA KONTROLA NAD DANYMI
+              ● WIADOMOŚCI W CZASIE RZECZYWISTYM<br/>
+              ● BEZPIECZNA KOMUNIKACJA<br/>
+              ● PEŁNA KONTROLA NAD ROZMOWĄ
             </p>
           </div>
         </div>

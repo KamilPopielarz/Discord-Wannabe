@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ServerList } from "./ServerList";
 import { CreateServerModal } from "./CreateServerModal";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -10,6 +10,33 @@ import { useServers } from "../../lib/hooks/useServers";
 export function ServersDashboardPage() {
   const { state, createModalOpen, setCreateModalOpen, creating, loadServers, createServer, deleteServer } =
     useServers();
+
+  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(null);
+  
+  // Get current user data from server
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/debug/user-metadata');
+        if (response.ok) {
+          const userData = await response.json();
+          setCurrentUserData({
+            username: userData.user_metadata?.username || userData.email?.split('@')[0] || 'Użytkownik',
+            isAdmin: false // Will be determined by actual permissions later
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        // Fallback to default
+        setCurrentUserData({
+          username: 'Użytkownik',
+          isAdmin: false
+        });
+      }
+    };
+    
+    fetchUserData();
+  }, []);
 
   const handleLogout = () => {
     // This will be handled by the UserMenu component
@@ -26,9 +53,9 @@ export function ServersDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold matrix-title">
-                  <TypingAnimation text="CENTRUM KONTROLI SERWERÓW" speed={80} />
+                  <TypingAnimation text="DISCORD WANNABE - SERWERY" speed={80} />
                 </h1>
-                <p className="text-muted-foreground matrix-text">System zarządzania komunikacją</p>
+                <p className="text-muted-foreground matrix-text">Twoje serwery komunikacyjne</p>
               </div>
               <div className="flex items-center space-x-4">
                 <CreateServerModal
@@ -38,8 +65,8 @@ export function ServersDashboardPage() {
                   creating={creating}
                 />
                 <UserMenu 
-                  username="Neo" 
-                  isAdmin={true} 
+                  username={currentUserData?.username || "Użytkownik"} 
+                  isAdmin={currentUserData?.isAdmin || false} 
                   onLogout={handleLogout}
                 />
                 <ThemeToggle />

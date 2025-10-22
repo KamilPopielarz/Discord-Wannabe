@@ -77,7 +77,7 @@ export function UserMenu({ username = 'User', isAdmin = false, onLogout }: UserM
         <div className="px-2 py-1.5">
           <p className="text-sm font-medium matrix-text">{username}</p>
           <p className="text-xs text-muted-foreground">
-            {isAdmin ? 'Administrator systemu' : 'Aktywny użytkownik'}
+            {isAdmin ? 'Administrator' : 'Użytkownik'}
           </p>
         </div>
         
