@@ -131,16 +131,16 @@ export function useRegister() {
         return;
       }
 
-      // Success - account is immediately active, redirect to login
+      // Success - show confirmation message
       setState((prev) => ({
         ...prev,
         loading: false,
         error: undefined,
       }));
 
-      // Account is ready to use immediately - redirect to login
-      alert("Rejestracja zakończona pomyślnie! Możesz się teraz zalogować.");
-      window.location.href = "/login";
+      // Account requires email confirmation
+      alert("Rejestracja zakończona pomyślnie! Sprawdź swoją skrzynkę odbiorczą i kliknij link potwierdzający, aby aktywować konto.");
+      window.location.href = "/login?message=confirm-email";
     } catch (error) {
       setState((prev) => ({
         ...prev,

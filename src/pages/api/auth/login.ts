@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { LoginCommand } from "../../../types";
-import { AuthService, AuthenticationError } from "../../../lib/services/auth.service";
+import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
 
 export const prerender = false;
 
@@ -11,10 +10,10 @@ const LoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export const POST: APIRoute = async ({ request, locals, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     // Parse request body
-    let body: LoginCommand;
+    let body;
     try {
       body = await request.json();
     } catch {
@@ -38,71 +37,27 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
     const { email, password } = validationResult.data;
 
-    // Get Supabase client from locals
-    const supabase = locals.supabase;
-    if (!supabase) {
-      // Mock login for development when Supabase is not configured
-      console.log("Mock login for:", email);
-      const mockUserId = `mock-user-${Date.now()}`;
-      const mockSessionId = `mock-session-${Date.now()}`;
+    const supabase = createSupabaseServerInstance({
+      cookies,
+      headers: request.headers,
+    });
 
-      cookies.set("session_id", mockSessionId, {
-        httpOnly: true,
-        secure: import.meta.env.PROD,
-        sameSite: "strict",
-        maxAge: 24 * 60 * 60,
-        path: "/",
-      });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      return new Response(JSON.stringify({ message: "Login successful", userId: mockUserId }), {
-        status: 200,
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Delegate login to AuthService
-    const authService = new AuthService(supabase);
-    try {
-      const { userId, sessionId } = await authService.loginUser({ email, password });
-      // Set HTTP-only cookie for session
-      cookies.set("session_id", sessionId, {
-        httpOnly: true,
-        secure: import.meta.env.PROD,
-        sameSite: "strict",
-        maxAge: 24 * 60 * 60,
-        path: "/",
-      });
-      return new Response(JSON.stringify({ message: "Login successful", userId }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (err) {
-      if (err instanceof AuthenticationError) {
-        return new Response(JSON.stringify({ error: err.message }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      console.error("Login error:", err);
-
-      // Fallback to mock login if auth service fails
-      console.log("Auth service failed, using mock login for:", email);
-      const mockUserId = `mock-user-${Date.now()}`;
-      const mockSessionId = `mock-session-${Date.now()}`;
-
-      cookies.set("session_id", mockSessionId, {
-        httpOnly: true,
-        secure: import.meta.env.PROD,
-        sameSite: "strict",
-        maxAge: 24 * 60 * 60,
-        path: "/",
-      });
-
-      return new Response(JSON.stringify({ message: "Login successful", userId: mockUserId }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    return new Response(JSON.stringify({ user: data.user }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Login error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
