@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { ErrorBanner } from "../ui/ErrorBanner";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { MatrixBackground } from "../ui/MatrixBackground";
+import { TurnstileCaptcha } from "../ui/TurnstileCaptcha";
+import { useFormValidation } from "../../lib/hooks/useFormValidation";
 import type { RegisterUserCommand } from "../../types";
 
 interface RegisterFormProps {
@@ -33,173 +36,283 @@ export function RegisterForm({
   onPasswordChange,
   onUsernameChange,
   onConfirmPasswordChange,
-  validatePassword,
+  validatePassword: _validatePassword, // Rename to avoid conflict
 }: RegisterFormProps) {
   const [captchaToken, setCaptchaToken] = useState("");
   const [showPasswordHints, setShowPasswordHints] = useState(false);
+  
+  const { 
+    validateEmail, 
+    validatePassword, 
+    validatePasswordConfirmation, 
+    validateUsername,
+    getPasswordStrength,
+    errors, 
+    setFieldError 
+  } = useFormValidation();
+
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password, getPasswordStrength]);
+
+  const handleEmailChange = useCallback((value: string) => {
+    onEmailChange(value);
+    if (value) {
+      const emailError = validateEmail(value);
+      setFieldError('email', emailError);
+    }
+  }, [onEmailChange, validateEmail, setFieldError]);
+
+  const handleUsernameChange = useCallback((value: string) => {
+    onUsernameChange(value);
+    if (value) {
+      const usernameError = validateUsername(value);
+      setFieldError('username', usernameError);
+    }
+  }, [onUsernameChange, validateUsername, setFieldError]);
+
+  const handlePasswordChange = useCallback((value: string) => {
+    onPasswordChange(value);
+    if (value) {
+      const passwordError = validatePassword(value);
+      setFieldError('password', passwordError);
+    }
+  }, [onPasswordChange, validatePassword, setFieldError]);
+
+  const handleConfirmPasswordChange = useCallback((value: string) => {
+    onConfirmPasswordChange(value);
+    if (value) {
+      const confirmError = validatePasswordConfirmation(password, value);
+      setFieldError('confirmPassword', confirmError);
+    }
+  }, [onConfirmPasswordChange, password, validatePasswordConfirmation, setFieldError]);
+
+  const handleCaptchaVerify = useCallback((token: string) => {
+    setCaptchaToken(token);
+  }, []);
+
+  const handleCaptchaError = useCallback(() => {
+    setCaptchaToken('');
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, we'll use a dummy captcha token
-    // In real implementation, this would come from reCAPTCHA
+    
+    // Validate all fields
+    const emailError = validateEmail(email);
+    const usernameError = validateUsername(username);
+    const passwordError = validatePassword(password);
+    const confirmError = validatePasswordConfirmation(password, confirmPassword);
+    
+    if (emailError) setFieldError('email', emailError);
+    if (usernameError) setFieldError('username', usernameError);
+    if (passwordError) setFieldError('password', passwordError);
+    if (confirmError) setFieldError('confirmPassword', confirmError);
+    
+    if (emailError || usernameError || passwordError || confirmError || !captchaToken) {
+      return;
+    }
+
     onSubmit({
       email,
       password,
       username,
       confirmPassword,
-      captchaToken: captchaToken || "dummy-captcha-token",
+      captchaToken,
     });
   };
-
-  const passwordError = password ? validatePassword(password) : null;
-  const confirmPasswordError = confirmPassword && password !== confirmPassword ? "Hasła nie są identyczne" : null;
 
   const isFormValid =
     email.trim() !== "" &&
     password.trim() !== "" &&
     username.trim() !== "" &&
     confirmPassword.trim() !== "" &&
-    !passwordError &&
-    !confirmPasswordError;
+    !errors.email &&
+    !errors.username &&
+    !errors.password &&
+    !errors.confirmPassword &&
+    passwordStrength.isValid &&
+    captchaToken;
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Rejestracja</CardTitle>
-        <CardDescription className="text-center">Utwórz nowe konto, aby rozpocząć</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <ErrorBanner error={error} className="mb-4" />
+    <>
+      <MatrixBackground />
+      <Card className="w-full max-w-md mx-auto matrix-form relative z-10">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center matrix-title">
+            REJESTRACJA UŻYTKOWNIKA
+          </CardTitle>
+          <CardDescription className="text-center matrix-text">
+            Utwórz nowe konto w systemie
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <ErrorBanner error={error} className="mb-4" />
 
-          <div className="space-y-2">
-            <label htmlFor="register-email" className="text-sm font-medium">
-              E-mail
-            </label>
-            <Input
-              id="register-email"
-              type="email"
-              placeholder="twoj@email.com"
-              value={email}
-              onChange={(e) => onEmailChange(e.target.value)}
-              disabled={loading}
-              required
-              aria-invalid={!!error}
-              aria-describedby={error ? "error-message" : undefined}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="register-username" className="text-sm font-medium">
-              Nazwa użytkownika
-            </label>
-            <Input
-              id="register-username"
-              type="text"
-              placeholder="Twoja nazwa użytkownika"
-              value={username}
-              onChange={(e) => onUsernameChange(e.target.value)}
-              disabled={loading}
-              required
-              aria-invalid={!!error}
-              aria-describedby={error ? "error-message" : undefined}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="register-password" className="text-sm font-medium">
-              Hasło
-            </label>
-            <Input
-              id="register-password"
-              type="password"
-              placeholder="Wprowadź hasło"
-              value={password}
-              onChange={(e) => onPasswordChange(e.target.value)}
-              onFocus={() => setShowPasswordHints(true)}
-              disabled={loading}
-              required
-              aria-invalid={!!passwordError}
-              aria-describedby={passwordError ? "password-error" : showPasswordHints ? "password-hints" : undefined}
-            />
-            {showPasswordHints && (
-              <div id="password-hints" className="text-xs text-muted-foreground space-y-1">
-                <p>Hasło musi zawierać:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Co najmniej 8 znaków</li>
-                  <li>Wielką literę (A-Z)</li>
-                  <li>Małą literę (a-z)</li>
-                  <li>Cyfrę (0-9)</li>
-                  <li>Znak specjalny (!@#$%^&*)</li>
-                </ul>
-              </div>
-            )}
-            {passwordError && (
-              <p id="password-error" className="text-xs text-destructive">
-                {passwordError}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="confirm-password" className="text-sm font-medium">
-              Potwierdź hasło
-            </label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="Potwierdź hasło"
-              value={confirmPassword}
-              onChange={(e) => onConfirmPasswordChange(e.target.value)}
-              disabled={loading}
-              required
-              aria-invalid={!!confirmPasswordError}
-              aria-describedby={confirmPasswordError ? "confirm-password-error" : undefined}
-            />
-            {confirmPasswordError && (
-              <p id="confirm-password-error" className="text-xs text-destructive">
-                {confirmPasswordError}
-              </p>
-            )}
-          </div>
-
-          {/* Placeholder for CAPTCHA - in real implementation this would be reCAPTCHA */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Weryfikacja (CAPTCHA)</label>
-            <div className="border rounded-md p-4 bg-muted/50 text-center text-sm text-muted-foreground">
-              <p>CAPTCHA będzie tutaj zaimplementowana</p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setCaptchaToken("verified-captcha-token")}
+            <div className="space-y-2">
+              <label htmlFor="register-email" className="text-sm font-medium matrix-text">
+                ADRES E-MAIL
+              </label>
+              <Input
+                id="register-email"
+                type="email"
+                placeholder="user@matrix.net"
+                value={email}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 disabled={loading}
-                className="mt-2"
-              >
-                {captchaToken ? "✓ Zweryfikowano" : "Kliknij aby zweryfikować"}
-              </Button>
+                required
+                className="matrix-input"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+              />
+              {errors.email && (
+                <p id="email-error" className="text-xs matrix-error">
+                  {errors.email}
+                </p>
+              )}
             </div>
-          </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !isFormValid || !captchaToken}>
-            {loading ? (
-              <>
-                <LoadingSpinner size="sm" className="mr-2" />
-                Rejestrowanie...
-              </>
-            ) : (
-              "Zarejestruj się"
-            )}
-          </Button>
+            <div className="space-y-2">
+              <label htmlFor="register-username" className="text-sm font-medium matrix-text">
+                NAZWA UŻYTKOWNIKA
+              </label>
+              <Input
+                id="register-username"
+                type="text"
+                placeholder="neo_matrix"
+                value={username}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                disabled={loading}
+                required
+                className="matrix-input"
+                aria-invalid={!!errors.username}
+                aria-describedby={errors.username ? "username-error" : undefined}
+              />
+              {errors.username && (
+                <p id="username-error" className="text-xs matrix-error">
+                  {errors.username}
+                </p>
+              )}
+            </div>
 
-          <div className="text-center text-sm">
-            <span className="text-muted-foreground">Masz już konto? </span>
-            <a href="/login" className="text-primary hover:underline">
-              Zaloguj się
-            </a>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            <div className="space-y-2">
+              <label htmlFor="register-password" className="text-sm font-medium matrix-text">
+                HASŁO DOSTĘPU
+              </label>
+              <Input
+                id="register-password"
+                type="password"
+                placeholder="••••••••••••"
+                value={password}
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                onFocus={() => setShowPasswordHints(true)}
+                disabled={loading}
+                required
+                className="matrix-input"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : showPasswordHints ? "password-hints" : undefined}
+              />
+              
+              {/* Password strength indicator */}
+              {password && (
+                <div className="space-y-2">
+                  <div className="flex space-x-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-1 flex-1 rounded ${
+                          i < passwordStrength.score
+                            ? passwordStrength.score <= 2
+                              ? 'bg-red-500'
+                              : passwordStrength.score <= 3
+                              ? 'bg-yellow-500'
+                              : 'bg-green-500'
+                            : 'bg-gray-700'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs matrix-text">
+                    Siła hasła: {
+                      passwordStrength.score <= 2 ? 'SŁABE' :
+                      passwordStrength.score <= 3 ? 'ŚREDNIE' :
+                      passwordStrength.score <= 4 ? 'DOBRE' : 'BARDZO DOBRE'
+                    }
+                  </p>
+                </div>
+              )}
+
+              {showPasswordHints && passwordStrength.feedback.length > 0 && (
+                <div id="password-hints" className="text-xs text-muted-foreground space-y-1">
+                  <p>Wymagania hasła:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {passwordStrength.feedback.map((feedback, index) => (
+                      <li key={index}>{feedback}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {errors.password && (
+                <p id="password-error" className="text-xs matrix-error">
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="confirm-password" className="text-sm font-medium matrix-text">
+                POTWIERDŹ HASŁO
+              </label>
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="••••••••••••"
+                value={confirmPassword}
+                onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+                disabled={loading}
+                required
+                className="matrix-input"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
+              />
+              {errors.confirmPassword && (
+                <p id="confirm-password-error" className="text-xs matrix-error">
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            <TurnstileCaptcha
+              onVerify={handleCaptchaVerify}
+              onError={handleCaptchaError}
+              onExpire={handleCaptchaError}
+              disabled={loading}
+            />
+
+            <Button 
+              type="submit" 
+              className="w-full matrix-button" 
+              disabled={loading || !isFormValid}
+            >
+              {loading ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2 matrix-spinner" />
+                  REJESTROWANIE...
+                </>
+              ) : (
+                "UTWÓRZ KONTO"
+              )}
+            </Button>
+
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">Masz już konto? </span>
+              <a href="/login" className="matrix-link">
+                Zaloguj się
+              </a>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </>
   );
 }

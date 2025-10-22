@@ -1,0 +1,18 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ResetPasswordPage } from '../../components/auth/ResetPasswordPage';
+
+export const prerender = false;
+
+const { token } = Astro.params;
+
+if (!token) {
+  return Astro.redirect('/reset-password');
+}
+---
+
+<Layout title="Ustaw nowe hasło - Discord Wannabe">
+  <main class="min-h-screen flex items-center justify-center p-4">
+    <ResetPasswordPage client:load token={token} />
+  </main>
+</Layout>

@@ -11,9 +11,9 @@ export function ErrorBanner({ error, className }: ErrorBannerProps) {
   if (!error) return null;
 
   return (
-    <Alert variant="destructive" className={className} role="alert">
+    <Alert variant="destructive" className={`matrix-error ${className}`} role="alert">
       <AlertCircle className="h-4 w-4" />
-      <AlertDescription>{error}</AlertDescription>
+      <AlertDescription className="matrix-error">{error}</AlertDescription>
     </Alert>
   );
 }

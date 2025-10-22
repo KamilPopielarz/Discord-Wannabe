@@ -14,5 +14,5 @@ export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) 
     lg: "h-8 w-8",
   };
 
-  return <Loader2 className={cn("animate-spin", sizeClasses[size], className)} aria-label="Ładowanie..." />;
+  return <Loader2 className={cn("animate-spin matrix-spinner", sizeClasses[size], className)} aria-label="Ładowanie..." />;
 }
