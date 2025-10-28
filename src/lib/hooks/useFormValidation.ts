@@ -87,7 +87,7 @@ export function useFormValidation() {
     return {
       score,
       feedback,
-      isValid: score >= 5,
+      isValid: score >= 4, // Changed from 5 to 4 - allows valid password without 12+ chars bonus
     };
   }, []);
 

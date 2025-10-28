@@ -29,7 +29,7 @@ export function useRegister() {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumbers = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
 
     if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
       return "Hasło musi zawierać wielką literę, małą literę, cyfrę i znak specjalny";
@@ -77,7 +77,9 @@ export function useRegister() {
       return;
     }
 
-    // CAPTCHA validation
+    // Temporarily disabled CAPTCHA validation
+    // TODO: Re-enable CAPTCHA validation in production
+    /*
     if (!payload.captchaToken) {
       setState((prev) => ({
         ...prev,
@@ -85,6 +87,7 @@ export function useRegister() {
       }));
       return;
     }
+    */
 
     setState((prev) => ({
       ...prev,

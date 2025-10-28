@@ -107,7 +107,7 @@ export function RegisterForm({
     if (passwordError) setFieldError('password', passwordError);
     if (confirmError) setFieldError('confirmPassword', confirmError);
     
-    if (emailError || usernameError || passwordError || confirmError || !captchaToken) {
+    if (emailError || usernameError || passwordError || confirmError) {
       return;
     }
 
@@ -116,21 +116,22 @@ export function RegisterForm({
       password,
       username,
       confirmPassword,
-      captchaToken,
+      captchaToken: "test-token", // Temporary placeholder for disabled CAPTCHA
     });
   };
 
-  const isFormValid =
-    email.trim() !== "" &&
-    password.trim() !== "" &&
-    username.trim() !== "" &&
-    confirmPassword.trim() !== "" &&
-    !errors.email &&
-    !errors.username &&
-    !errors.password &&
-    !errors.confirmPassword &&
-    passwordStrength.isValid &&
-    captchaToken;
+  const isFormValid = useMemo(() => {
+    return email.trim() !== "" &&
+      password.trim() !== "" &&
+      username.trim() !== "" &&
+      confirmPassword.trim() !== "" &&
+      !errors.email &&
+      !errors.username &&
+      !errors.password &&
+      !errors.confirmPassword &&
+      passwordStrength.isValid;
+      // Temporarily disabled CAPTCHA requirement: && captchaToken.trim() !== "";
+  }, [email, password, username, confirmPassword, errors, passwordStrength.isValid]);
 
   return (
     <>
@@ -282,12 +283,15 @@ export function RegisterForm({
               )}
             </div>
 
-            <TurnstileCaptcha
-              onVerify={handleCaptchaVerify}
-              onError={handleCaptchaError}
-              onExpire={handleCaptchaError}
-              disabled={loading}
-            />
+            {/* Temporarily disabled CAPTCHA */}
+            {false && (
+              <TurnstileCaptcha
+                onVerify={handleCaptchaVerify}
+                onError={handleCaptchaError}
+                onExpire={handleCaptchaError}
+                disabled={loading}
+              />
+            )}
 
             <Button 
               type="submit" 

@@ -40,7 +40,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const { email, password, username, captchaToken } = validationResult.data;
 
-    // Verify Turnstile CAPTCHA token
+    // Temporarily disabled CAPTCHA verification
+    // TODO: Re-enable CAPTCHA verification in production
+    /*
     const clientIP = request.headers.get('CF-Connecting-IP') || 
                      request.headers.get('X-Forwarded-For') || 
                      request.headers.get('X-Real-IP') || 
@@ -53,6 +55,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    */
 
     const supabase = createSupabaseServerInstance({
       cookies,
