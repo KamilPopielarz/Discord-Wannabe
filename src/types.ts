@@ -102,6 +102,21 @@ export interface ListMessagesResponseDto {
   nextPage?: string;
 }
 
+// 7. Room Users
+export interface RoomUserDto {
+  id: string;
+  username: string;
+  email?: string;
+  role: 'Owner' | 'Admin' | 'Moderator' | 'Member' | 'Guest';
+  isOnline: boolean;
+  joinedAt: string;
+}
+
+export interface ListRoomUsersResponseDto {
+  users: RoomUserDto[];
+  totalCount: number;
+}
+
 export interface SendMessageCommand {
   content: string;
 }

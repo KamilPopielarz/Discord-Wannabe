@@ -11,6 +11,8 @@ interface ServerListProps {
     inviteLink: string;
     name?: string;
     ttlExpiresAt: string;
+    isMember?: boolean;
+    role?: string | null;
   }[];
   loading: boolean;
   error?: string;

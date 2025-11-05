@@ -38,7 +38,8 @@ export function useAdminLogs(serverId?: string) {
     }));
 
     try {
-      const url = new URL(`/api/servers/${serverId}/logs`, window.location.origin);
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const url = new URL(`/api/servers/${serverId}/logs`, origin);
 
       // Add filters to query params
       if (filters.action) url.searchParams.set("action", filters.action);

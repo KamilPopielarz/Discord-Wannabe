@@ -1,5 +1,5 @@
 import type { AstroCookies } from 'astro';
-import { createServerClient, type CookieOptionsWithName } from '@supabase/ssr';
+import { createServerClient, createBrowserClient, type CookieOptionsWithName } from '@supabase/ssr';
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from './database.types.ts';
 
@@ -52,6 +52,70 @@ export const supabaseClient =
 
 export const supabaseAdminClient =
   !supabaseUrl || !supabaseServiceKey ? null : createClient<Database>(supabaseUrl, supabaseServiceKey);
+
+// Helper function to parse cookies from document.cookie
+function getCookies(): { name: string; value: string }[] {
+  if (typeof document === "undefined") return [];
+  
+  return document.cookie.split(';').map((cookie) => {
+    const [name, ...rest] = cookie.trim().split('=');
+    return { name: name.trim(), value: rest.join('=') };
+  }).filter(cookie => cookie.name);
+}
+
+// Create browser client for client-side real-time subscriptions
+// This client handles cookies properly for authentication
+export const createSupabaseBrowserClient = () => {
+  const url = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const key = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_KEY;
+  
+  if (!url || !key) {
+    console.error("Supabase URL or key not configured");
+    return null;
+  }
+
+  // Only create browser client on client side
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return createBrowserClient<Database>(url, key, {
+    cookies: {
+      getAll() {
+        return getCookies();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          // Build cookie string
+          let cookieString = `${name}=${value}`;
+          
+          if (options?.maxAge) {
+            cookieString += `; Max-Age=${options.maxAge}`;
+          }
+          if (options?.domain) {
+            cookieString += `; Domain=${options.domain}`;
+          }
+          if (options?.path) {
+            cookieString += `; Path=${options.path}`;
+          }
+          if (options?.sameSite) {
+            cookieString += `; SameSite=${options.sameSite}`;
+          }
+          if (options?.secure) {
+            cookieString += `; Secure`;
+          }
+          if (options?.httpOnly) {
+            // httpOnly cookies cannot be set from JavaScript
+            // This is handled by the server
+            return;
+          }
+          
+          document.cookie = cookieString;
+        });
+      },
+    },
+  });
+};
 
 // Log configuration status (only in development)
 if (import.meta.env.DEV) {

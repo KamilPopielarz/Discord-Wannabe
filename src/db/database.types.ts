@@ -374,16 +374,19 @@ export interface Database {
           role: string;
           room_id: string;
           user_id: string;
+          created_at: string;
         };
         Insert: {
           role: string;
           room_id: string;
           user_id: string;
+          created_at?: string;
         };
         Update: {
           role?: string;
           room_id?: string;
           user_id?: string;
+          created_at?: string;
         };
         Relationships: [
           {

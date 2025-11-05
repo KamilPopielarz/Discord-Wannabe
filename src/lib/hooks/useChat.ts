@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import type { SendMessageCommand, MessageDto, ListMessagesResponseDto } from "../../types";
+import { useState, useEffect, useRef, useCallback } from "react";
+import type { SendMessageCommand, MessageDto, ListMessagesResponseDto, SendMessageResponseDto } from "../../types";
 import type { ChatViewModel } from "../../types/viewModels";
+import { useNotifications } from "./useNotifications";
+import { useUserActivity } from "./useUserActivity";
 
-export function useChat(roomId?: string) {
-  console.log("useChat hook initialized with roomId:", roomId);
+export function useChat(roomId?: string, roomName?: string) {
 
   const [state, setState] = useState<ChatViewModel>({
     messages: [],
@@ -14,35 +15,28 @@ export function useChat(roomId?: string) {
 
   const [loading, setLoading] = useState(false);
   const [messageText, setMessageText] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null!);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastMessageIdRef = useRef<number | null>(null);
+  const currentUserIdRef = useRef<string | null>(null);
 
-  // Load messages on mount and when roomId changes
-  useEffect(() => {
-    if (roomId) {
-      // Clear existing messages when switching rooms
-      setState((prev) => ({
-        ...prev,
-        messages: [],
-        nextPage: undefined,
-        error: undefined,
-      }));
-      loadMessages();
-    }
-  }, [roomId]);
+  const {
+    hasNewMessages,
+    unreadCount,
+    isWindowFocused,
+    notificationsEnabled,
+    addNewMessage,
+    clearNotifications,
+    requestNotificationPermission,
+    soundSettings,
+    updateSoundSettings,
+    testSound,
+  } = useNotifications();
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    scrollToBottom();
-  }, [state.messages]);
+  const { isActive } = useUserActivity();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const loadMessages = async (page?: string) => {
-    console.log("loadMessages called with:", { roomId, page });
+  const loadMessages = useCallback(async (page?: string) => {
     if (!roomId) {
-      console.log("loadMessages early return: no roomId");
       return;
     }
 
@@ -53,7 +47,8 @@ export function useChat(roomId?: string) {
     }));
 
     try {
-      const url = new URL(`/api/rooms/${roomId}/messages`, window.location.origin);
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const url = new URL(`/api/rooms/${roomId}/messages`, origin);
       if (page) {
         url.searchParams.set("page", page);
       }
@@ -63,6 +58,7 @@ export function useChat(roomId?: string) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Include cookies for authentication
       });
 
       if (response.status === 404) {
@@ -110,6 +106,17 @@ export function useChat(roomId?: string) {
         nextPage: data.nextPage,
       }));
 
+      // Update last message ID for auto-refresh
+      // Always update when loading the first page (not pagination)
+      if (!page && data.messages.length > 0) {
+        lastMessageIdRef.current = Math.max(...data.messages.map(m => m.id));
+        console.log(`[LoadMessages] Initialized lastMessageId to: ${lastMessageIdRef.current}`);
+      } else if (!page && data.messages.length === 0) {
+        // No messages yet, reset to null so polling will fetch all messages
+        lastMessageIdRef.current = null;
+        console.log(`[LoadMessages] No messages found, resetting lastMessageId`);
+      }
+
       setLoading(false);
     } catch (error) {
       setState((prev) => ({
@@ -118,7 +125,187 @@ export function useChat(roomId?: string) {
       }));
       setLoading(false);
     }
-  };
+  }, [roomId]);
+
+  const loadNewMessages = useCallback(async () => {
+    if (!roomId || loading) {
+      console.log(`[Polling] Skipping loadNewMessages - roomId: ${roomId}, loading: ${loading}`);
+      return;
+    }
+
+    try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const url = new URL(`/api/rooms/${roomId}/messages`, origin);
+      
+      // Only get messages newer than the last one we have
+      if (lastMessageIdRef.current) {
+        url.searchParams.set("since", lastMessageIdRef.current.toString());
+        console.log(`[Polling] Fetching messages since ID: ${lastMessageIdRef.current}`);
+      } else {
+        console.log(`[Polling] Fetching messages (no since parameter - first load)`);
+      }
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Include cookies for authentication
+      });
+
+      if (!response.ok) {
+        console.warn(`[Polling] Failed to fetch messages: ${response.status} ${response.statusText}`);
+        return; // Silently fail for auto-refresh
+      }
+
+      const data: ListMessagesResponseDto = await response.json();
+      console.log(`[Polling] Received ${data.messages.length} messages`);
+
+      // Only add new messages if we have any
+      if (data.messages.length > 0) {
+        setState((prev) => {
+          // Avoid duplicates - check if message already exists
+          const existingIds = new Set(prev.messages.map(m => m.id));
+          const newMessages = data.messages.filter(m => !existingIds.has(m.id));
+          
+          console.log(`[Polling] ${newMessages.length} new messages (${data.messages.length - newMessages.length} duplicates filtered)`);
+          
+          if (newMessages.length === 0) return prev;
+
+          // Update last message ID
+          const newLastId = Math.max(...newMessages.map(m => m.id));
+          lastMessageIdRef.current = newLastId;
+          console.log(`[Polling] Updated lastMessageId to: ${newLastId}`);
+
+          // Show notifications for new messages from other users
+          newMessages.forEach(message => {
+            // Don't notify for own messages  
+            if (message.userId !== currentUserIdRef.current) {
+              addNewMessage({
+                authorName: message.authorName,
+                content: message.content,
+              }, roomName);
+            }
+          });
+
+          return {
+            ...prev,
+            messages: [...prev.messages, ...newMessages],
+          };
+        });
+      } else {
+        console.log(`[Polling] No new messages`);
+      }
+    } catch (error) {
+      console.error("[Polling] Error loading new messages:", error);
+      // Silently fail for auto-refresh to avoid spamming errors
+    }
+  }, [roomId, loading, addNewMessage, roomName]);
+
+  // Load messages on mount and when roomId changes
+  useEffect(() => {
+    if (roomId) {
+      // Clear existing messages when switching rooms
+      setState((prev) => ({
+        ...prev,
+        messages: [],
+        nextPage: undefined,
+        error: undefined,
+      }));
+      loadMessages();
+    }
+  }, [roomId, loadMessages]);
+
+  // Set up aggressive polling for near real-time message updates
+  // Using polling instead of real-time subscriptions for reliability with httpOnly cookies
+  useEffect(() => {
+    // Only set up polling on client side
+    if (typeof window === "undefined" || !roomId) {
+      return;
+    }
+
+    // Get current user ID for filtering notifications
+    const fetchCurrentUserId = async () => {
+      try {
+        const response = await fetch('/api/me', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          currentUserIdRef.current = userData.userId || null;
+        }
+      } catch (error) {
+        console.error('Failed to fetch current user ID:', error);
+      }
+    };
+    
+    fetchCurrentUserId();
+
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // Function to start polling with current settings
+    const startPolling = () => {
+      // Clear existing interval first
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+
+      // Set up aggressive polling - check every 1 second when active and focused
+      const getRefreshInterval = () => {
+        if (isActive && isWindowFocused) return 1000; // 1 second - near real-time
+        if (isActive && !isWindowFocused) return 2000; // 2 seconds if active but not focused
+        return 3000; // 3 seconds if inactive
+      };
+
+      const pollingInterval = getRefreshInterval();
+      console.log(`[Polling] Starting polling for room ${roomId}, interval: ${pollingInterval}ms (active: ${isActive}, focused: ${isWindowFocused})`);
+      
+      intervalRef.current = setInterval(() => {
+        console.log(`[Polling] Checking for new messages (lastMessageId: ${lastMessageIdRef.current})`);
+        loadNewMessages();
+      }, pollingInterval);
+    };
+
+    // Start polling immediately
+    startPolling();
+
+    // Cleanup interval on unmount or roomId change
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [roomId, isActive, isWindowFocused, loadNewMessages]);
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  // Track previous message count to only scroll when new messages arrive
+  const prevMessageCountRef = useRef(0);
+
+  // Auto-scroll to bottom when new messages arrive and handle notifications
+  useEffect(() => {
+    const currentMessageCount = state.messages.length;
+    const messagesCountIncreased = currentMessageCount > prevMessageCountRef.current;
+    
+    // Only scroll if we have new messages (count increased)
+    if (messagesCountIncreased && currentMessageCount > 0) {
+      scrollToBottom();
+      prevMessageCountRef.current = currentMessageCount;
+    }
+    
+    // Clear notifications when window is focused and user sees messages
+    if (isWindowFocused && hasNewMessages) {
+      clearNotifications();
+    }
+  }, [state.messages.length, isWindowFocused, hasNewMessages, clearNotifications, scrollToBottom]);
 
   const loadMoreMessages = () => {
     if (state.nextPage && !loading) {
@@ -127,9 +314,7 @@ export function useChat(roomId?: string) {
   };
 
   const sendMessage = async (content: string) => {
-    console.log("sendMessage called with:", { roomId, content: content.trim() });
     if (!roomId || !content.trim()) {
-      console.log("sendMessage early return:", { hasRoomId: !!roomId, hasContent: !!content.trim() });
       return;
     }
 
@@ -158,6 +343,7 @@ export function useChat(roomId?: string) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Include cookies for authentication
         body: JSON.stringify(payload),
       });
 
@@ -189,7 +375,7 @@ export function useChat(roomId?: string) {
         return;
       }
 
-      const data = await response.json();
+      const data: SendMessageResponseDto = await response.json();
 
       setState((prev) => ({
         ...prev,
@@ -199,8 +385,13 @@ export function useChat(roomId?: string) {
       // Clear message input
       setMessageText("");
 
-      // Reload messages from server to get the actual message with proper user data
-      await loadMessages();
+      // Immediately reload the first page of messages to show the newly sent message
+      // This is more reliable than loadNewMessages which can be blocked by loading state
+      // Use a small delay to ensure the database has committed the transaction
+      setTimeout(async () => {
+        // Reload messages without blocking UI
+        await loadMessages();
+      }, 150);
     } catch (error) {
       setState((prev) => ({
         ...prev,
@@ -219,6 +410,7 @@ export function useChat(roomId?: string) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Include cookies for authentication
       });
 
       if (!response.ok) {
@@ -273,6 +465,10 @@ export function useChat(roomId?: string) {
     }
   };
 
+  const setCurrentUserId = (userId: string) => {
+    currentUserIdRef.current = userId;
+  };
+
   return {
     state,
     loading,
@@ -284,5 +480,15 @@ export function useChat(roomId?: string) {
     deleteMessage,
     updateMessageText,
     scrollToBottom,
+    setCurrentUserId,
+    // Notification states
+    hasNewMessages,
+    unreadCount,
+    notificationsEnabled,
+    requestNotificationPermission,
+    // Sound settings
+    soundSettings,
+    updateSoundSettings,
+    testSound,
   };
 }

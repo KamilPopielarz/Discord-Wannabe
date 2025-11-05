@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
+import { createSupabaseServerInstance, supabaseAdminClient } from "../../../db/supabase.client.ts";
 import { verifyTurnstileToken } from "../../../lib/services/turnstile.service.ts";
 
 export const prerender = false;
@@ -78,6 +78,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Ensure username is properly saved in user_metadata using admin API
+    if (data.user && supabaseAdminClient) {
+      try {
+        const { error: updateError } = await supabaseAdminClient.auth.admin.updateUserById(data.user.id, {
+          user_metadata: { username: username },
+        });
+
+        if (updateError) {
+          console.error("Warning: Failed to update user metadata:", updateError.message);
+          // Don't fail registration, but log the error
+        }
+      } catch (metadataError) {
+        console.error("Warning: Error updating user metadata:", (metadataError as Error).message);
+        // Don't fail registration, but log the error
+      }
     }
 
     return new Response(JSON.stringify({ 

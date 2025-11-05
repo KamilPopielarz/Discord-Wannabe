@@ -11,11 +11,16 @@ export const GET: APIRoute = async ({ locals }) => {
       });
     }
 
+    // Ensure username is always provided with fallback
+    const username = locals.username || 
+                     (locals.user?.email ? locals.user.email.split("@")[0] : undefined) || 
+                     "Użytkownik";
+
     return new Response(
       JSON.stringify({
         userId: locals.userId,
         email: locals.user?.email,
-        username: locals.username,
+        username: username,
       }),
       {
         status: 200,

@@ -143,7 +143,9 @@ export function useRegister() {
 
       // Account requires email confirmation
       alert("Rejestracja zakończona pomyślnie! Sprawdź swoją skrzynkę odbiorczą i kliknij link potwierdzający, aby aktywować konto.");
-      window.location.href = "/login?message=confirm-email";
+      if (typeof window !== "undefined") {
+        window.location.href = "/login?message=confirm-email";
+      }
     } catch (error) {
       setState((prev) => ({
         ...prev,

@@ -50,10 +50,11 @@ export const onRequest = defineMiddleware(
         id: user.id,
       };
       locals.userId = user.id;
-      // Derive username from user metadata (fallback to email local-part)
+      // Derive username from user metadata (fallback to email local-part, then "Użytkownik")
       const metadataUsername = (user.user_metadata as any)?.username as string | undefined;
       const emailFallback = user.email ? user.email.split("@")[0] : undefined;
-      locals.username = metadataUsername || emailFallback;
+      // Ensure we always have a username - use metadata first, then email, then generic fallback
+      locals.username = metadataUsername || emailFallback || "Użytkownik";
     } else {
       // For API routes, return 401
       if (url.pathname.startsWith('/api/')) {

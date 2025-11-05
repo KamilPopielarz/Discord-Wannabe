@@ -101,10 +101,12 @@ export function useGuestJoin() {
       }));
 
       // Success - redirect to the appropriate page based on invite link
-      if (inviteLink.startsWith("/servers/")) {
-        window.location.href = inviteLink;
-      } else if (inviteLink.startsWith("/rooms/")) {
-        window.location.href = `${inviteLink}?view=chat`;
+      if (typeof window !== "undefined") {
+        if (inviteLink.startsWith("/servers/")) {
+          window.location.href = inviteLink;
+        } else if (inviteLink.startsWith("/rooms/")) {
+          window.location.href = `${inviteLink}?view=chat`;
+        }
       }
     } catch (error) {
       setState((prev) => ({

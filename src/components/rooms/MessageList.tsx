@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { ScrollArea } from "../ui/scroll-area";
 import { Button } from "../ui/button";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
@@ -13,7 +13,7 @@ interface MessageListProps {
   hasMore: boolean;
   onLoadMore: () => void;
   onDeleteMessage: (messageId: number) => void;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
 interface MessageItemProps {
@@ -22,7 +22,7 @@ interface MessageItemProps {
   canDelete: boolean;
 }
 
-function MessageItem({ message, onDelete, canDelete }: MessageItemProps) {
+const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: MessageItemProps) {
   const messageDate = new Date(message.createdAt);
   const isToday = messageDate.toDateString() === new Date().toDateString();
   const timeString = isToday
@@ -78,9 +78,9 @@ function MessageItem({ message, onDelete, canDelete }: MessageItemProps) {
       )}
     </div>
   );
-}
+});
 
-export function MessageList({
+export const MessageList = memo(function MessageList({
   messages,
   loading,
   error,
@@ -161,4 +161,4 @@ export function MessageList({
       </ScrollArea>
     </div>
   );
-}
+});

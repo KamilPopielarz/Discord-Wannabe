@@ -82,6 +82,43 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
+    // Auto-join user to server if authenticated
+    const userId = locals.userId;
+    if (userId) {
+      // Check if user is already a member of the server
+      const { data: serverMembership } = await supabase
+        .from("user_server")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("server_id", server.id)
+        .single();
+
+      // Add user to server if not already a member
+      if (!serverMembership) {
+        const { error: serverJoinError } = await supabase
+          .from("user_server")
+          .insert({
+            user_id: userId,
+            server_id: server.id,
+            role: "Member",
+          });
+
+        if (serverJoinError) {
+          console.error("Failed to join user to server:", serverJoinError);
+          // Don't fail the request, just log the error
+        } else {
+          console.log("User successfully joined server");
+          
+          // Increment invitation uses
+          await supabase
+            .from("invitation_links")
+            .update({ uses: (invitation.uses || 0) + 1 })
+            .eq("link", inviteLink)
+            .eq("server_id", server.id);
+        }
+      }
+    }
+
     // Calculate TTL (servers are temporary and expire after 24 hours of inactivity)
     const lastActivity = new Date(server.last_activity);
     const ttlExpiresAt = new Date(lastActivity.getTime() + 24 * 60 * 60 * 1000); // 24 hours

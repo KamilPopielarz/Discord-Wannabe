@@ -38,19 +38,42 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
-    // Check if user has access to this server
-    const { data: membership, error: memberError } = await supabase
+    // Check if server exists
+    const { data: server, error: serverError } = await supabase
+      .from("servers")
+      .select("id")
+      .eq("id", serverId)
+      .single();
+
+    if (serverError || !server) {
+      return new Response(JSON.stringify({ error: "Server not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if user is a member, if not, auto-join them
+    const { data: membership } = await supabase
       .from("user_server")
       .select("role")
       .eq("user_id", userId)
       .eq("server_id", serverId)
       .single();
 
-    if (memberError || !membership) {
-      return new Response(JSON.stringify({ error: "Server not found or access denied" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+    // Auto-join user to server if not already a member
+    if (!membership) {
+      const { error: joinError } = await supabase
+        .from("user_server")
+        .insert({
+          user_id: userId,
+          server_id: serverId,
+          role: "Member",
+        });
+
+      if (joinError) {
+        console.error("Failed to auto-join user to server:", joinError);
+        // Continue anyway - user can still view rooms even if join fails
+      }
     }
 
     // Get all rooms for this server

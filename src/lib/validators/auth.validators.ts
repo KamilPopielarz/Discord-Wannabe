@@ -130,7 +130,12 @@ export const PaginationSchema = z.object({
 });
 
 export const MessageQuerySchema = PaginationSchema.extend({
-  since: z.string().datetime("Invalid datetime format").optional(),
+  since: z
+    .string()
+    .regex(/^\d+$/, "Since must be a positive integer (message ID)")
+    .transform((val) => parseInt(val, 10))
+    .refine((val) => val > 0, "Since must be greater than 0")
+    .optional(),
 });
 
 // UUID validation helper

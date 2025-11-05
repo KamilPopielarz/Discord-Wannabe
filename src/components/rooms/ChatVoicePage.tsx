@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
+import { TypingIndicator } from "./TypingIndicator";
 import { UserList, type RoomUser } from "./UserList";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
@@ -8,9 +9,11 @@ import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { ArrowLeft, MessageCircle, Mic, MicOff, Volume2, VolumeX, Users, Settings, UserX, Shield } from "lucide-react";
+import { ArrowLeft, MessageCircle, Mic, MicOff, Volume2, VolumeX, Users, Settings, UserX, Shield, VolumeOff } from "lucide-react";
 import { useChat } from "../../lib/hooks/useChat";
-import type { GetRoomResponseDto } from "../../types";
+import { useRoomUsers } from "../../lib/hooks/useRoomUsers";
+import { useTypingIndicator } from "../../lib/hooks/useTypingIndicator";
+import type { GetRoomResponseDto, RoomUserDto } from "../../types";
 
 interface ChatVoicePageProps {
   inviteLink?: string;
@@ -18,13 +21,6 @@ interface ChatVoicePageProps {
 }
 
 export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
-  // Debug: Check if we can see Supabase config
-  console.log("ChatVoicePage: Environment check:", {
-    hasSupabaseUrl: !!import.meta.env.SUPABASE_URL,
-    hasSupabaseKey: !!import.meta.env.SUPABASE_KEY,
-    hasPublicSupabaseUrl: !!import.meta.env.PUBLIC_SUPABASE_URL,
-    hasPublicSupabaseKey: !!import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-  });
 
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
   const [roomName, setRoomName] = useState<string | undefined>(undefined);
@@ -40,30 +36,25 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   }, [inviteLink]);
 
   const handleRoomAccess = async () => {
-    // Check what type of session user has
-    const hasUserSession = document.cookie.includes("session_id=");
-    const hasGuestSession = document.cookie.includes("guest_session_id=");
+    // Check what type of session user has (only on client side)
+    const hasUserSession = typeof document !== "undefined" && document.cookie.includes("session_id=");
+    const hasGuestSession = typeof document !== "undefined" && document.cookie.includes("guest_session_id=");
 
-    console.log("User session:", hasUserSession, "Guest session:", hasGuestSession);
 
     if (hasUserSession) {
       // Logged in user - direct access to room
-      console.log("Logged user accessing room directly");
       loadRoomInfo();
     } else if (hasGuestSession) {
       // Already has guest session - direct access to room
-      console.log("Guest user accessing room directly");
       loadRoomInfo();
     } else {
       // No session - create guest session automatically
-      console.log("No session found, creating guest session");
       await createGuestSession();
     }
   };
 
   const createGuestSession = async () => {
     try {
-      console.log("Creating guest session for room invite:", inviteLink);
 
       // First, get room info to find the server
       const roomResponse = await fetch(`/api/rooms/${inviteLink}`, {
@@ -80,7 +71,6 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
       }
 
       const roomData = await roomResponse.json();
-      console.log("Room data for guest session:", roomData);
 
       // Get server invite link from room data
       const serverInviteLink = roomData.serverInviteLink;
@@ -100,7 +90,6 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
       });
 
       if (guestResponse.ok) {
-        console.log("Guest session created successfully");
         // Instead of reloading, just load room info directly
         loadRoomInfo();
       } else {
@@ -118,7 +107,6 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   const loadRoomInfo = async () => {
     if (!inviteLink) return;
 
-    console.log("Loading room info for inviteLink:", inviteLink);
     setLoadingRoomInfo(true);
     setRoomError(undefined);
 
@@ -130,7 +118,6 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
         },
       });
 
-      console.log("Room info response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.text();
@@ -140,7 +127,6 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
       }
 
       const data: GetRoomResponseDto = await response.json();
-      console.log("Room info data:", data);
       setRoomId(data.roomId);
       setRoomName(data.name);
 
@@ -153,6 +139,9 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
     }
   };
 
+  // Current user data - must be declared before using in hooks
+  const [currentUserData, setCurrentUserData] = useState<{userId: string; username: string; isAdmin: boolean} | null>(null);
+
   const {
     state,
     loading,
@@ -162,14 +151,33 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
     sendMessage,
     deleteMessage,
     updateMessageText,
-  } = useChat(roomId);
+    setCurrentUserId,
+    hasNewMessages,
+    unreadCount,
+    notificationsEnabled,
+    requestNotificationPermission,
+    soundSettings,
+    updateSoundSettings,
+    testSound,
+  } = useChat(roomId, roomName);
+
+  const {
+    users: roomUsers,
+    loading: loadingUsers,
+    error: usersError,
+    refreshUsers,
+  } = useRoomUsers(roomId);
+
+  const {
+    typingUsers,
+    handleTyping,
+    stopTyping,
+    addTypingUser,
+  } = useTypingIndicator(roomId, currentUserData?.userId);
 
   const [isVoiceConnected, setIsVoiceConnected] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isDeafened, setIsDeafened] = useState(false);
-
-  // Current user data - only show the actual logged-in user
-  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(null);
   
   // Get current user data from server
   useEffect(() => {
@@ -179,6 +187,7 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
         if (response.ok) {
           const userData = await response.json();
           setCurrentUserData({
+            userId: userData.userId,
             username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
             isAdmin: false // Will be determined by actual permissions later
           });
@@ -187,6 +196,7 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
         console.error('Failed to fetch user data:', error);
         // Fallback to default
         setCurrentUserData({
+          userId: 'unknown',
           username: 'Użytkownik',
           isAdmin: false
         });
@@ -196,35 +206,22 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
     fetchUserData();
   }, []);
 
-  const [roomUsers, setRoomUsers] = useState<RoomUser[]>([]);
-  
-  // Update room users when current user data is available
-  useEffect(() => {
-    if (currentUserData) {
-      setRoomUsers([
-        {
-          id: 'current-user',
-          username: currentUserData.username,
-          role: 'member', // Default role, will be updated based on actual permissions
-          isOnline: true,
-          isInVoice: isVoiceConnected,
-          isMuted: isMuted,
-          isDeafened: isDeafened,
-          joinedAt: new Date().toISOString()
-        }
-      ]);
-    }
-  }, [currentUserData, isVoiceConnected, isMuted, isDeafened]);
+  // Find current user in room users list
+  const currentUser = roomUsers.find(user => user.id === currentUserData?.userId);
+  const currentUserRole = currentUser?.role.toLowerCase() as 'owner' | 'admin' | 'moderator' | 'member' || 'member';
 
-  const currentUser = roomUsers.find(user => user.id === 'current-user');
-  const currentUserRole = currentUser?.role || 'member';
+  // Set current user ID for notifications
+  useEffect(() => {
+    if (currentUserData?.userId) {
+      setCurrentUserId(currentUserData.userId);
+    }
+  }, [currentUserData?.userId, setCurrentUserId]);
 
   const goBack = () => {
     window.history.back();
   };
 
   const handleLogout = () => {
-    console.log('Logging out...');
   };
 
   const toggleView = () => {
@@ -250,44 +247,51 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
     // TODO: Implement actual deafen logic
   };
 
-  // Update current user's voice state when voice settings change
-  useEffect(() => {
-    setRoomUsers(prev => prev.map(user => 
-      user.id === 'current-user' 
-        ? { ...user, isInVoice: isVoiceConnected, isMuted, isDeafened }
-        : user
-    ));
-  }, [isVoiceConnected, isMuted, isDeafened]);
+  // Voice state is now managed locally for the current user
+  // Real voice state synchronization would be implemented with WebRTC
 
   // Admin functions
   const handleKickUser = async (userId: string) => {
+    if (!roomId) return;
+    
     try {
-      // TODO: Implement API call to kick user
-      console.log('Kicking user:', userId);
-      
-      // Remove user from room (mock implementation)
-      setRoomUsers(prev => prev.filter(user => user.id !== userId));
-      
-      // Show success message
-      alert('Użytkownik został wyrzucony z pokoju');
+      const response = await fetch(`/api/rooms/${roomId}/members/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        alert('Użytkownik został wyrzucony z pokoju');
+        refreshUsers(); // Refresh user list
+      } else {
+        alert('Błąd podczas wyrzucania użytkownika');
+      }
     } catch (error) {
       console.error('Error kicking user:', error);
       alert('Błąd podczas wyrzucania użytkownika');
     }
   };
 
-  const handleChangeRole = async (userId: string, newRole: RoomUser['role']) => {
+  const handleChangeRole = async (userId: string, newRole: 'owner' | 'admin' | 'moderator' | 'member') => {
+    if (!roomId) return;
+    
     try {
-      // TODO: Implement API call to change user role
-      console.log('Changing role for user:', userId, 'to:', newRole);
-      
-      // Update user role (mock implementation)
-      setRoomUsers(prev => prev.map(user => 
-        user.id === userId ? { ...user, role: newRole } : user
-      ));
-      
-      // Show success message
-      alert(`Rola użytkownika została zmieniona`);
+      const response = await fetch(`/api/rooms/${roomId}/members/${userId}/role`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role: newRole.charAt(0).toUpperCase() + newRole.slice(1) }),
+      });
+
+      if (response.ok) {
+        alert(`Rola użytkownika została zmieniona`);
+        refreshUsers(); // Refresh user list
+      } else {
+        alert('Błąd podczas zmiany roli użytkownika');
+      }
     } catch (error) {
       console.error('Error changing user role:', error);
       alert('Błąd podczas zmiany roli użytkownika');
@@ -295,43 +299,13 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   };
 
   const handleMuteUser = async (userId: string) => {
-    try {
-      // TODO: Implement API call to mute/unmute user
-      console.log('Toggling mute for user:', userId);
-      
-      // Toggle user mute state (mock implementation)
-      setRoomUsers(prev => prev.map(user => 
-        user.id === userId ? { ...user, isMuted: !user.isMuted } : user
-      ));
-      
-      const user = roomUsers.find(u => u.id === userId);
-      alert(`Użytkownik został ${user?.isMuted ? 'odciszony' : 'wyciszony'}`);
-    } catch (error) {
-      console.error('Error muting user:', error);
-      alert('Błąd podczas zmiany stanu mikrofonu');
-    }
+    // Voice controls would be implemented with WebRTC
+    alert('Funkcja kontroli głosu będzie dostępna po implementacji WebRTC');
   };
 
   const handleDeafenUser = async (userId: string) => {
-    try {
-      // TODO: Implement API call to deafen/undeafen user
-      console.log('Toggling deafen for user:', userId);
-      
-      // Toggle user deafen state (mock implementation)
-      setRoomUsers(prev => prev.map(user => 
-        user.id === userId ? { 
-          ...user, 
-          isDeafened: !user.isDeafened,
-          isMuted: !user.isDeafened ? true : user.isMuted // Deafening also mutes
-        } : user
-      ));
-      
-      const user = roomUsers.find(u => u.id === userId);
-      alert(`Słuchawki użytkownika zostały ${user?.isDeafened ? 'włączone' : 'wyłączone'}`);
-    } catch (error) {
-      console.error('Error deafening user:', error);
-      alert('Błąd podczas zmiany stanu słuchawek');
-    }
+    // Voice controls would be implemented with WebRTC
+    alert('Funkcja kontroli głosu będzie dostępna po implementacji WebRTC');
   };
 
   // Show loading screen while fetching room info
@@ -422,6 +396,11 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
                       <>
                         <MessageCircle className="h-3 w-3 mr-1" />
                         CHAT
+                        {unreadCount > 0 && (
+                          <span className="ml-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                            {unreadCount}
+                          </span>
+                        )}
                       </>
                     )}
                   </Badge>
@@ -431,6 +410,40 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
             </div>
 
             <div className="flex items-center space-x-2">
+              {!notificationsEnabled && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={requestNotificationPermission}
+                  className="matrix-button text-xs"
+                  title="Włącz powiadomienia o nowych wiadomościach"
+                >
+                  🔔 POWIADOMIENIA
+                </Button>
+              )}
+
+              {/* Sound settings */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => updateSoundSettings({ enabled: !soundSettings.enabled })}
+                className={`matrix-button text-xs ${soundSettings.enabled ? 'text-matrix-green' : 'text-muted-foreground'}`}
+                title={soundSettings.enabled ? "Wyłącz dźwięki" : "Włącz dźwięki"}
+              >
+                {soundSettings.enabled ? <Volume2 className="h-3 w-3 mr-1" /> : <VolumeOff className="h-3 w-3 mr-1" />}
+                DŹWIĘKI
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={testSound}
+                className="matrix-button text-xs"
+                title="Testuj dźwięk powiadomienia"
+              >
+                🔊 TEST
+              </Button>
+              
               <Button variant="outline" size="sm" onClick={toggleView} className="matrix-button">
                 {view === "chat" ? (
                   <>
@@ -630,11 +643,15 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
                 messagesEndRef={messagesEndRef}
               />
 
+              <TypingIndicator typingUsers={typingUsers} />
+              
               <MessageInput
                 onSend={sendMessage}
                 disabled={state.sending}
                 value={messageText}
                 onChange={updateMessageText}
+                onTyping={handleTyping}
+                onStopTyping={stopTyping}
                 placeholder={`Napisz wiadomość w ${roomName || `pokoju ${roomId?.slice(-6)}`}...`}
               />
             </>
@@ -643,8 +660,17 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
 
         {/* Enhanced User List */}
         <UserList
-          users={roomUsers}
-          currentUserId="current-user"
+          users={roomUsers.map(user => ({
+            id: user.id,
+            username: user.username,
+            role: user.role.toLowerCase() as 'owner' | 'admin' | 'moderator' | 'member',
+            isOnline: user.isOnline,
+            isInVoice: user.id === currentUserData?.userId ? isVoiceConnected : false, // Only current user's voice state is tracked locally
+            isMuted: user.id === currentUserData?.userId ? isMuted : false,
+            isDeafened: user.id === currentUserData?.userId ? isDeafened : false,
+            joinedAt: user.joinedAt,
+          }))}
+          currentUserId={currentUserData?.userId || ""}
           currentUserRole={currentUserRole}
           isVoiceMode={view === "voice"}
           onKickUser={handleKickUser}

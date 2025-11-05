@@ -10,6 +10,8 @@ interface MessageInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  onTyping?: () => void;
+  onStopTyping?: () => void;
 }
 
 export function MessageInput({
@@ -18,6 +20,8 @@ export function MessageInput({
   value,
   onChange,
   placeholder = "Napisz wiadomość...",
+  onTyping,
+  onStopTyping,
 }: MessageInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [rows, setRows] = useState(1);
@@ -40,6 +44,7 @@ export function MessageInput({
     e.preventDefault();
     if (value.trim() && !disabled) {
       onSend(value);
+      onStopTyping?.(); // Stop typing when message is sent
     }
   };
 
@@ -48,7 +53,19 @@ export function MessageInput({
       e.preventDefault();
       if (value.trim() && !disabled) {
         onSend(value);
+        onStopTyping?.(); // Stop typing when message is sent
       }
+    }
+  };
+
+  const handleChange = (newValue: string) => {
+    onChange(newValue);
+    
+    // Trigger typing indicator when user types
+    if (newValue.length > 0) {
+      onTyping?.();
+    } else {
+      onStopTyping?.();
     }
   };
 
@@ -259,7 +276,7 @@ export function MessageInput({
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const newValue = value.substring(0, start) + emoji + value.substring(end);
-      onChange(newValue);
+      handleChange(newValue);
 
       // Focus back to textarea and set cursor position
       setTimeout(() => {
@@ -277,7 +294,7 @@ export function MessageInput({
           <Textarea
             ref={textareaRef}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={disabled}

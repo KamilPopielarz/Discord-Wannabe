@@ -95,6 +95,69 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
+    // Auto-join user to server and room if authenticated
+    const userId = locals.userId;
+    if (userId) {
+      console.log("Auto-joining user to server and room:", { userId, serverId: room.server_id, roomId: room.id });
+      
+      // Check if user is already a member of the server
+      const { data: serverMembership } = await supabase
+        .from("user_server")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("server_id", room.server_id)
+        .single();
+
+      // Add user to server if not already a member
+      if (!serverMembership) {
+        const { error: serverJoinError } = await supabase
+          .from("user_server")
+          .insert({
+            user_id: userId,
+            server_id: room.server_id,
+            role: "Member",
+          });
+
+        if (serverJoinError) {
+          console.error("Failed to join user to server:", serverJoinError);
+        } else {
+          console.log("User successfully joined server");
+        }
+      }
+
+      // Check if user is already a member of the room
+      const { data: roomMembership } = await supabase
+        .from("user_room")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("room_id", room.id)
+        .single();
+
+      // Add user to room if not already a member
+      if (!roomMembership) {
+        const { error: roomJoinError } = await supabase
+          .from("user_room")
+          .insert({
+            user_id: userId,
+            room_id: room.id,
+            role: "Member",
+          });
+
+        if (roomJoinError) {
+          console.error("Failed to join user to room:", roomJoinError);
+        } else {
+          console.log("User successfully joined room");
+          
+          // Increment invitation uses
+          await supabase
+            .from("invitation_links")
+            .update({ uses: invitation.uses + 1 })
+            .eq("link", inviteLink)
+            .eq("room_id", room.id);
+        }
+      }
+    }
+
     const response: GetRoomResponseDto = {
       roomId: room.id,
       name: room.name,

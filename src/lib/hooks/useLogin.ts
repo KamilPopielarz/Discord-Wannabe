@@ -79,13 +79,15 @@ export function useLogin() {
       }
 
       // Success - check if we should redirect back to a room
-      const urlParams = new URLSearchParams(window.location.search);
-      const returnTo = urlParams.get("returnTo");
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnTo = urlParams.get("returnTo");
 
-      if (returnTo) {
-        window.location.href = returnTo;
-      } else {
-        window.location.href = "/servers";
+        if (returnTo) {
+          window.location.href = returnTo;
+        } else {
+          window.location.href = "/servers";
+        }
       }
     } catch (error) {
       setState((prev) => ({

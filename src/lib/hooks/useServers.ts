@@ -135,6 +135,8 @@ export function useServers() {
         inviteLink: data.inviteLink,
         name: undefined, // Will be set later if needed
         ttlExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h from now
+        isMember: true, // Creator is automatically a member
+        role: "Owner", // Creator gets Owner role
       };
 
       setState((prev) => ({

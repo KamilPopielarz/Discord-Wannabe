@@ -10,6 +10,8 @@ interface ServerCardProps {
     inviteLink: string;
     name?: string;
     ttlExpiresAt: string;
+    isMember?: boolean;
+    role?: string | null;
   };
   onDelete: (serverId: string) => void;
 }
@@ -57,6 +59,16 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             ) : (
               <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
                 {hoursLeft > 0 ? `${hoursLeft}H ${minutesLeft}M` : `${minutesLeft}M`}
+              </Badge>
+            )}
+            {server.isMember && server.role && (
+              <Badge variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                {server.role}
+              </Badge>
+            )}
+            {!server.isMember && (
+              <Badge variant="outline" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                JOIN
               </Badge>
             )}
           </div>
