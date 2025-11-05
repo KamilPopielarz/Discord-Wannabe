@@ -7,36 +7,79 @@ import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { useServers } from "../../lib/hooks/useServers";
 
-export function ServersDashboardPage() {
+interface ServersDashboardPageProps {
+  initialUsername?: string | null;
+}
+
+export function ServersDashboardPage({ initialUsername = null }: ServersDashboardPageProps) {
   const { state, createModalOpen, setCreateModalOpen, creating, loadServers, createServer, deleteServer } =
     useServers();
 
-  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(null);
+  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(
+    initialUsername ? { username: initialUsername, isAdmin: false } : null
+  );
   
-  // Get current user data from server
+  // Get current user data from server (only if initialUsername is not provided)
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/me');
-        if (response.ok) {
-          const userData = await response.json();
+    // If we already have initialUsername, skip fetch or use it as fallback
+    if (initialUsername) {
+      // Still fetch to get latest data, but don't override if it's the same
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch('/api/me', {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          });
+          if (response.ok) {
+            const userData = await response.json();
+            console.log('[ServersDashboardPage] User data from /api/me:', userData);
+            // Only update if we got a different/better username
+            if (userData.username && userData.username !== initialUsername) {
+              setCurrentUserData({
+                username: userData.username || userData.email?.split('@')[0] || initialUsername,
+                isAdmin: false
+              });
+            }
+          }
+        } catch (error) {
+          console.error('[ServersDashboardPage] Failed to fetch user data:', error);
+          // Keep initialUsername if fetch fails
+        }
+      };
+      fetchUserData();
+    } else {
+      // No initialUsername, so we must fetch
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch('/api/me', {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          });
+          if (response.ok) {
+            const userData = await response.json();
+            console.log('[ServersDashboardPage] User data from /api/me:', userData);
+            setCurrentUserData({
+              username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
+              isAdmin: false
+            });
+          } else {
+            console.error('[ServersDashboardPage] /api/me failed:', response.status, response.statusText);
+          }
+        } catch (error) {
+          console.error('[ServersDashboardPage] Failed to fetch user data:', error);
           setCurrentUserData({
-            username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
-            isAdmin: false // Will be determined by actual permissions later
+            username: 'Użytkownik',
+            isAdmin: false
           });
         }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-        // Fallback to default
-        setCurrentUserData({
-          username: 'Użytkownik',
-          isAdmin: false
-        });
-      }
-    };
-    
-    fetchUserData();
-  }, []);
+      };
+      fetchUserData();
+    }
+  }, [initialUsername]);
 
   const handleLogout = () => {
     // This will be handled by the UserMenu component
@@ -65,7 +108,7 @@ export function ServersDashboardPage() {
                   creating={creating}
                 />
                 <UserMenu 
-                  username={currentUserData?.username || "Użytkownik"} 
+                  username={currentUserData?.username || initialUsername || "Użytkownik"} 
                   isAdmin={currentUserData?.isAdmin || false} 
                   onLogout={handleLogout}
                 />

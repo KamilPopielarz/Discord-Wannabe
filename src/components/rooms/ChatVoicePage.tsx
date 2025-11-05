@@ -18,9 +18,10 @@ import type { GetRoomResponseDto, RoomUserDto } from "../../types";
 interface ChatVoicePageProps {
   inviteLink?: string;
   view?: string;
+  initialUsername?: string | null;
 }
 
-export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
+export function ChatVoicePage({ inviteLink, view, initialUsername = null }: ChatVoicePageProps) {
 
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
   const [roomName, setRoomName] = useState<string | undefined>(undefined);
@@ -140,7 +141,9 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
   };
 
   // Current user data - must be declared before using in hooks
-  const [currentUserData, setCurrentUserData] = useState<{userId: string; username: string; isAdmin: boolean} | null>(null);
+  const [currentUserData, setCurrentUserData] = useState<{userId: string; username: string; isAdmin: boolean} | null>(
+    initialUsername ? { userId: 'loading', username: initialUsername, isAdmin: false } : null
+  );
 
   const {
     state,
@@ -188,23 +191,23 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
           const userData = await response.json();
           setCurrentUserData({
             userId: userData.userId,
-            username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
+            username: userData.username || userData.email?.split('@')[0] || initialUsername || 'Użytkownik',
             isAdmin: false // Will be determined by actual permissions later
           });
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error);
-        // Fallback to default
+        // Fallback to initialUsername or default
         setCurrentUserData({
           userId: 'unknown',
-          username: 'Użytkownik',
+          username: initialUsername || 'Użytkownik',
           isAdmin: false
         });
       }
     };
     
     fetchUserData();
-  }, []);
+  }, [initialUsername]);
 
   // Find current user in room users list
   const currentUser = roomUsers.find(user => user.id === currentUserData?.userId);
@@ -471,7 +474,7 @@ export function ChatVoicePage({ inviteLink, view }: ChatVoicePageProps) {
               )}
 
               <UserMenu 
-                username={currentUser?.username || currentUserData?.username || "Użytkownik"} 
+                username={currentUser?.username || currentUserData?.username || initialUsername || "Użytkownik"} 
                 isAdmin={currentUserRole === 'admin' || currentUserRole === 'owner'} 
                 onLogout={handleLogout}
               />

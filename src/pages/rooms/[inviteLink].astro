@@ -5,10 +5,11 @@ import { ChatVoicePage } from "../../components/rooms/ChatVoicePage";
 const { inviteLink } = Astro.params;
 const url = new URL(Astro.request.url);
 const view = url.searchParams.get("view") || "chat";
+const initialUsername = Astro.locals.username || null;
 ---
 
 <Layout title="Pokój - Discord Wannabe">
   <main class="min-h-screen bg-background">
-    <ChatVoicePage client:load inviteLink={inviteLink} view={view} />
+    <ChatVoicePage client:load inviteLink={inviteLink} view={view} initialUsername={initialUsername} />
   </main>
 </Layout>

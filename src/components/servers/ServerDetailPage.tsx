@@ -12,28 +12,39 @@ import { useServerRooms } from "../../lib/hooks/useServerRooms";
 
 interface ServerDetailPageProps {
   inviteLink?: string;
+  initialUsername?: string | null;
 }
 
-export function ServerDetailPage({ inviteLink }: ServerDetailPageProps) {
+export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerDetailPageProps) {
   const { state, createModalOpen, setCreateModalOpen, creating, loadRooms, createRoom, deleteRoom } =
     useServerRooms(inviteLink);
 
-  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(null);
+  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(
+    initialUsername ? { username: initialUsername, isAdmin: false } : null
+  );
   
   // Get current user data from server
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('/api/me');
+        const response = await fetch('/api/me', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
         if (response.ok) {
           const userData = await response.json();
+          console.log('[ServerDetailPage] User data from /api/me:', userData);
           setCurrentUserData({
             username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
             isAdmin: false // Will be determined by actual permissions later
           });
+        } else {
+          console.error('[ServerDetailPage] /api/me failed:', response.status, response.statusText);
         }
       } catch (error) {
-        console.error('Failed to fetch user data:', error);
+        console.error('[ServerDetailPage] Failed to fetch user data:', error);
         // Fallback to default
         setCurrentUserData({
           username: 'Użytkownik',
