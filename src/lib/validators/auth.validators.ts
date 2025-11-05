@@ -45,7 +45,13 @@ export const CreateGuestSessionSchema = z.object({
 });
 
 // Server validation schemas
-export const CreateServerSchema = z.object({});
+export const CreateServerSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Server name is required")
+    .max(100, "Server name must be less than 100 characters")
+    .regex(/^[a-zA-Z0-9\s\-_]+$/, "Server name can only contain letters, numbers, spaces, hyphens, and underscores"),
+});
 
 export const DeleteServerSchema = z.object({});
 

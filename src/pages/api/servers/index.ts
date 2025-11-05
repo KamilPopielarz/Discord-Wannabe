@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import type { CreateServerCommand, CreateServerResponseDto } from "../../../types";
+import { CreateServerSchema } from "../../../lib/validators/auth.validators";
 
 export const prerender = false;
 
@@ -25,7 +26,7 @@ export const GET: APIRoute = async ({ locals }) => {
     // Get all servers (all users should see all servers)
     const { data: servers, error: serversError } = await supabase
       .from("servers")
-      .select("id, invite_link, last_activity")
+      .select("id, invite_link, name, last_activity")
       .order("last_activity", { ascending: false });
 
     if (serversError) {
@@ -50,7 +51,7 @@ export const GET: APIRoute = async ({ locals }) => {
       servers: (servers ?? []).map((s) => ({
         serverId: s.id,
         inviteLink: s.invite_link,
-        name: undefined,
+        name: s.name || undefined,
         ttlExpiresAt: new Date(new Date(s.last_activity).getTime() + 24 * 60 * 60 * 1000).toISOString(),
         isMember: membershipMap.has(s.id),
         role: membershipMap.get(s.id) || null,
@@ -70,7 +71,7 @@ export const GET: APIRoute = async ({ locals }) => {
   }
 };
 
-export const POST: APIRoute = async ({ locals }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Get Supabase client and user info from locals
     const supabase = locals.supabase;
@@ -90,6 +91,31 @@ export const POST: APIRoute = async ({ locals }) => {
       });
     }
 
+    // Parse request body
+    let body: CreateServerCommand;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate input
+    const validationResult = CreateServerSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Validation failed",
+          details: validationResult.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const { name } = validationResult.data;
+
     // Generate unique invite link
     const crypto = await import("crypto");
     const inviteLink = crypto.randomBytes(16).toString("hex");
@@ -98,6 +124,7 @@ export const POST: APIRoute = async ({ locals }) => {
     const { data: newServer, error: createError } = await supabase
       .from("servers")
       .insert({
+        name,
         invite_link: inviteLink,
         last_activity: new Date().toISOString(),
       })
@@ -106,10 +133,16 @@ export const POST: APIRoute = async ({ locals }) => {
 
     if (createError || !newServer) {
       console.error("Failed to create server:", createError);
-      return new Response(JSON.stringify({ error: "Failed to create server" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Failed to create server",
+          details: createError?.message || "Unknown error",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Add creator as server owner

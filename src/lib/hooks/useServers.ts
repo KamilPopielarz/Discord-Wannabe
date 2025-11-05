@@ -85,11 +85,13 @@ export function useServers() {
     }
   };
 
-  const createServer = async () => {
+  const createServer = async (serverData: CreateServerCommand) => {
     setCreating(true);
 
     try {
-      const payload: CreateServerCommand = {};
+      const payload: CreateServerCommand = {
+        name: serverData.name,
+      };
 
       const response = await fetch("/api/servers", {
         method: "POST",
@@ -133,7 +135,7 @@ export function useServers() {
       const newServer = {
         serverId: data.serverId,
         inviteLink: data.inviteLink,
-        name: undefined, // Will be set later if needed
+        name: serverData.name,
         ttlExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h from now
         isMember: true, // Creator is automatically a member
         role: "Owner", // Creator gets Owner role

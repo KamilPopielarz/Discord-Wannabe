@@ -48,7 +48,9 @@ export interface GetServerResponseDto {
   name?: string;
   ttlExpiresAt: string;
 }
-export type CreateServerCommand = Record<string, never>;
+export interface CreateServerCommand {
+  name: string;
+}
 export interface CreateServerResponseDto {
   serverId: string;
   inviteLink: string;
