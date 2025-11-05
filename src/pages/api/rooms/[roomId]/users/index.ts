@@ -31,8 +31,9 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
-    // Check if user has access to this room
+    // Check if user has access to this room and auto-add if needed
     let hasAccess = false;
+    let userRole: string | null = null;
 
     if (userId) {
       // Check user room membership
@@ -45,22 +46,90 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
       if (membership) {
         hasAccess = true;
+        userRole = membership.role;
       } else {
-        // Check if user can access via valid invite link
-        const { data: invitations } = await supabase
-          .from("invitation_links")
-          .select("expires_at, max_uses, uses, revoked")
-          .eq("room_id", roomId);
+        // User is not in user_room - check if they should have access
+        // First, get server_id from room
+        const { data: room } = await supabase
+          .from("rooms")
+          .select("server_id")
+          .eq("id", roomId)
+          .single();
 
-        const validInvitation = invitations?.find(
-          (invitation) =>
-            !invitation.revoked &&
-            (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
-            (!invitation.max_uses || invitation.uses < invitation.max_uses)
-        );
+        if (room) {
+          // Check if user is in server (they should have access if they're in the server)
+          const { data: serverMembership } = await supabase
+            .from("user_server")
+            .select("role")
+            .eq("user_id", userId)
+            .eq("server_id", room.server_id)
+            .single();
 
-        if (validInvitation) {
-          hasAccess = true;
+          if (serverMembership) {
+            // User is in server - they should have access to all rooms in the server
+            hasAccess = true;
+            // Auto-add user to room
+            const { error: roomJoinError } = await supabase
+              .from("user_room")
+              .insert({
+                user_id: userId,
+                room_id: roomId,
+                role: "Member",
+              });
+
+            if (!roomJoinError) {
+              userRole = "Member";
+              console.log("Auto-added user to room (via server membership):", { userId, roomId });
+            } else {
+              console.error("Failed to auto-add user to room:", roomJoinError);
+              // Still grant access even if insert fails
+              userRole = "Member";
+            }
+          } else {
+            // Check if user can access via valid invite link
+            const { data: invitations } = await supabase
+              .from("invitation_links")
+              .select("expires_at, max_uses, uses, revoked")
+              .eq("room_id", roomId);
+
+            const validInvitation = invitations?.find(
+              (invitation) =>
+                !invitation.revoked &&
+                (!invitation.expires_at || new Date(invitation.expires_at) > new Date()) &&
+                (!invitation.max_uses || invitation.uses < invitation.max_uses)
+            );
+
+            if (validInvitation) {
+              hasAccess = true;
+              
+              // Add to server if not already a member
+              await supabase
+                .from("user_server")
+                .insert({
+                  user_id: userId,
+                  server_id: room.server_id,
+                  role: "Member",
+                });
+
+              // Add to room
+              const { error: roomJoinError } = await supabase
+                .from("user_room")
+                .insert({
+                  user_id: userId,
+                  room_id: roomId,
+                  role: "Member",
+                });
+
+              if (!roomJoinError) {
+                userRole = "Member";
+                console.log("Auto-added user to room (via invite link):", { userId, roomId });
+              } else {
+                console.error("Failed to auto-add user to room:", roomJoinError);
+                // Still grant access even if insert fails
+                userRole = "Member";
+              }
+            }
+          }
         }
       }
     } else {
@@ -77,7 +146,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     // Get room users with their auth info
-    const { data: roomUsers, error: usersError } = await supabase
+    // If we just added the user, fetch again to include them
+    let { data: roomUsers, error: usersError } = await supabase
       .from("user_room")
       .select(`
         role,
@@ -85,6 +155,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
         created_at
       `)
       .eq("room_id", roomId);
+    
+    console.log(`[users/index] Fetched ${roomUsers?.length || 0} users for room ${roomId}, current userId: ${userId}`);
 
     if (usersError) {
       console.error("Failed to fetch room users:", usersError);
@@ -94,25 +166,54 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
+    // If we just added the user, fetch again to make sure they're included
+    if (userRole && userId) {
+      const userInList = roomUsers?.some(u => u.user_id === userId);
+      if (!userInList) {
+        console.log(`[users/index] User was just added but not in list, fetching again...`);
+        const { data: refreshedUsers } = await supabase
+          .from("user_room")
+          .select(`
+            role,
+            user_id,
+            created_at
+          `)
+          .eq("room_id", roomId);
+        roomUsers = refreshedUsers;
+        console.log(`[users/index] After refresh: ${roomUsers?.length || 0} users`);
+      }
+    }
+
     // Get user details from auth.users and check online status
     const userIds = roomUsers?.map(u => u.user_id) || [];
     const users: RoomUserDto[] = [];
+    const sixtySecondsAgo = new Date(Date.now() - 60 * 1000).toISOString();
 
+    // Process users from user_room table
     for (const roomUser of roomUsers || []) {
       try {
+        // Check if this is the current user making the request
+        const isCurrentUser = userId && roomUser.user_id === userId;
+        
         // Get user details from Supabase Auth
         const { data: authUser } = await supabase.auth.admin.getUserById(roomUser.user_id);
         
-        if (authUser.user) {
-          // Check if user is online by looking for recent auth sessions
-          const { data: sessions } = await supabase
-            .from("auth_sessions")
-            .select("expires_at")
-            .eq("user_id", roomUser.user_id)
-            .gt("expires_at", new Date().toISOString())
-            .limit(1);
+        if (authUser?.user) {
+          // Current user is always online
+          let isOnline = isCurrentUser;
+          
+          if (!isOnline) {
+            // Check presence for other users
+            const { data: presence } = await supabase
+              .from("user_presence")
+              .select("last_seen")
+              .eq("user_id", roomUser.user_id)
+              .eq("room_id", roomId)
+              .gt("last_seen", sixtySecondsAgo)
+              .limit(1);
 
-          const isOnline = sessions && sessions.length > 0;
+            isOnline = presence && presence.length > 0;
+          }
           
           // Extract username from metadata or fallback to email
           const username = authUser.user.user_metadata?.username || 
@@ -131,13 +232,80 @@ export const GET: APIRoute = async ({ params, locals }) => {
       } catch (error) {
         console.error(`Failed to get user details for ${roomUser.user_id}:`, error);
         // Add user with minimal info if auth lookup fails
+        const isCurrentUser = userId && roomUser.user_id === userId;
         users.push({
           id: roomUser.user_id,
           username: `User-${roomUser.user_id.slice(-6)}`,
           role: roomUser.role as RoomUserDto['role'],
-          isOnline: false,
+          isOnline: isCurrentUser, // Current user is always online even if lookup fails
           joinedAt: roomUser.created_at,
         });
+      }
+    }
+
+    // ALWAYS ensure current user is in the list if they have access
+    // This handles cases where user has access but isn't in user_room yet
+    if (userId && hasAccess) {
+      const currentUserInList = users.some(u => u.id === userId);
+      
+      if (!currentUserInList) {
+        console.log(`[users/index] Current user has access but not in list, adding...`);
+        
+        // Use data from locals (set by middleware) - more reliable than admin API
+        const username = locals.username || 
+                        (locals.user?.email ? locals.user.email.split('@')[0] : undefined) ||
+                        `User-${userId.slice(-6)}`;
+        const email = locals.user?.email;
+        
+        // Try to get user from admin API if available (for more complete data)
+        try {
+          const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+          if (authUser?.user) {
+            const metadataUsername = authUser.user.user_metadata?.username;
+            const finalUsername = metadataUsername || 
+                                 (authUser.user.email ? authUser.user.email.split('@')[0] : undefined) ||
+                                 username;
+            
+            users.push({
+              id: userId,
+              username: finalUsername,
+              email: authUser.user.email || email,
+              role: (userRole || 'Member') as RoomUserDto['role'],
+              isOnline: true, // Current user is always online
+              joinedAt: new Date().toISOString(),
+            });
+            console.log(`[users/index] Added current user: ${finalUsername}`);
+          } else {
+            // Fallback to locals data
+            users.push({
+              id: userId,
+              username,
+              email,
+              role: (userRole || 'Member') as RoomUserDto['role'],
+              isOnline: true,
+              joinedAt: new Date().toISOString(),
+            });
+            console.log(`[users/index] Added current user (fallback): ${username}`);
+          }
+        } catch (error) {
+          // Fallback to locals data if admin API fails
+          console.warn(`[users/index] Admin API failed, using locals data:`, error);
+          users.push({
+            id: userId,
+            username,
+            email,
+            role: (userRole || 'Member') as RoomUserDto['role'],
+            isOnline: true,
+            joinedAt: new Date().toISOString(),
+          });
+          console.log(`[users/index] Added current user (locals fallback): ${username}`);
+        }
+      } else {
+        // Ensure current user is marked as online even if already in list
+        const currentUserIndex = users.findIndex(u => u.id === userId);
+        if (currentUserIndex >= 0) {
+          users[currentUserIndex].isOnline = true;
+        }
       }
     }
 

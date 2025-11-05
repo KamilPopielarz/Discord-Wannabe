@@ -131,7 +131,7 @@ export function useServers() {
 
       const data: CreateServerResponseDto = await response.json();
 
-      // Add new server to the list
+      // Add new server to the list immediately for instant UI feedback
       const newServer = {
         serverId: data.serverId,
         inviteLink: data.inviteLink,
@@ -150,17 +150,22 @@ export function useServers() {
       setCreating(false);
       setCreateModalOpen(false);
 
-      // Show success message and copy invite link
+      // Copy invite link silently (non-blocking)
       if (navigator.clipboard) {
         try {
           await navigator.clipboard.writeText(data.inviteLink);
-          alert(`Serwer utworzony pomyślnie!\nLink zaproszeniowy skopiowany do schowka: ${data.inviteLink}`);
-        } catch {
-          alert(`Serwer utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
+        } catch (error) {
+          console.warn("Failed to copy invite link to clipboard:", error);
         }
-      } else {
-        alert(`Serwer utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
       }
+
+      // Reload servers list in the background to ensure UI is synced with server state
+      // Use setTimeout to avoid blocking the UI update
+      setTimeout(() => {
+        loadServers().catch((error) => {
+          console.error("Failed to reload servers list:", error);
+        });
+      }, 100);
     } catch (error) {
       setState((prev) => ({
         ...prev,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { TypingIndicator } from "./TypingIndicator";
@@ -133,6 +133,14 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
 
       // In simplified flow, if user has session and room exists, they have access
       // hasAccess is already true by default
+      
+      // Wait a bit for room join to complete, then refresh users list
+      setTimeout(() => {
+        if (data.roomId) {
+          // This will trigger useRoomUsers to reload
+          console.log("Room loaded, users will be refreshed automatically");
+        }
+      }, 500);
     } catch (error) {
       setRoomError("Błąd połączenia. Sprawdź połączenie internetowe");
     } finally {
@@ -144,6 +152,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   const [currentUserData, setCurrentUserData] = useState<{userId: string; username: string; isAdmin: boolean} | null>(
     initialUsername ? { userId: 'loading', username: initialUsername, isAdmin: false } : null
   );
+  
+  // Ref to store heartbeat interval
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     state,
@@ -212,6 +223,17 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   // Find current user in room users list
   const currentUser = roomUsers.find(user => user.id === currentUserData?.userId);
   const currentUserRole = currentUser?.role.toLowerCase() as 'owner' | 'admin' | 'moderator' | 'member' || 'member';
+  
+  // Debug: log users list
+  useEffect(() => {
+    if (roomId && roomUsers.length > 0) {
+      console.log(`[ChatVoicePage] Room users:`, roomUsers.map(u => ({ id: u.id, username: u.username, isOnline: u.isOnline })));
+      console.log(`[ChatVoicePage] Current user:`, currentUserData?.userId, currentUserData?.username);
+      console.log(`[ChatVoicePage] Found in list:`, currentUser ? 'YES' : 'NO');
+    } else if (roomId && roomUsers.length === 0) {
+      console.log(`[ChatVoicePage] No users found for room ${roomId}`);
+    }
+  }, [roomId, roomUsers, currentUserData, currentUser]);
 
   // Set current user ID for notifications
   useEffect(() => {
@@ -219,6 +241,65 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
       setCurrentUserId(currentUserData.userId);
     }
   }, [currentUserData?.userId, setCurrentUserId]);
+
+  // Presence heartbeat - update user presence every 15 seconds
+  useEffect(() => {
+    if (!roomId || !currentUserData?.userId || currentUserData.userId === 'unknown' || currentUserData.userId === 'loading') {
+      return;
+    }
+
+    // Wait a bit to ensure user is added to room first
+    const timeoutId = setTimeout(() => {
+      // Update presence immediately when entering room
+      const updatePresence = async () => {
+        try {
+          const response = await fetch(`/api/rooms/${roomId}/presence`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.text();
+            console.error('Failed to update presence:', response.status, errorData);
+          } else {
+            console.log('Presence updated successfully');
+          }
+        } catch (error) {
+          console.error('Failed to update presence:', error);
+        }
+      };
+
+      // Initial presence update
+      updatePresence();
+
+      // Set up heartbeat interval (every 15 seconds)
+      heartbeatIntervalRef.current = setInterval(() => {
+        updatePresence();
+      }, 15000);
+    }, 1000); // Wait 1 second for room join to complete
+
+    // Cleanup: remove presence when leaving
+    return () => {
+      clearTimeout(timeoutId);
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+        heartbeatIntervalRef.current = null;
+      }
+      // Remove presence when component unmounts
+      if (roomId && currentUserData?.userId && currentUserData.userId !== 'unknown' && currentUserData.userId !== 'loading') {
+        fetch(`/api/rooms/${roomId}/presence`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).catch(error => {
+          console.error('Failed to remove presence:', error);
+        });
+      }
+    };
+  }, [roomId, currentUserData?.userId]);
 
   const goBack = () => {
     window.history.back();

@@ -68,6 +68,8 @@ export function useRoomUsers(roomId?: string) {
       }
 
       const data: ListRoomUsersResponseDto = await response.json();
+      
+      console.log(`[useRoomUsers] Received ${data.users.length} users from API for room ${roomId}`);
 
       setState((prev) => ({
         ...prev,

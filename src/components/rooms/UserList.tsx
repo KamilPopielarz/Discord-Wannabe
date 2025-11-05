@@ -315,14 +315,14 @@ export function UserList({
   const voiceUsers = onlineUsers.filter(user => user.isInVoice);
 
   return (
-    <div className="w-64 border-l border-matrix-green/20 bg-muted/30 p-4 hidden lg:block">
+    <div className="w-full sm:w-64 border-l border-matrix-green/20 bg-muted/30 p-4 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <Users className="h-4 w-4 text-matrix-green" />
           <span className="font-medium matrix-title">UŻYTKOWNICY</span>
           <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
-            {onlineUsers.length}
+            {sortedUsers.length}
           </Badge>
         </div>
       </div>
@@ -357,7 +357,7 @@ export function UserList({
       )}
 
       {/* Online users */}
-      <div className="mb-4">
+      <div className="mb-4 flex-1 min-h-0 flex flex-col">
         <div className="flex items-center space-x-2 mb-2">
           <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
           <span className="text-xs font-medium matrix-title">ONLINE</span>
@@ -366,22 +366,30 @@ export function UserList({
           </Badge>
         </div>
         
-        <div className="space-y-1 max-h-64 overflow-y-auto">
+        <div className="space-y-1 max-h-64 overflow-y-auto flex-1">
           {onlineUsers
             .filter(user => !isVoiceMode || !user.isInVoice) // Don't duplicate voice users
-            .map(user => (
-              <UserItem
-                key={user.id}
-                user={user}
-                currentUserId={currentUserId}
-                currentUserRole={currentUserRole}
-                isVoiceMode={isVoiceMode}
-                onKickUser={onKickUser}
-                onChangeRole={onChangeRole}
-                onMuteUser={onMuteUser}
-                onDeafenUser={onDeafenUser}
-              />
-            ))}
+            .length > 0 ? (
+            onlineUsers
+              .filter(user => !isVoiceMode || !user.isInVoice)
+              .map(user => (
+                <UserItem
+                  key={user.id}
+                  user={user}
+                  currentUserId={currentUserId}
+                  currentUserRole={currentUserRole}
+                  isVoiceMode={isVoiceMode}
+                  onKickUser={onKickUser}
+                  onChangeRole={onChangeRole}
+                  onMuteUser={onMuteUser}
+                  onDeafenUser={onDeafenUser}
+                />
+              ))
+          ) : (
+            <div className="text-xs text-muted-foreground matrix-text p-2 text-center">
+              Brak użytkowników online
+            </div>
+          )}
         </div>
       </div>
 
@@ -423,6 +431,18 @@ export function UserList({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Empty state - no users at all */}
+      {sortedUsers.length === 0 && (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="text-center">
+            <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+            <p className="text-xs text-muted-foreground matrix-text">
+              Brak użytkowników w pokoju
+            </p>
+          </div>
         </div>
       )}
 
