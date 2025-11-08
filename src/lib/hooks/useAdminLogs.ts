@@ -60,7 +60,7 @@ export function useAdminLogs(serverId?: string) {
         // Endpoint doesn't exist yet, use mock data
         const mockLogs: AuditLogDto[] = [
           {
-            id: "1",
+            id: 1,
             action: "server.create",
             actorId: "user123",
             targetType: "server",
@@ -69,7 +69,7 @@ export function useAdminLogs(serverId?: string) {
             createdAt: new Date().toISOString(),
           },
           {
-            id: "2",
+            id: 2,
             action: "room.create",
             actorId: "user123",
             targetType: "room",
@@ -78,7 +78,7 @@ export function useAdminLogs(serverId?: string) {
             createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
           },
           {
-            id: "3",
+            id: 3,
             action: "user.join",
             actorId: "user789",
             targetType: "server",
