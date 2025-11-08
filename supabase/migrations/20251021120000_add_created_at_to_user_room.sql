@@ -11,3 +11,4 @@ update user_room
   set created_at = now()
   where created_at is null;
 
+
