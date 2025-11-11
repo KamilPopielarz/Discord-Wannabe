@@ -8,6 +8,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "test": "vitest",
+    "test:unit": "vitest",
+    "test:e2e": "playwright test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
@@ -46,6 +49,10 @@
     "@astrojs/tailwind": "^6.0.2",
     "@eslint/compat": "1.2.7",
     "@eslint/js": "9.23.0",
+    "@playwright/test": "^1.56.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@typescript-eslint/eslint-plugin": "8.28.0",
     "@typescript-eslint/parser": "8.28.0",
     "cross-env": "^10.1.0",
@@ -60,9 +67,21 @@
     "eslint-plugin-react-compiler": "19.0.0-beta-aeaed83-20250323",
     "eslint-plugin-react-hooks": "5.2.0",
     "husky": "9.1.7",
+    "jsdom": "^27.1.0",
     "lint-staged": "15.5.0",
+    "msw": "^2.12.0",
     "prettier-plugin-astro": "0.14.1",
-    "typescript-eslint": "8.28.0"
+    "typescript-eslint": "8.28.0",
+    "vitest": "^4.0.8",
+    "whatwg-fetch": "^3.6.20"
+  },
+  "devDependenciesMeta": {
+    "vitest": "optional",
+    "@testing-library/react": "optional",
+    "@testing-library/jest-dom": "optional",
+    "msw": "optional",
+    "playwright": "optional",
+    "whatwg-fetch": "optional"
   },
   "lint-staged": {
     "*.{ts,tsx,astro}": [
