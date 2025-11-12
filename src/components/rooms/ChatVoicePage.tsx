@@ -5,7 +5,6 @@ import { TypingIndicator } from "./TypingIndicator";
 import { UserList, type RoomUser } from "./UserList";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -396,7 +395,6 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   if (loadingRoomInfo) {
     return (
       <>
-        <MatrixBackground />
         <div className="h-screen flex items-center justify-center bg-background relative z-10">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-matrix-green mx-auto mb-4"></div>
@@ -411,7 +409,6 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   if (roomError) {
     return (
       <>
-        <MatrixBackground />
         <div className="h-screen flex items-center justify-center bg-background relative z-10">
           <div className="text-center max-w-md p-6 matrix-form">
             <div className="mx-auto w-24 h-24 bg-destructive/10 border border-destructive/30 rounded-full flex items-center justify-center mb-4">
@@ -453,7 +450,6 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
 
   return (
     <>
-      <MatrixBackground />
       <div className="h-screen flex flex-col bg-background relative z-10">
         {/* Header */}
         <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">

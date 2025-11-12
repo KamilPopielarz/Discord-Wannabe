@@ -4,7 +4,6 @@ import { Input } from "../ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { ErrorBanner } from "../ui/ErrorBanner";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
-import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { GlitchText } from "../ui/GlitchText";
 import { useFormValidation } from "../../lib/hooks/useFormValidation";
@@ -58,7 +57,6 @@ export function LoginForm({
 
   return (
     <>
-      <MatrixBackground />
       <Card className="w-full max-w-md mx-auto matrix-form relative z-10">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center matrix-title">

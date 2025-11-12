@@ -1,15 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
-import { MatrixBackground } from "../components/ui/MatrixBackground";
 import { GlitchText } from "../components/ui/GlitchText";
 import { TypingAnimation } from "../components/ui/TypingAnimation";
 ---
 
 <Layout title="Discord Wannabe - Komunikator">
   <main class="relative min-h-screen flex items-center justify-center bg-background overflow-hidden p-4">
-    <!-- Animated matrix rain background -->
-    <MatrixBackground client:load />
 
     <!-- Utilities (theme) -->
     <div class="absolute top-4 right-4 z-20">

@@ -4,7 +4,6 @@ import { Input } from "../ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { ErrorBanner } from "../ui/ErrorBanner";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
-import { MatrixBackground } from "../ui/MatrixBackground";
 import { TurnstileCaptcha } from "../ui/TurnstileCaptcha";
 import { useFormValidation } from "../../lib/hooks/useFormValidation";
 import type { RegisterUserCommand } from "../../types";
@@ -135,7 +134,6 @@ export function RegisterForm({
 
   return (
     <>
-      <MatrixBackground />
       <Card className="w-full max-w-md mx-auto matrix-form relative z-10">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center matrix-title">

@@ -5,82 +5,164 @@
 @import "tw-animate-css";
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.85 0.15 142);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.85 0.15 142);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.85 0.15 142);
-  --primary: oklch(0.65 0.25 142);
-  --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.15 0 0);
-  --secondary-foreground: oklch(0.75 0.2 142);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.55 0.1 142);
-  --accent: oklch(0.2 0 0);
-  --accent-foreground: oklch(0.85 0.15 142);
-  --destructive: oklch(0.6 0.25 15);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.25 0.05 142);
-  --input: oklch(0.18 0 0);
-  --ring: oklch(0.65 0.25 142);
-  --chart-1: oklch(0.65 0.25 142);
-  --chart-2: oklch(0.55 0.2 142);
-  --chart-3: oklch(0.45 0.15 142);
-  --chart-4: oklch(0.75 0.3 142);
-  --chart-5: oklch(0.35 0.1 142);
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.85 0.15 142);
-  --sidebar-primary: oklch(0.65 0.25 142);
-  --sidebar-primary-foreground: oklch(0.08 0 0);
-  --sidebar-accent: oklch(0.2 0 0);
-  --sidebar-accent-foreground: oklch(0.85 0.15 142);
-  --sidebar-border: oklch(0.25 0.05 142);
-  --sidebar-ring: oklch(0.65 0.25 142);
-  
-  /* Matrix-specific colors */
-  --matrix-green: oklch(0.65 0.25 142);
-  --matrix-green-bright: oklch(0.85 0.3 142);
-  --matrix-green-dim: oklch(0.45 0.15 142);
-  --matrix-green-dark: oklch(0.25 0.1 142);
-  --matrix-black: oklch(0.08 0 0);
-  --matrix-dark-green: oklch(0.15 0.05 142);
+  --background: oklch(0.9848 0 0);
+  --foreground: oklch(0.2161 0.0056 56.0752);
+  --card: oklch(1.0000 0 0);
+  --card-foreground: oklch(0.2161 0.0056 56.0752);
+  --popover: oklch(1.0000 0 0);
+  --popover-foreground: oklch(0.2161 0.0056 56.0752);
+  --primary: oklch(0.5698 0.2174 20.8223);
+  --primary-foreground: oklch(0.9848 0 0);
+  --secondary: oklch(0.9713 0.0163 58.1294);
+  --secondary-foreground: oklch(0.2161 0.0056 56.0752);
+  --muted: oklch(0.9713 0.0163 58.1294);
+  --muted-foreground: oklch(0.5129 0.0202 57.8140);
+  --accent: oklch(0.9430 0.0329 57.8768);
+  --accent-foreground: oklch(0.5698 0.2174 20.8223);
+  --destructive: oklch(0.5875 0.2303 28.2622);
+  --destructive-foreground: oklch(0.9848 0 0);
+  --border: oklch(0.9070 0.0105 48.6100);
+  --input: oklch(0.9070 0.0105 48.6100);
+  --ring: oklch(0.5698 0.2174 20.8223);
+  --chart-1: oklch(0.5698 0.2174 20.8223);
+  --chart-2: oklch(0.6867 0.1410 53.2540);
+  --chart-3: oklch(0.6848 0.1132 25.9441);
+  --chart-4: oklch(0.8393 0.0885 66.1328);
+  --chart-5: oklch(0.8602 0.0600 346.8792);
+  --sidebar: oklch(0.2161 0.0056 56.0752);
+  --sidebar-foreground: oklch(0.9848 0 0);
+  --sidebar-primary: oklch(0.5698 0.2174 20.8223);
+  --sidebar-primary-foreground: oklch(0.9848 0 0);
+  --sidebar-accent: oklch(0.3220 0.0102 55.9983);
+  --sidebar-accent-foreground: oklch(0.5698 0.2174 20.8223);
+  --sidebar-border: oklch(0.2703 0.0080 56.0274);
+  --sidebar-ring: oklch(0.5698 0.2174 20.8223);
+  --font-sans: 'Montserrat', sans-serif;
+  --font-serif: 'Lora', serif;
+  --font-mono: 'Fira Code', monospace;
+  --radius: 0.5rem;
+  --shadow-x: 0px;
+  --shadow-y: 4px;
+  --shadow-blur: 10px;
+  --shadow-spread: 2px;
+  --shadow-opacity: 0.1;
+  --shadow-color: hsl(24, 9%, 10%);
+  --shadow-2xs: 0px 4px 10px 2px hsl(24 9% 10% / 0.05);
+  --shadow-xs: 0px 4px 10px 2px hsl(24 9% 10% / 0.05);
+  --shadow-sm: 0px 4px 10px 2px hsl(24 9% 10% / 0.10), 0px 1px 2px 1px hsl(24 9% 10% / 0.10);
+  --shadow: 0px 4px 10px 2px hsl(24 9% 10% / 0.10), 0px 1px 2px 1px hsl(24 9% 10% / 0.10);
+  --shadow-md: 0px 4px 10px 2px hsl(24 9% 10% / 0.10), 0px 2px 4px 1px hsl(24 9% 10% / 0.10);
+  --shadow-lg: 0px 4px 10px 2px hsl(24 9% 10% / 0.10), 0px 4px 6px 1px hsl(24 9% 10% / 0.10);
+  --shadow-xl: 0px 4px 10px 2px hsl(24 9% 10% / 0.10), 0px 8px 10px 1px hsl(24 9% 10% / 0.10);
+  --shadow-2xl: 0px 4px 10px 2px hsl(24 9% 10% / 0.25);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(0.2773 0.0237 31.4605);
+  --foreground: oklch(0.9848 0 0);
+  --card: oklch(0.2131 0.0265 19.4920);
+  --card-foreground: oklch(0.9848 0 0);
+  --popover: oklch(0.2703 0.0080 56.0274);
+  --popover-foreground: oklch(0.9848 0 0);
+  --primary: oklch(0.4719 0.1436 24.4979);
+  --primary-foreground: oklch(0.9848 0 0);
+  --secondary: oklch(0.2913 0.0416 19.8924);
+  --secondary-foreground: oklch(0.9848 0 0);
+  --muted: oklch(0.3220 0.0102 55.9983);
+  --muted-foreground: oklch(0.7262 0.0161 58.0536);
+  --accent: oklch(0.3716 0.0123 55.9787);
+  --accent-foreground: oklch(0.5698 0.2174 20.8223);
+  --destructive: oklch(0.5875 0.2303 28.2622);
+  --destructive-foreground: oklch(0.9848 0 0);
+  --border: oklch(0.3716 0.0123 55.9787);
+  --input: oklch(0.3716 0.0123 55.9787);
+  --ring: oklch(0.5698 0.2174 20.8223);
+  --chart-1: oklch(0.5698 0.2174 20.8223);
+  --chart-2: oklch(0.6867 0.1410 53.2540);
+  --chart-3: oklch(0.6848 0.1132 25.9441);
+  --chart-4: oklch(0.8393 0.0885 66.1328);
+  --chart-5: oklch(0.8602 0.0600 346.8792);
+  --sidebar: oklch(0.1570 0.0035 39.3802);
+  --sidebar-foreground: oklch(0.9848 0 0);
+  --sidebar-primary: oklch(0.5698 0.2174 20.8223);
+  --sidebar-primary-foreground: oklch(0.9848 0 0);
+  --sidebar-accent: oklch(0.2140 0.0066 39.3457);
+  --sidebar-accent-foreground: oklch(0.5698 0.2174 20.8223);
+  --sidebar-border: oklch(0.2674 0.0094 39.3300);
+  --sidebar-ring: oklch(0.5698 0.2174 20.8223);
+  --font-sans: 'Montserrat', sans-serif;
+  --font-serif: 'Lora', serif;
+  --font-mono: 'Fira Code', monospace;
+  --radius: 0.5rem;
+  --shadow-x: 0px;
+  --shadow-y: 6px;
+  --shadow-blur: 12px;
+  --shadow-spread: 3px;
+  --shadow-opacity: 0.3;
+  --shadow-color: hsl(0, 0%, 0%);
+  --shadow-2xs: 0px 6px 12px 3px hsl(0 0% 0% / 0.15);
+  --shadow-xs: 0px 6px 12px 3px hsl(0 0% 0% / 0.15);
+  --shadow-sm: 0px 6px 12px 3px hsl(0 0% 0% / 0.30), 0px 1px 2px 2px hsl(0 0% 0% / 0.30);
+  --shadow: 0px 6px 12px 3px hsl(0 0% 0% / 0.30), 0px 1px 2px 2px hsl(0 0% 0% / 0.30);
+  --shadow-md: 0px 6px 12px 3px hsl(0 0% 0% / 0.30), 0px 2px 4px 2px hsl(0 0% 0% / 0.30);
+  --shadow-lg: 0px 6px 12px 3px hsl(0 0% 0% / 0.30), 0px 4px 6px 2px hsl(0 0% 0% / 0.30);
+  --shadow-xl: 0px 6px 12px 3px hsl(0 0% 0% / 0.30), 0px 8px 10px 2px hsl(0 0% 0% / 0.30);
+  --shadow-2xl: 0px 6px 12px 3px hsl(0 0% 0% / 0.75);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
 }
 
 @layer base {
@@ -89,158 +171,152 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, 
+      oklch(0.05 0.01 250) 0%, 
+      oklch(0.08 0.015 240) 30%,
+      oklch(0.12 0.02 230) 60%,
+      oklch(0.06 0.01 250) 100%
+    );
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background: linear-gradient(135deg, 
+      oklch(0.05 0.01 250) 0%, 
+      oklch(0.08 0.015 240) 30%,
+      oklch(0.12 0.02 230) 60%,
+      oklch(0.06 0.01 250) 100%
+    );
+    background-attachment: fixed;
+  }
+
+  /* Landing page specific background - subtle gray gradient */
+  body.landing-page {
+    background: linear-gradient(to bottom, 
+      oklch(0.85 0.005 250), 
+      oklch(0.95 0.002 250),
+      oklch(1.0 0 0)
+    );
+    background-attachment: fixed;
   }
 }
 
 @layer components {
-  /* Matrix-inspired animations */
-  @keyframes matrix-rain {
-    0% { transform: translateY(-100vh); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(100vh); opacity: 0; }
-  }
-
-  @keyframes matrix-glow {
-    0%, 100% { 
-      text-shadow: 0 0 5px var(--matrix-green), 0 0 10px var(--matrix-green), 0 0 15px var(--matrix-green);
-    }
-    50% { 
-      text-shadow: 0 0 10px var(--matrix-green-bright), 0 0 20px var(--matrix-green-bright), 0 0 30px var(--matrix-green-bright);
-    }
-  }
-
-  @keyframes matrix-flicker {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
-  }
-
-  @keyframes matrix-typing {
-    from { width: 0; }
-    to { width: 100%; }
-  }
-
-  @keyframes matrix-cursor {
-    0%, 50% { border-color: transparent; }
-    51%, 100% { border-color: var(--matrix-green); }
-  }
-
-  /* Matrix background effect */
-  .matrix-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-    overflow: hidden;
-  }
-
-  .matrix-bg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(ellipse at center, transparent 0%, var(--matrix-black) 70%);
-    z-index: 1;
-  }
-
-  /* Matrix form styling */
+  /* Modern form styling - gray/black with green accent */
   .matrix-form {
-    background: linear-gradient(135deg, 
-      rgba(0, 0, 0, 0.9) 0%, 
-      rgba(0, 20, 0, 0.8) 50%, 
-      rgba(0, 0, 0, 0.9) 100%);
-    border: 1px solid var(--matrix-green-dark);
+    background: var(--card);
+    border: 1px solid var(--border);
     box-shadow: 
-      0 0 20px rgba(0, 255, 65, 0.1),
-      inset 0 0 20px rgba(0, 255, 65, 0.05);
+      0 1px 3px 0 rgb(0 0 0 / 0.08),
+      0 1px 2px -1px rgb(0 0 0 / 0.08),
+      0 0 0 1px rgb(0 0 0 / 0.02);
     backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+  }
+
+  .matrix-form:hover {
+    box-shadow: 
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1),
+      0 0 0 1px var(--accent-green-dim);
+  }
+
+  .dark .matrix-form {
+    background: var(--card);
+    box-shadow: 
+      0 1px 3px 0 rgb(0 0 0 / 0.6),
+      0 1px 2px -1px rgb(0 0 0 / 0.5),
+      0 0 0 1px rgb(255 255 255 / 0.03),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.02);
+  }
+
+  .dark .matrix-form:hover {
+    background: oklch(0.1 0 0);
+    box-shadow: 
+      0 4px 6px -1px rgb(0 0 0 / 0.7),
+      0 2px 4px -2px rgb(0 0 0 / 0.6),
+      0 0 0 1px var(--accent-green-dim),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.03);
   }
 
   .matrix-input {
-    background: rgba(0, 20, 0, 0.3);
-    border: 1px solid var(--matrix-green-dark);
-    color: var(--matrix-green);
-    transition: all 0.3s ease;
+    background: var(--input);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    transition: all 0.2s ease;
   }
 
   .matrix-input:focus {
-    border-color: var(--matrix-green);
-    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-    background: rgba(0, 30, 0, 0.5);
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px var(--accent-green-dim);
+    outline: none;
   }
 
   .matrix-input::placeholder {
-    color: var(--matrix-green-dim);
+    color: var(--muted-foreground);
   }
 
   .matrix-button {
-    background: linear-gradient(45deg, var(--matrix-green-dark), var(--matrix-green));
-    border: 1px solid var(--matrix-green);
-    color: var(--matrix-black);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    background: var(--primary);
+    border: 1px solid var(--border);
+    color: var(--primary-foreground);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
 
   .matrix-button:hover {
-    background: linear-gradient(45deg, var(--matrix-green), var(--matrix-green-bright));
-    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+    background: linear-gradient(to bottom, var(--accent-green-dim), var(--accent-green));
+    border-color: var(--accent-green);
+    color: white;
+    box-shadow: 
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1),
+      0 0 0 1px var(--accent-green-dim);
     transform: translateY(-1px);
   }
 
   .matrix-button:active {
     transform: translateY(0);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
 
-  .matrix-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
+  .dark .matrix-button {
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.2);
   }
 
-  .matrix-button:hover::before {
-    left: 100%;
+  .dark .matrix-button:hover {
+    background: linear-gradient(to bottom, var(--accent-green-dim), var(--accent-green));
+    border-color: var(--accent-green);
+    color: white;
+    box-shadow: 
+      0 4px 6px -1px rgb(0 0 0 / 0.3),
+      0 2px 4px -2px rgb(0 0 0 / 0.2),
+      0 0 0 1px var(--accent-green-dim);
   }
 
-  /* Matrix text effects */
+  /* Text effects - subtle green accent */
   .matrix-text {
-    color: var(--matrix-green);
-    text-shadow: 0 0 5px var(--matrix-green);
-    animation: matrix-glow 2s ease-in-out infinite alternate;
+    color: var(--foreground);
   }
 
   .matrix-title {
-    color: var(--matrix-green-bright);
-    text-shadow: 0 0 10px var(--matrix-green);
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    letter-spacing: 2px;
+    color: var(--foreground);
+    font-weight: 700;
+    letter-spacing: -0.025em;
   }
 
   .matrix-error {
     color: var(--destructive);
-    text-shadow: 0 0 5px var(--destructive);
-    animation: matrix-flicker 1s ease-in-out infinite;
   }
 
-  /* Matrix loading spinner */
+  /* Loading spinner */
   .matrix-spinner {
-    border: 2px solid var(--matrix-green-dark);
-    border-top: 2px solid var(--matrix-green);
+    border: 2px solid var(--border);
+    border-top: 2px solid var(--accent-green);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -250,17 +326,16 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Matrix link styling */
+  /* Link styling with green accent */
   .matrix-link {
-    color: var(--matrix-green);
+    color: var(--foreground);
     text-decoration: none;
     position: relative;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
   .matrix-link:hover {
-    color: var(--matrix-green-bright);
-    text-shadow: 0 0 5px var(--matrix-green);
+    color: var(--accent-green);
   }
 
   .matrix-link::after {
@@ -270,8 +345,8 @@
     left: 0;
     width: 0;
     height: 1px;
-    background: var(--matrix-green);
-    transition: width 0.3s ease;
+    background: var(--accent-green);
+    transition: width 0.2s ease;
   }
 
   .matrix-link:hover::after {

@@ -3,7 +3,6 @@ import { ServerList } from "./ServerList";
 import { CreateServerModal } from "./CreateServerModal";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { useServers } from "../../lib/hooks/useServers";
 
@@ -88,7 +87,6 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
 
   return (
     <>
-      <MatrixBackground />
       <div className="min-h-screen bg-background relative z-10">
         {/* Header */}
         <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

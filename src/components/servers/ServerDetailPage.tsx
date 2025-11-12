@@ -3,7 +3,6 @@ import { RoomList } from "./RoomList";
 import { CreateRoomModal } from "./CreateRoomModal";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -74,7 +73,6 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
   if (state.loadingServer) {
     return (
       <>
-        <MatrixBackground />
         <div className="min-h-screen bg-background flex items-center justify-center relative z-10">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-matrix-green mx-auto mb-4"></div>
@@ -88,7 +86,6 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
   if (state.error && !state.serverInfo) {
     return (
       <>
-        <MatrixBackground />
         <div className="min-h-screen bg-background flex items-center justify-center relative z-10">
           <div className="text-center max-w-md p-6 matrix-form">
             <div className="mx-auto w-24 h-24 bg-destructive/10 border border-destructive/30 rounded-full flex items-center justify-center mb-4">
@@ -115,7 +112,6 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
 
   return (
     <>
-      <MatrixBackground />
       <div className="min-h-screen bg-background relative z-10">
         {/* Header */}
         <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
