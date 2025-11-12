@@ -45,7 +45,10 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@astrojs/tailwind": "^5.1.5",
+=======
+>>>>>>> testPlan
     "@eslint/compat": "1.2.7",
     "@eslint/js": "9.23.0",
     "@playwright/test": "^1.56.1",
