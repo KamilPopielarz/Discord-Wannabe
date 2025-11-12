@@ -40,6 +40,11 @@ export default {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        "accent-green": {
+          DEFAULT: "var(--accent-green)",
+          bright: "var(--accent-green-bright)",
+          dim: "var(--accent-green-dim)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -39,10 +39,10 @@ export function TypingAnimation({
   }, []);
 
   return (
-    <span className={`matrix-text ${className}`}>
+    <span className={className || ''} style={className.includes('!text-white') ? { color: 'white' } : undefined}>
       {displayText}
       {showCursor && (
-        <span className="inline-block w-0.5 h-5 bg-matrix-green ml-1 animate-pulse" />
+        <span className="inline-block w-0.5 h-5 bg-accent-green ml-1 animate-pulse" />
       )}
     </span>
   );

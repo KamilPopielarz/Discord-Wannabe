@@ -60,7 +60,7 @@ export function MessageInput({
 
   const handleChange = (newValue: string) => {
     onChange(newValue);
-    
+
     // Trigger typing indicator when user types
     if (newValue.length > 0) {
       onTyping?.();
@@ -288,7 +288,7 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-matrix-green/20 bg-background/95 backdrop-blur p-4">
+    <div className="border-t border-border bg-background/95 backdrop-blur p-4">
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="relative">
           <Textarea
@@ -308,7 +308,7 @@ export function MessageInput({
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-2 top-2 h-8 w-8 p-0 text-matrix-green/70 hover:text-matrix-green hover:bg-matrix-green/10 matrix-button"
+            className="absolute right-2 top-2 h-8 w-8 p-0 text-accent-green/70 hover:text-accent-green hover:bg-accent-green/10 matrix-button"
             disabled={disabled}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             title="Dodaj emoji"
@@ -318,14 +318,14 @@ export function MessageInput({
 
           {/* Emoji picker */}
           {showEmojiPicker && (
-            <div className="absolute right-0 top-12 z-50 w-80 max-h-64 overflow-y-auto matrix-form border border-matrix-green/30 rounded-lg shadow-lg p-3">
+            <div className="absolute right-0 top-12 z-50 w-80 max-h-64 overflow-y-auto matrix-form border border-border rounded-lg shadow-lg p-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium matrix-title">WYBIERZ EMOJI</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 matrix-button hover:bg-matrix-green/10"
+                  className="h-6 w-6 p-0 matrix-button hover:bg-accent-green/10"
                   onClick={() => setShowEmojiPicker(false)}
                 >
                   <X className="h-3 w-3" />
@@ -338,7 +338,7 @@ export function MessageInput({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-lg hover:bg-matrix-green/10 matrix-button"
+                    className="h-8 w-8 p-0 text-lg hover:bg-accent-green/10 matrix-button"
                     onClick={() => addEmoji(emoji)}
                     disabled={disabled}
                   >
@@ -352,16 +352,16 @@ export function MessageInput({
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 text-xs">
-            <span className={`font-mono ${isNearLimit ? (isOverLimit ? "text-destructive matrix-error" : "text-amber-500") : "text-muted-foreground"}`}>
+            <span
+              className={`font-mono ${isNearLimit ? (isOverLimit ? "text-destructive matrix-error" : "text-amber-500") : "text-muted-foreground"}`}
+            >
               [{characterCount}/{maxCharacters}]
             </span>
             {isOverLimit && <span className="text-destructive matrix-error font-mono">PRZEKROCZONO LIMIT ZNAKÓW</span>}
           </div>
 
           <div className="flex items-center space-x-3">
-            <div className="text-xs text-muted-foreground font-mono">
-              [ENTER] - WYŚLIJ | [SHIFT+ENTER] - NOWA LINIA
-            </div>
+            <div className="text-xs text-muted-foreground font-mono">[ENTER] - WYŚLIJ | [SHIFT+ENTER] - NOWA LINIA</div>
 
             <Button
               type="submit"

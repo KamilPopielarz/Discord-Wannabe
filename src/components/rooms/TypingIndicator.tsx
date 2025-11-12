@@ -25,9 +25,9 @@ export const TypingIndicator = memo(function TypingIndicator({ typingUsers }: Ty
     <div className="px-4 py-2 text-sm text-muted-foreground matrix-text">
       <div className="flex items-center space-x-2">
         <div className="flex space-x-1">
-          <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse"></div>
-          <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div className="w-2 h-2 bg-accent-green rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-accent-green rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-accent-green rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
         </div>
         <span className="font-mono">{getTypingText()}</span>
       </div>

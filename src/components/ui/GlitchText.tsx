@@ -58,8 +58,9 @@ export function GlitchText({
 
   return (
     <span 
-      className={`matrix-text ${isGlitching ? 'matrix-flicker' : ''} ${className}`}
+      className={className}
       style={{
+        color: className.includes('!text-white') ? 'white' : undefined,
         textShadow: isGlitching 
           ? '2px 0 #ff0000, -2px 0 #00ff00, 0 2px #0000ff' 
           : undefined

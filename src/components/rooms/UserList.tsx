@@ -66,7 +66,7 @@ const roleConfig = {
   },
   member: {
     label: 'CZŁONEK',
-    color: 'bg-matrix-green/20 text-matrix-green border-matrix-green/30',
+    color: 'bg-accent-green/20 text-accent-green border-accent-green/30',
     icon: Users,
     priority: 1
   }
@@ -114,7 +114,7 @@ function UserItem({
     <div 
       className={`flex items-center space-x-2 p-2 rounded-md transition-all duration-200 ${
         user.isOnline 
-          ? 'bg-background/50 matrix-form hover:bg-matrix-green/5' 
+          ? 'bg-background/50 matrix-form hover:bg-accent-green/5' 
           : 'bg-muted/30 opacity-60'
       }`}
       onMouseEnter={() => setShowActions(true)}
@@ -123,18 +123,18 @@ function UserItem({
       {/* Avatar */}
       <div className={`relative w-8 h-8 rounded-full border flex items-center justify-center ${
         user.isOnline 
-          ? 'bg-matrix-green/10 border-matrix-green/30' 
+          ? 'bg-accent-green/10 border-accent-green/30' 
           : 'bg-muted border-muted-foreground/30'
       }`}>
         <span className={`text-xs font-medium ${
-          user.isOnline ? 'text-matrix-green' : 'text-muted-foreground'
+          user.isOnline ? 'text-accent-green' : 'text-muted-foreground'
         }`}>
           {user.username.charAt(0).toUpperCase()}
         </span>
         
         {/* Online indicator */}
         {user.isOnline && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-matrix-green rounded-full border-2 border-background"></div>
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent-green rounded-full border-2 border-background"></div>
         )}
       </div>
 
@@ -162,8 +162,8 @@ function UserItem({
             {user.isDeafened && <VolumeX className="h-3 w-3 text-destructive" />}
             {!user.isMuted && !user.isDeafened && (
               <div className="flex items-center space-x-1">
-                <Mic className="h-3 w-3 text-matrix-green" />
-                <Volume2 className="h-3 w-3 text-matrix-green" />
+                <Mic className="h-3 w-3 text-accent-green" />
+                <Volume2 className="h-3 w-3 text-accent-green" />
               </div>
             )}
           </div>
@@ -177,7 +177,7 @@ function UserItem({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-matrix-green/10"
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-accent-green/10"
             >
               <MoreVertical className="h-3 w-3" />
             </Button>
@@ -195,7 +195,7 @@ function UserItem({
               <>
                 <DropdownMenuItem 
                   onClick={() => handleRoleChange('admin')}
-                  className="matrix-text hover:bg-matrix-green/10"
+                  className="matrix-text hover:bg-accent-green/10"
                   disabled={user.role === 'admin'}
                 >
                   <Shield className="mr-2 h-3 w-3" />
@@ -204,7 +204,7 @@ function UserItem({
                 
                 <DropdownMenuItem 
                   onClick={() => handleRoleChange('moderator')}
-                  className="matrix-text hover:bg-matrix-green/10"
+                  className="matrix-text hover:bg-accent-green/10"
                   disabled={user.role === 'moderator'}
                 >
                   <Shield className="mr-2 h-3 w-3" />
@@ -213,7 +213,7 @@ function UserItem({
                 
                 <DropdownMenuItem 
                   onClick={() => handleRoleChange('member')}
-                  className="matrix-text hover:bg-matrix-green/10"
+                  className="matrix-text hover:bg-accent-green/10"
                   disabled={user.role === 'member'}
                 >
                   <Users className="mr-2 h-3 w-3" />
@@ -231,7 +231,7 @@ function UserItem({
                   <>
                     <DropdownMenuItem 
                       onClick={() => onMuteUser(user.id)}
-                      className="matrix-text hover:bg-matrix-green/10"
+                      className="matrix-text hover:bg-accent-green/10"
                     >
                       {user.isMuted ? (
                         <>
@@ -248,7 +248,7 @@ function UserItem({
                     
                     <DropdownMenuItem 
                       onClick={() => onDeafenUser(user.id)}
-                      className="matrix-text hover:bg-matrix-green/10"
+                      className="matrix-text hover:bg-accent-green/10"
                     >
                       {user.isDeafened ? (
                         <>
@@ -315,13 +315,13 @@ export function UserList({
   const voiceUsers = onlineUsers.filter(user => user.isInVoice);
 
   return (
-    <div className="w-full sm:w-64 border-l border-matrix-green/20 bg-muted/30 p-4 flex flex-col">
+    <div className="w-full sm:w-64 border-l border-border bg-muted/30 p-4 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Users className="h-4 w-4 text-matrix-green" />
+          <Users className="h-4 w-4 text-accent-green" />
           <span className="font-medium matrix-title">UŻYTKOWNICY</span>
-          <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+          <Badge variant="secondary" className="bg-accent-green/20 text-accent-green border-accent-green/30">
             {sortedUsers.length}
           </Badge>
         </div>
@@ -331,9 +331,9 @@ export function UserList({
       {isVoiceMode && voiceUsers.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center space-x-2 mb-2">
-            <Mic className="h-3 w-3 text-matrix-green" />
+            <Mic className="h-3 w-3 text-accent-green" />
             <span className="text-xs font-medium matrix-title">W KANALE GŁOSOWYM</span>
-            <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30 text-xs">
+            <Badge variant="secondary" className="bg-accent-green/20 text-accent-green border-accent-green/30 text-xs">
               {voiceUsers.length}
             </Badge>
           </div>
@@ -359,9 +359,9 @@ export function UserList({
       {/* Online users */}
       <div className="mb-4 flex-1 min-h-0 flex flex-col">
         <div className="flex items-center space-x-2 mb-2">
-          <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+          <div className="w-2 h-2 bg-accent-green rounded-full"></div>
           <span className="text-xs font-medium matrix-title">ONLINE</span>
-          <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30 text-xs">
+          <Badge variant="secondary" className="bg-accent-green/20 text-accent-green border-accent-green/30 text-xs">
             {onlineUsers.length}
           </Badge>
         </div>
@@ -400,7 +400,7 @@ export function UserList({
             variant="ghost"
             size="sm"
             onClick={() => setShowOfflineUsers(!showOfflineUsers)}
-            className="flex items-center space-x-2 mb-2 h-6 p-0 matrix-text hover:bg-matrix-green/10"
+            className="flex items-center space-x-2 mb-2 h-6 p-0 matrix-text hover:bg-accent-green/10"
           >
             {showOfflineUsers ? (
               <EyeOff className="h-3 w-3" />

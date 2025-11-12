@@ -42,7 +42,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
   };
 
   return (
-    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300" data-testid="server-card">
+    <Card className="w-full matrix-form hover:shadow-xl hover:scale-[1.01] transition-all duration-300 border-l-4 border-l-transparent hover:border-l-accent-green" data-testid="server-card">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -57,7 +57,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             {isExpired ? (
               <Badge variant="destructive" className="matrix-error">OFFLINE</Badge>
             ) : (
-              <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+              <Badge variant="secondary" className="bg-accent-green/20 text-accent-green border-accent-green/30">
                 {hoursLeft > 0 ? `${hoursLeft}H ${minutesLeft}M` : `${minutesLeft}M`}
               </Badge>
             )}
@@ -78,7 +78,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
         <div className="text-sm text-muted-foreground matrix-text">
           <p className="flex items-center space-x-2">
             <span>LINK:</span>
-            <code className="text-xs bg-matrix-green/10 border border-matrix-green/30 px-2 py-1 rounded font-mono text-matrix-green">
+            <code className="text-xs bg-accent-green/10 border border-accent-green/30 px-2 py-1 rounded font-mono text-accent-green hover:bg-accent-green/15 transition-colors">
               {server.inviteLink}
             </code>
           </p>

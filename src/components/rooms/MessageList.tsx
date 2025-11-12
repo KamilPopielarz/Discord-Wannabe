@@ -37,10 +37,10 @@ const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: 
   const authorName = message.authorName || "NIEZNANY_UŻYTKOWNIK";
 
   return (
-    <div className="group flex items-start space-x-3 p-3 hover:bg-matrix-green/5 rounded-lg transition-all duration-200 border-l-2 border-transparent hover:border-matrix-green/30">
+    <div className="group flex items-start space-x-3 p-3 hover:bg-accent-green/5 rounded-lg transition-all duration-200 border-l-2 border-transparent hover:border-accent-green/30">
       {/* Avatar with Matrix styling */}
-      <div className="flex-shrink-0 w-8 h-8 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center">
-        <span className="text-xs font-medium text-matrix-green font-mono">
+      <div className="flex-shrink-0 w-8 h-8 bg-accent-green/10 border border-accent-green/30 rounded-full flex items-center justify-center">
+        <span className="text-xs font-medium text-accent-green font-mono">
           {authorName.charAt(0).toUpperCase()}
         </span>
       </div>
@@ -57,7 +57,7 @@ const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: 
         </div>
 
         {/* Message content with Matrix font */}
-        <div className="text-sm matrix-text break-words font-mono leading-relaxed bg-matrix-green/5 px-3 py-2 rounded-md border border-matrix-green/10">
+        <div className="text-sm matrix-text break-words leading-relaxed bg-muted/50 px-3 py-2 rounded-md border border-border">
           {message.content}
         </div>
       </div>
@@ -93,8 +93,8 @@ export const MessageList = memo(function MessageList({
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md">
-          <div className="mx-auto w-20 h-20 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-matrix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto w-20 h-20 bg-accent-green/10 border border-accent-green/30 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

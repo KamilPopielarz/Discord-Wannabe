@@ -80,7 +80,7 @@ export function ForgotPasswordForm({
             <p className="text-sm matrix-text">
               Wysłaliśmy link do resetowania hasła na adres:
             </p>
-            <p className="font-medium matrix-text text-matrix-green-bright">
+            <p className="font-medium matrix-text text-accent-green-bright">
               {email}
             </p>
             <p className="text-xs text-muted-foreground">

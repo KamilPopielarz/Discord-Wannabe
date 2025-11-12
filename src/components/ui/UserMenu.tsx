@@ -58,8 +58,8 @@ export function UserMenu({ username = 'User', isAdmin = false, onLogout }: UserM
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="matrix-button h-auto p-2">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-matrix-green/20 border border-matrix-green flex items-center justify-center">
-              <User className="h-4 w-4 text-matrix-green" />
+            <div className="w-8 h-8 rounded-full bg-accent-green/20 border border-accent-green flex items-center justify-center">
+              <User className="h-4 w-4 text-accent-green" />
             </div>
             <div className="text-left hidden sm:block">
               <p className="text-sm font-medium matrix-text">
@@ -83,14 +83,14 @@ export function UserMenu({ username = 'User', isAdmin = false, onLogout }: UserM
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem className="matrix-text hover:bg-matrix-green/10">
+        <DropdownMenuItem className="matrix-text hover:bg-accent-green/10">
           <Settings className="mr-2 h-4 w-4" />
           Ustawienia
         </DropdownMenuItem>
         
         {isAdmin && (
           <DropdownMenuItem 
-            className="matrix-text hover:bg-matrix-green/10"
+            className="matrix-text hover:bg-accent-green/10"
             onClick={() => window.location.href = '/admin'}
           >
             <Shield className="mr-2 h-4 w-4" />

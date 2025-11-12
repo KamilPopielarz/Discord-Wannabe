@@ -6,7 +6,7 @@ interface Props {
   title?: string;
 }
 
-const { title = "Matrix Communication System" } = Astro.props;
+const { title = "Discord Wannabe" } = Astro.props;
 ---
 
 <!doctype html>
@@ -20,10 +20,10 @@ const { title = "Matrix Communication System" } = Astro.props;
     <script is:inline>
       /* eslint-disable */
       // Prevent theme flash by applying theme immediately
+      // Default to dark mode for developers
       (function () {
         const savedTheme = localStorage.getItem("theme");
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        const theme = savedTheme || systemTheme;
+        const theme = savedTheme || "dark";
 
         if (theme === "dark") {
           document.documentElement.classList.add("dark");
@@ -38,10 +38,10 @@ const { title = "Matrix Communication System" } = Astro.props;
     <script is:inline>
       /* eslint-disable */
       // Ensure theme persists across view transitions
+      // Default to dark mode for developers
       document.addEventListener("astro:after-swap", function () {
         const savedTheme = localStorage.getItem("theme");
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        const theme = savedTheme || systemTheme;
+        const theme = savedTheme || "dark";
 
         document.documentElement.classList.toggle("dark", theme === "dark");
       });

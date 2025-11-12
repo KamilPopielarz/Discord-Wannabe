@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ResetPasswordForm } from './ResetPasswordForm';
 import { ThemeToggle } from '../ui/ThemeToggle';
-import { MatrixBackground } from '../ui/MatrixBackground';
 import type { PasswordResetConfirmCommand } from '../../types';
 
 interface ResetPasswordPageProps {
@@ -50,7 +49,6 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
 
   return (
     <div className="relative w-full min-h-screen">
-      <MatrixBackground />
       <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />
       </div>

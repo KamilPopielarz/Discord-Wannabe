@@ -3,7 +3,6 @@ import { ServerList } from "./ServerList";
 import { CreateServerModal } from "./CreateServerModal";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { useServers } from "../../lib/hooks/useServers";
 
@@ -88,10 +87,9 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
 
   return (
     <>
-      <MatrixBackground />
       <div className="min-h-screen bg-background relative z-10">
         {/* Header */}
-        <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="border-b border-border bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 shadow-sm">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
@@ -130,11 +128,11 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
       </main>
 
         {/* Footer */}
-        <footer className="border-t border-matrix-green/20 mt-auto">
+        <footer className="border-t border-border mt-auto bg-muted/30">
           <div className="container mx-auto px-4 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
               <p className="text-sm text-muted-foreground matrix-text">
-                © 2024 MATRIX COMMUNICATION SYSTEM. WSZYSTKIE PRAWA ZASTRZEŻONE.
+                © 2024 Discord Wannabe. WSZYSTKIE PRAWA ZASTRZEŻONE.
               </p>
               <div className="flex space-x-4 text-sm">
                 <a href="/login" className="matrix-link text-xs">

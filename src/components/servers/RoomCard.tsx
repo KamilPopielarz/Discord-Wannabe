@@ -40,15 +40,15 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
   };
 
   return (
-    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300" data-testid="room-card">
+    <Card className="w-full matrix-form hover:shadow-xl hover:scale-[1.01] transition-all duration-300 border-l-4 border-l-transparent hover:border-l-accent-green" data-testid="room-card">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <CardTitle className="text-lg flex items-center matrix-title" data-testid="room-card-name">
               {room.name.toUpperCase()}
-              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-matrix-green" />}
+              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-accent-green" />}
               {room.isPermanent && (
-                <Badge variant="outline" className="ml-2 text-xs bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                <Badge variant="outline" className="ml-2 text-xs bg-accent-green/20 text-accent-green border-accent-green/30">
                   24H
                 </Badge>
               )}
@@ -63,7 +63,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
                 SECURED
               </Badge>
             ) : (
-              <Badge variant="outline" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+              <Badge variant="outline" className="bg-accent-green/20 text-accent-green border-accent-green/30">
                 PUBLIC
               </Badge>
             )}
@@ -74,7 +74,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
         <div className="text-sm text-muted-foreground matrix-text">
           <p className="flex items-center space-x-2">
             <span>LINK:</span>
-            <code className="text-xs bg-matrix-green/10 border border-matrix-green/30 px-2 py-1 rounded font-mono text-matrix-green">
+            <code className="text-xs bg-accent-green/10 border border-accent-green/30 px-2 py-1 rounded font-mono text-accent-green hover:bg-accent-green/15 transition-colors">
               {room.inviteLink}
             </code>
           </p>

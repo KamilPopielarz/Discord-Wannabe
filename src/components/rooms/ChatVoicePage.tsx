@@ -5,7 +5,6 @@ import { TypingIndicator } from "./TypingIndicator";
 import { UserList, type RoomUser } from "./UserList";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -396,10 +395,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   if (loadingRoomInfo) {
     return (
       <>
-        <MatrixBackground />
         <div className="h-screen flex items-center justify-center bg-background relative z-10">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-matrix-green mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-green mx-auto mb-4"></div>
             <p className="text-muted-foreground matrix-text">ŁĄCZENIE Z POKOJEM...</p>
           </div>
         </div>
@@ -411,7 +409,6 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   if (roomError) {
     return (
       <>
-        <MatrixBackground />
         <div className="h-screen flex items-center justify-center bg-background relative z-10">
           <div className="text-center max-w-md p-6 matrix-form">
             <div className="mx-auto w-24 h-24 bg-destructive/10 border border-destructive/30 rounded-full flex items-center justify-center mb-4">
@@ -453,10 +450,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
 
   return (
     <>
-      <MatrixBackground />
       <div className="h-screen flex flex-col bg-background relative z-10">
         {/* Header */}
-        <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
+        <header className="border-b border-border bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 shadow-sm px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm" onClick={goBack} className="matrix-button">
@@ -470,7 +466,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                     text={roomName || `POKÓJ-${roomId?.slice(-6).toUpperCase()}`}
                     speed={50}
                   />
-                  <Badge variant="outline" className="ml-2 bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                  <Badge variant="outline" className="ml-2 bg-accent-green/20 text-accent-green border-accent-green/30">
                     {view === "voice" ? (
                       <>
                         <Mic className="h-3 w-3 mr-1" />
@@ -511,7 +507,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 variant="outline" 
                 size="sm" 
                 onClick={() => updateSoundSettings({ enabled: !soundSettings.enabled })}
-                className={`matrix-button text-xs ${soundSettings.enabled ? 'text-matrix-green' : 'text-muted-foreground'}`}
+                className={`matrix-button text-xs ${soundSettings.enabled ? 'text-accent-green' : 'text-muted-foreground'}`}
                 title={soundSettings.enabled ? "Wyłącz dźwięki" : "Włącz dźwięki"}
               >
                 {soundSettings.enabled ? <Volume2 className="h-3 w-3 mr-1" /> : <VolumeOff className="h-3 w-3 mr-1" />}
@@ -575,12 +571,12 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 {/* Voice Status Indicator */}
                 <div className={`mx-auto w-32 h-32 rounded-full flex items-center justify-center mb-6 transition-all duration-300 ${
                   isVoiceConnected 
-                    ? 'bg-matrix-green/20 border-2 border-matrix-green animate-pulse' 
-                    : 'bg-matrix-green/10 border border-matrix-green/30'
+                    ? 'bg-accent-green/20 border-2 border-accent-green animate-pulse' 
+                    : 'bg-accent-green/10 border border-accent-green/30'
                 }`}>
                   {isVoiceConnected ? (
                     <div className="relative">
-                      <Mic className={`w-16 h-16 ${isMuted ? 'text-destructive' : 'text-matrix-green'}`} />
+                      <Mic className={`w-16 h-16 ${isMuted ? 'text-destructive' : 'text-accent-green'}`} />
                       {isMuted && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="w-20 h-1 bg-destructive rotate-45 rounded-full"></div>
@@ -588,13 +584,13 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                       )}
                     </div>
                   ) : (
-                    <Mic className="w-16 h-16 text-matrix-green/50" />
+                    <Mic className="w-16 h-16 text-accent-green/50" />
                   )}
                 </div>
 
                 <h2 className="text-3xl font-bold mb-2 matrix-title">
                   <TypingAnimation 
-                    text="KANAŁ GŁOSOWY MATRIX" 
+                    text="KANAŁ GŁOSOWY" 
                     speed={60}
                   />
                 </h2>
@@ -602,15 +598,15 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 <div className="mb-6">
                   {isVoiceConnected ? (
                     <div className="space-y-2">
-                      <p className="text-matrix-green matrix-text font-medium">
+                      <p className="text-accent-green matrix-text font-medium">
                         ● POŁĄCZENIE AKTYWNE - TRANSMISJA GŁOSOWA
                       </p>
                       <div className="flex items-center justify-center space-x-4 text-sm">
-                        <span className={`flex items-center space-x-1 ${isMuted ? 'text-destructive' : 'text-matrix-green'}`}>
+                        <span className={`flex items-center space-x-1 ${isMuted ? 'text-destructive' : 'text-accent-green'}`}>
                           {isMuted ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
                           <span>{isMuted ? 'WYCISZONY' : 'MIKROFON AKTYWNY'}</span>
                         </span>
-                        <span className={`flex items-center space-x-1 ${isDeafened ? 'text-destructive' : 'text-matrix-green'}`}>
+                        <span className={`flex items-center space-x-1 ${isDeafened ? 'text-destructive' : 'text-accent-green'}`}>
                           {isDeafened ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
                           <span>{isDeafened ? 'SŁUCHAWKI WYŁĄCZONE' : 'SŁUCHAWKI AKTYWNE'}</span>
                         </span>
@@ -632,7 +628,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                     className={`text-lg px-8 py-4 ${
                       isVoiceConnected 
                         ? "bg-destructive hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/20" 
-                        : "matrix-button text-matrix-black"
+                        : "matrix-button text-foreground"
                     }`}
                   >
                     {isVoiceConnected ? (
@@ -657,7 +653,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                         className={`px-6 ${
                           isMuted 
                             ? "bg-destructive hover:bg-destructive/90" 
-                            : "matrix-button border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                            : "matrix-button border-accent-green text-accent-green hover:bg-accent-green/10"
                         }`}
                         title={isMuted ? "Włącz mikrofon" : "Wyłącz mikrofon"}
                       >
@@ -674,7 +670,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                         className={`px-6 ${
                           isDeafened 
                             ? "bg-destructive hover:bg-destructive/90" 
-                            : "matrix-button border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                            : "matrix-button border-accent-green text-accent-green hover:bg-accent-green/10"
                         }`}
                         title={isDeafened ? "Włącz słuchawki" : "Wyłącz słuchawki"}
                       >
@@ -691,23 +687,23 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 <div className="mt-8 p-6 matrix-form rounded-lg text-sm">
                   <p className="font-medium mb-3 matrix-title flex items-center justify-center">
                     <Shield className="h-4 w-4 mr-2" />
-                    ZABEZPIECZENIA SYSTEMU MATRIX:
+                    ZABEZPIECZENIA SYSTEMU:
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground matrix-text">
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 bg-accent-green rounded-full"></div>
                       <span>SZYFROWANIE END-TO-END</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 bg-accent-green rounded-full"></div>
                       <span>KONTROLA MIKROFONU</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 bg-accent-green rounded-full"></div>
                       <span>KONTROLA SŁUCHAWEK</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 bg-accent-green rounded-full"></div>
                       <span>WSKAŹNIKI AKTYWNOŚCI</span>
                     </div>
                   </div>
