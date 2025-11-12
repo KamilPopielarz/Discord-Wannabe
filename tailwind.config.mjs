@@ -40,6 +40,13 @@ export default {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        // Matrix colors mapped to theme colors for compatibility
+        "matrix-green": "var(--primary)",
+        "matrix-green-bright": "var(--primary)",
+        "matrix-green-dim": "var(--muted-foreground)",
+        "matrix-green-dark": "var(--secondary)",
+        "matrix-black": "var(--background)",
+        "matrix-dark-green": "var(--secondary)",
       },
       borderRadius: {
         lg: "var(--radius)",

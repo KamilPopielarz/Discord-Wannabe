@@ -60,7 +60,7 @@ export function MessageInput({
 
   const handleChange = (newValue: string) => {
     onChange(newValue);
-    
+
     // Trigger typing indicator when user types
     if (newValue.length > 0) {
       onTyping?.();
@@ -352,16 +352,16 @@ export function MessageInput({
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 text-xs">
-            <span className={`font-mono ${isNearLimit ? (isOverLimit ? "text-destructive matrix-error" : "text-amber-500") : "text-muted-foreground"}`}>
+            <span
+              className={`font-mono ${isNearLimit ? (isOverLimit ? "text-destructive matrix-error" : "text-amber-500") : "text-muted-foreground"}`}
+            >
               [{characterCount}/{maxCharacters}]
             </span>
             {isOverLimit && <span className="text-destructive matrix-error font-mono">PRZEKROCZONO LIMIT ZNAKÓW</span>}
           </div>
 
           <div className="flex items-center space-x-3">
-            <div className="text-xs text-muted-foreground font-mono">
-              [ENTER] - WYŚLIJ | [SHIFT+ENTER] - NOWA LINIA
-            </div>
+            <div className="text-xs text-muted-foreground font-mono">[ENTER] - WYŚLIJ | [SHIFT+ENTER] - NOWA LINIA</div>
 
             <Button
               type="submit"

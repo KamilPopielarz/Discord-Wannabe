@@ -40,20 +40,20 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
   };
 
   return (
-    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300" data-testid="room-card">
+    <Card className="w-full hover:shadow-lg transition-all duration-300" data-testid="room-card">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg flex items-center matrix-title" data-testid="room-card-name">
+            <CardTitle className="text-lg flex items-center font-semibold" data-testid="room-card-name">
               {room.name.toUpperCase()}
-              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-matrix-green" />}
+              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-primary" />}
               {room.isPermanent && (
-                <Badge variant="outline" className="ml-2 text-xs bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                <Badge variant="outline" className="ml-2 text-xs bg-primary/20 text-primary border-primary/30">
                   24H
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription className="matrix-text">
+            <CardDescription className="text-muted-foreground">
               ROOM: {room.roomId.slice(-8).toUpperCase()}
             </CardDescription>
           </div>
@@ -63,7 +63,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
                 SECURED
               </Badge>
             ) : (
-              <Badge variant="outline" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+              <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30">
                 PUBLIC
               </Badge>
             )}
@@ -71,10 +71,10 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-sm text-muted-foreground matrix-text">
+        <div className="text-sm text-muted-foreground">
           <p className="flex items-center space-x-2">
             <span>LINK:</span>
-            <code className="text-xs bg-matrix-green/10 border border-matrix-green/30 px-2 py-1 rounded font-mono text-matrix-green">
+            <code className="text-xs bg-muted border border-border px-2 py-1 rounded font-mono text-foreground">
               {room.inviteLink}
             </code>
           </p>
@@ -85,7 +85,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="default" 
             size="sm" 
             onClick={() => joinRoom("chat")} 
-            className="flex items-center matrix-button"
+            className="flex items-center"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
             CHAT
@@ -95,7 +95,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={() => joinRoom("voice")} 
-            className="flex items-center matrix-button"
+            className="flex items-center"
           >
             <Mic className="h-4 w-4 mr-2" />
             VOICE
@@ -107,7 +107,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={openRoomJoin} 
-            className="flex-1 min-w-0 matrix-button"
+            className="flex-1 min-w-0"
           >
             JOIN VIA LINK
           </Button>
@@ -116,7 +116,6 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={copyInviteLink}
-            className="matrix-button"
           >
             <Copy className="h-4 w-4 mr-2" />
             COPY
@@ -126,7 +125,6 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="destructive" 
             size="sm" 
             onClick={() => onDelete(room.roomId)}
-            className="hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             DELETE
