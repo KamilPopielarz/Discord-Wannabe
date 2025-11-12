@@ -95,6 +95,7 @@ export function LoginForm({
                 className="matrix-input"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "email-error" : undefined}
+                data-testid="login-email-input"
               />
               {errors.email && (
                 <p id="email-error" className="text-xs matrix-error">
@@ -123,6 +124,7 @@ export function LoginForm({
                 className="matrix-input"
                 aria-invalid={!!error}
                 aria-describedby={error ? "error-message" : undefined}
+                data-testid="login-password-input"
               />
             </div>
 
@@ -130,6 +132,7 @@ export function LoginForm({
               type="submit" 
               className="w-full matrix-button" 
               disabled={loading || !isFormValid || showRateLimit}
+              data-testid="login-submit-button"
             >
               {loading ? (
                 <>

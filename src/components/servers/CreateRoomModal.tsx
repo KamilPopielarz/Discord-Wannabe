@@ -54,7 +54,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" data-testid="create-room-trigger-button">
           <Plus className="h-4 w-4 mr-2" />
           Utwórz pokój
         </Button>
@@ -77,6 +77,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
               onChange={(e) => setRoomName(e.target.value)}
               disabled={creating}
               required
+              data-testid="create-room-name-input"
             />
           </div>
 
@@ -92,6 +93,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
                 }
               }}
               disabled={creating}
+              data-testid="create-room-password-checkbox"
             />
             <Label htmlFor="has-password" className="text-sm font-normal">
               Chroń pokój hasłem
@@ -110,6 +112,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={creating}
                   className="pr-10"
+                  data-testid="create-room-password-input"
                 />
                 <Button
                   type="button"
@@ -137,10 +140,10 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
           </div>
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 space-y-2 space-y-reverse sm:space-y-0">
-            <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={creating}>
+            <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={creating} data-testid="create-room-cancel-button">
               Anuluj
             </Button>
-            <Button onClick={handleCreate} disabled={creating || !isFormValid}>
+            <Button onClick={handleCreate} disabled={creating || !isFormValid} data-testid="create-room-submit-button">
               {creating ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />

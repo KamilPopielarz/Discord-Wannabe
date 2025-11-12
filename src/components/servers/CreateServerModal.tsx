@@ -44,7 +44,7 @@ export function CreateServerModal({ open, onOpenChange, onCreate, creating }: Cr
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" data-testid="create-server-trigger-button">
           <Plus className="h-4 w-4 mr-2" />
           Utwórz nowy serwer
         </Button>
@@ -68,6 +68,7 @@ export function CreateServerModal({ open, onOpenChange, onCreate, creating }: Cr
               onChange={(e) => setServerName(e.target.value)}
               disabled={creating}
               required
+              data-testid="create-server-name-input"
             />
           </div>
 
@@ -82,10 +83,10 @@ export function CreateServerModal({ open, onOpenChange, onCreate, creating }: Cr
           </div>
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 space-y-2 space-y-reverse sm:space-y-0">
-            <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={creating}>
+            <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={creating} data-testid="create-server-cancel-button">
               Anuluj
             </Button>
-            <Button onClick={handleCreate} disabled={creating || !isFormValid}>
+            <Button onClick={handleCreate} disabled={creating || !isFormValid} data-testid="create-server-submit-button">
               {creating ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />

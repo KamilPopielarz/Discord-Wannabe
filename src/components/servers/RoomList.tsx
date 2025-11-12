@@ -34,7 +34,7 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold matrix-title">AKTYWNE POKOJE ({rooms.length})</h2>
+        <h2 className="text-xl font-semibold matrix-title" data-testid="rooms-list-title">AKTYWNE POKOJE ({rooms.length})</h2>
         <Button 
           variant="outline" 
           size="sm" 
@@ -50,7 +50,7 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
       <ErrorBanner error={error} />
 
       {rooms.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12" data-testid="rooms-empty-state">
           <div className="mx-auto w-24 h-24 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-4">
             <svg className="w-12 h-12 text-matrix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -67,7 +67,7 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
           </p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="rooms-list">
           {rooms.map((room) => (
             <RoomCard key={room.roomId} room={room} onDelete={onDeleteRoom} />
           ))}

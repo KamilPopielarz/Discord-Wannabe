@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e5]:
+      - button "Przełącz na motyw ciemny" [ref=e7]:
+        - img
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e11]: LOGOWANIE
+          - generic [ref=e12]: Wprowadź swoje dane logowania
+        - generic [ref=e14]:
+          - alert [ref=e15]:
+            - img [ref=e16]
+            - generic [ref=e18]: Nieprawidłowe dane logowania
+          - generic [ref=e19]:
+            - text: IDENTYFIKATOR E-MAIL
+            - textbox "IDENTYFIKATOR E-MAIL" [ref=e20]:
+              - /placeholder: twoj@email.com
+              - text: test@example.com
+          - generic [ref=e21]:
+            - generic [ref=e22]:
+              - generic [ref=e23]: HASŁO DOSTĘPU
+              - link "Zapomniałeś hasła?" [ref=e24] [cursor=pointer]:
+                - /url: /reset-password
+            - textbox "HASŁO DOSTĘPU" [ref=e25]:
+              - /placeholder: ••••••••••••
+              - text: testpassword
+          - button "ZALOGUJ SIĘ" [ref=e26]
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - text: Nowy użytkownik?
+              - link "Utwórz konto" [ref=e29] [cursor=pointer]:
+                - /url: /register
+            - link "Dostęp gościnny do systemu" [ref=e31] [cursor=pointer]:
+              - /url: /guest
+  - generic [ref=e34]:
+    - button "Menu" [ref=e35]:
+      - img [ref=e37]
+      - generic: Menu
+    - button "Inspect" [ref=e41]:
+      - img [ref=e43]
+      - generic: Inspect
+    - button "Audit" [ref=e45]:
+      - img [ref=e47]
+      - generic: Audit
+    - button "Settings" [ref=e50]:
+      - img [ref=e52]
+      - generic: Settings
+```

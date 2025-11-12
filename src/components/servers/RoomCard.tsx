@@ -40,11 +40,11 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
   };
 
   return (
-    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300">
+    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300" data-testid="room-card">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg flex items-center matrix-title">
+            <CardTitle className="text-lg flex items-center matrix-title" data-testid="room-card-name">
               {room.name.toUpperCase()}
               {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-matrix-green" />}
               {room.isPermanent && (

@@ -127,7 +127,7 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
                   SERWERY
                 </Button>
                 <div>
-                  <h1 className="text-2xl font-bold flex items-center matrix-title">
+                  <h1 className="text-2xl font-bold flex items-center matrix-title" data-testid="server-detail-title">
                     <TypingAnimation 
                       text={state.serverInfo?.name || `SERWER-${state.serverInfo?.serverId?.slice(-6).toUpperCase()}`}
                       speed={60}
@@ -186,13 +186,15 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
             </Button>
           </div>
         ) : (
-          <RoomList
-            rooms={state.rooms}
-            loading={state.loading}
-            error={state.error}
-            onRefresh={loadRooms}
-            onDeleteRoom={deleteRoom}
-          />
+          <div data-testid="server-rooms-section">
+            <RoomList
+              rooms={state.rooms}
+              loading={state.loading}
+              error={state.error}
+              onRefresh={loadRooms}
+              onDeleteRoom={deleteRoom}
+            />
+          </div>
         )}
       </main>
       </div>

@@ -42,7 +42,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
   };
 
   return (
-    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300">
+    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300" data-testid="server-card">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -92,6 +92,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             onClick={openServer} 
             disabled={isExpired} 
             className="flex-1 min-w-0 matrix-button"
+            data-testid="server-connect-button"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             CONNECT

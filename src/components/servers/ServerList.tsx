@@ -51,7 +51,7 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
       <ErrorBanner error={error} />
 
       {servers.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12" data-testid="servers-empty-state">
           <div className="mx-auto w-24 h-24 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-4">
             <svg className="w-12 h-12 text-matrix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -68,7 +68,7 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
           </p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="servers-list">
           {servers.map((server) => (
             <ServerCard key={server.serverId} server={server} onDelete={onDeleteServer} />
           ))}
