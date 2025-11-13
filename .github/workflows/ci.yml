@@ -2,24 +2,25 @@ name: CI
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: ["master", "main"]
   pull_request:
-    branches: [ "master", "main" ]
+    branches: ["master", "main"]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          version: 8
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      
       - name: Install dependencies
         run: npm ci
+      
       - name: Lint
         run: npm run lint
 
@@ -30,13 +31,17 @@ jobs:
       matrix:
         job: [unit]
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      
       - name: Install dependencies
         run: npm ci
+      
       - name: Run unit & integration tests
         run: npm run test:unit -- --run
 
@@ -45,17 +50,23 @@ jobs:
     runs-on: ubuntu-latest
     needs: tests
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      
       - name: Install dependencies
         run: npm ci
+      
       - name: Start dev server
         run: npm run dev &
+      
       - name: Wait for server
         run: npx wait-on http://localhost:3000 --timeout 20000
+      
       - name: Run Playwright tests
         run: npx playwright test
 

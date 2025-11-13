@@ -1,0 +1,24 @@
+name = "discord-wannabe"
+compatibility_date = "2024-11-13"
+compatibility_flags = ["nodejs_compat"]
+
+# Build configuration
+[build]
+command = "npm run build:cloudflare"
+
+# KV namespace for sessions
+# Note: You need to create this KV namespace in Cloudflare Dashboard first
+# Then update the 'id' with your actual KV namespace ID
+[[kv_namespaces]]
+binding = "SESSION"
+id = "YOUR_KV_NAMESPACE_ID"  # Replace with actual KV namespace ID
+preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"  # Replace with preview namespace ID
+
+# Environment variables (optional - these can also be set in Cloudflare Pages dashboard)
+# [vars]
+# PUBLIC_SUPABASE_URL = ""
+# PUBLIC_SUPABASE_ANON_KEY = ""
+
+# Note: Sensitive variables like SUPABASE_SERVICE_ROLE_KEY should be set
+# as secrets in Cloudflare Dashboard, not in this file
+

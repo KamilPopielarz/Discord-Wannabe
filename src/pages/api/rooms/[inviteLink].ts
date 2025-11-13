@@ -1,8 +1,14 @@
 import type { APIRoute } from "astro";
 import type { GetRoomResponseDto } from "../../../types";
 import { InviteLinkSchema } from "../../../lib/validators/auth.validators";
+import { z } from "zod";
 
 export const prerender = false;
+
+// Zod schema for password verification
+const VerifyPasswordSchema = z.object({
+  password: z.string().min(1, "Password is required"),
+});
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
@@ -171,6 +177,107 @@ export const GET: APIRoute = async ({ params, locals }) => {
     });
   } catch (error) {
     console.error("Get room error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
+/**
+ * POST /api/rooms/[inviteLink]
+ * Verify password for password-protected rooms
+ */
+export const POST: APIRoute = async ({ params, request, locals }) => {
+  try {
+    const { inviteLink } = params;
+
+    // Validate invite link parameter
+    const validationResult = InviteLinkSchema.safeParse(inviteLink);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid invite link format",
+          details: validationResult.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Parse request body
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate password input
+    const passwordValidation = VerifyPasswordSchema.safeParse(body);
+    if (!passwordValidation.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Validation failed",
+          details: passwordValidation.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const { password } = passwordValidation.data;
+
+    // Get Supabase client from locals
+    const supabase = locals.supabase;
+    if (!supabase) {
+      return new Response(JSON.stringify({ error: "Database connection not available" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Find room by invite link
+    const { data: room, error: roomError } = await supabase
+      .from("rooms")
+      .select("id, password_hash")
+      .eq("invite_link", inviteLink)
+      .single();
+
+    if (roomError || !room) {
+      return new Response(JSON.stringify({ error: "Room not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if room requires password
+    if (!room.password_hash) {
+      return new Response(JSON.stringify({ error: "Room does not require password" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify password
+    const { verifyPassword } = await import("../../../lib/utils/crypto");
+    const isValid = await verifyPassword(password, room.password_hash);
+
+    if (!isValid) {
+      return new Response(JSON.stringify({ error: "Invalid password" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Password is valid
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Password verification error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

@@ -198,14 +198,13 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Generate unique invite link for room
-    const crypto = await import("crypto");
-    const inviteLink = crypto.randomBytes(16).toString("hex");
+    const { generateRandomHex, hashPassword } = await import("../../../../../lib/utils/crypto");
+    const inviteLink = generateRandomHex(16);
 
     // Hash password if provided
     let passwordHash = null;
     if (password) {
-      const bcrypt = await import("bcrypt");
-      passwordHash = await bcrypt.hash(password, 12);
+      passwordHash = await hashPassword(password);
     }
 
     // Create room in database

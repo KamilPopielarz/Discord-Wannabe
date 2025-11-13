@@ -6,6 +6,7 @@
     "dev": "cross-env SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH SUPABASE_SERVICE_ROLE_KEY=sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 PUBLIC_SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH astro dev",
     "dev:original": "astro dev",
     "build": "astro build",
+    "build:cloudflare": "cross-env CLOUDFLARE=true astro build",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest",
@@ -16,6 +17,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.3.5",
     "@astrojs/node": "^9.4.3",
     "@astrojs/react": "^4.3.1",
     "@astrojs/sitemap": "^3.5.1",
@@ -28,11 +30,10 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.75.0",
-    "@types/bcrypt": "^6.0.0",
+    "@tailwindcss/vite": "^4.1.13",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "astro": "^5.13.7",
-    "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
@@ -41,7 +42,6 @@
     "react-dom": "^19.1.1",
     "tailwind-merge": "^3.1.0",
     "tailwindcss": "^4.1.13",
-    "@tailwindcss/vite": "^4.1.13",
     "tw-animate-css": "^1.2.5",
     "zod": "^3.25.76"
   },
