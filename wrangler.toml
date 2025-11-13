@@ -10,10 +10,11 @@ pages_build_output_dir = "dist"
 binding = "SESSION"
 id = "5f3c8433ef83407a9685c8c5290d18c8"
 
-# Environment variables (optional - these can also be set in Cloudflare Pages dashboard)
-# [vars]
-# PUBLIC_SUPABASE_URL = ""
-# PUBLIC_SUPABASE_ANON_KEY = ""
+# Environment variables
+[vars]
+CLOUDFLARE = "true"
+PUBLIC_SUPABASE_URL = "TWÓJ_SUPABASE_URL_TUTAJ"
+PUBLIC_SUPABASE_ANON_KEY = "TWÓJ_SUPABASE_ANON_KEY_TUTAJ"
 
 # Note: Sensitive variables like SUPABASE_SERVICE_ROLE_KEY should be set
 # as secrets in Cloudflare Dashboard, not in this file
