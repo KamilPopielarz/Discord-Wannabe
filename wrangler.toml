@@ -3,17 +3,12 @@ compatibility_date = "2024-11-13"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
-# Build configuration
-[build]
-command = "npm run build:cloudflare"
-
 # KV namespace for sessions
 # Note: You need to create this KV namespace in Cloudflare Dashboard first
 # Then update the 'id' with your actual KV namespace ID
 [[kv_namespaces]]
 binding = "SESSION"
-id = "5f3c8433ef83407a9685c8c5290d18c8"  
-
+id = "5f3c8433ef83407a9685c8c5290d18c8"
 
 # Environment variables (optional - these can also be set in Cloudflare Pages dashboard)
 # [vars]
@@ -22,4 +17,6 @@ id = "5f3c8433ef83407a9685c8c5290d18c8"
 
 # Note: Sensitive variables like SUPABASE_SERVICE_ROLE_KEY should be set
 # as secrets in Cloudflare Dashboard, not in this file
+
+
 
