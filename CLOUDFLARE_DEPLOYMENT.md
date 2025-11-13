@@ -23,9 +23,19 @@ Add the following secrets to your GitHub repository (Settings → Secrets and va
 - `PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous/public key
 
-## Cloudflare Pages Environment Variables
+## Cloudflare Pages Build Configuration
 
-In your Cloudflare Pages project settings, add the following environment variables:
+In your Cloudflare Pages project settings (Settings → Builds & deployments):
+
+### Build settings
+- **Framework preset**: None (or Astro)
+- **Build command**: `npm run build:cloudflare`
+- **Build output directory**: `dist`
+- **Root directory**: `/` (leave empty)
+
+### Environment Variables
+
+Add the following environment variables:
 
 ### Production Environment
 1. Go to Cloudflare Dashboard → Pages → Your Project → Settings → Environment Variables

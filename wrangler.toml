@@ -1,6 +1,7 @@
 name = "discord-wannabe"
 compatibility_date = "2024-11-13"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
 
 # Build configuration
 [build]
@@ -11,8 +12,8 @@ command = "npm run build:cloudflare"
 # Then update the 'id' with your actual KV namespace ID
 [[kv_namespaces]]
 binding = "SESSION"
-id = "YOUR_KV_NAMESPACE_ID"  # Replace with actual KV namespace ID
-preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"  # Replace with preview namespace ID
+id = "5f3c8433ef83407a9685c8c5290d18c8"  
+
 
 # Environment variables (optional - these can also be set in Cloudflare Pages dashboard)
 # [vars]
