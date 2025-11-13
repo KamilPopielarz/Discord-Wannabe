@@ -21,6 +21,13 @@ export default defineConfig({
     ssr: {
       external: ["crypto", "path", "fs", "os"],
     },
+    resolve: isCloudflare
+      ? {
+          alias: {
+            "react-dom/server": "react-dom/server.edge",
+          },
+        }
+      : undefined,
   },
   image: {
     service: isCloudflare
@@ -30,7 +37,6 @@ export default defineConfig({
   server: { port: 3000 },
   adapter: isCloudflare
     ? cloudflare({
-        mode: "directory",
         platformProxy: {
           enabled: true,
         },
