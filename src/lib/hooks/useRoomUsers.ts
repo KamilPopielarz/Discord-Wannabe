@@ -18,8 +18,11 @@ export function useRoomUsers(roomId?: string) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const { isActive } = useUserActivity();
 
-  const loadUsers = useCallback(async (silent = false) => {
+  const loadUsers = useCallback(async (silent = false, retryCount = 0) => {
     if (!roomId) return;
+
+    const maxRetries = 2;
+    const retryDelay = 1000 * (retryCount + 1); // Exponential backoff: 1s, 2s
 
     if (!silent) {
       setState((prev) => ({
@@ -35,9 +38,19 @@ export function useRoomUsers(roomId?: string) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Include cookies for authentication
       });
 
       if (!response.ok) {
+        // Retry on server errors (5xx) or rate limiting (429)
+        if ((response.status >= 500 || response.status === 429) && retryCount < maxRetries) {
+          console.warn(`[useRoomUsers] Failed to fetch users (${response.status}), retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+          setTimeout(() => {
+            loadUsers(silent, retryCount + 1);
+          }, retryDelay);
+          return;
+        }
+
         let errorMessage = "Wystąpił błąd podczas ładowania użytkowników";
 
         switch (response.status) {
@@ -78,6 +91,15 @@ export function useRoomUsers(roomId?: string) {
         error: undefined,
       }));
     } catch (error) {
+      // Retry on network errors
+      if (retryCount < maxRetries) {
+        console.warn(`[useRoomUsers] Error loading users, retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries}):`, error);
+        setTimeout(() => {
+          loadUsers(silent, retryCount + 1);
+        }, retryDelay);
+        return;
+      }
+
       if (!silent) {
         setState((prev) => ({
           ...prev,
@@ -96,7 +118,17 @@ export function useRoomUsers(roomId?: string) {
         users: [],
         error: undefined,
       }));
-      loadUsers();
+      // Force refresh when entering room
+      loadUsers(false);
+      
+      // Also refresh after a short delay to catch any users added during room join
+      const delayedRefresh = setTimeout(() => {
+        loadUsers(true); // Silent refresh
+      }, 2000);
+      
+      return () => {
+        clearTimeout(delayedRefresh);
+      };
     }
   }, [roomId, loadUsers]);
 
@@ -113,9 +145,11 @@ export function useRoomUsers(roomId?: string) {
     }
 
     // Adaptive refresh interval for users:
-    // - Active user: 10 seconds (users change less frequently than messages)
+    // - Active user: 5 seconds (reduced from 10s for better real-time updates)
     // - Inactive user: 30 seconds
-    const interval = isActive ? 10000 : 30000;
+    const interval = isActive ? 5000 : 30000;
+
+    console.log(`[useRoomUsers] Starting polling for room ${roomId}, interval: ${interval}ms (active: ${isActive})`);
 
     intervalRef.current = setInterval(() => {
       loadUsers(true); // Silent refresh

@@ -127,11 +127,15 @@ export function useChat(roomId?: string, roomName?: string) {
     }
   }, [roomId]);
 
-  const loadNewMessages = useCallback(async () => {
-    if (!roomId || loading) {
-      console.log(`[Polling] Skipping loadNewMessages - roomId: ${roomId}, loading: ${loading}`);
+  const loadNewMessages = useCallback(async (retryCount = 0) => {
+    if (!roomId) {
+      console.log(`[Polling] Skipping loadNewMessages - no roomId`);
       return;
     }
+
+    // Remove loading check - allow polling even during loading to ensure real-time updates
+    const maxRetries = 3;
+    const retryDelay = 1000 * (retryCount + 1); // Exponential backoff: 1s, 2s, 3s
 
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -154,8 +158,16 @@ export function useChat(roomId?: string, roomName?: string) {
       });
 
       if (!response.ok) {
+        // Retry on server errors (5xx) or rate limiting (429)
+        if ((response.status >= 500 || response.status === 429) && retryCount < maxRetries) {
+          console.warn(`[Polling] Failed to fetch messages (${response.status}), retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+          setTimeout(() => {
+            loadNewMessages(retryCount + 1);
+          }, retryDelay);
+          return;
+        }
         console.warn(`[Polling] Failed to fetch messages: ${response.status} ${response.statusText}`);
-        return; // Silently fail for auto-refresh
+        return; // Silently fail for auto-refresh after max retries
       }
 
       const data: ListMessagesResponseDto = await response.json();
@@ -172,10 +184,13 @@ export function useChat(roomId?: string, roomName?: string) {
           
           if (newMessages.length === 0) return prev;
 
-          // Update last message ID
+          // Update last message ID - ensure we track the highest ID
           const newLastId = Math.max(...newMessages.map(m => m.id));
-          lastMessageIdRef.current = newLastId;
-          console.log(`[Polling] Updated lastMessageId to: ${newLastId}`);
+          // Also check if we have existing messages with higher IDs
+          const existingMaxId = prev.messages.length > 0 ? Math.max(...prev.messages.map(m => m.id)) : 0;
+          const finalLastId = Math.max(newLastId, existingMaxId);
+          lastMessageIdRef.current = finalLastId;
+          console.log(`[Polling] Updated lastMessageId to: ${finalLastId} (new: ${newLastId}, existing max: ${existingMaxId})`);
 
           // Show notifications for new messages from other users
           newMessages.forEach(message => {
@@ -197,10 +212,18 @@ export function useChat(roomId?: string, roomName?: string) {
         console.log(`[Polling] No new messages`);
       }
     } catch (error) {
-      console.error("[Polling] Error loading new messages:", error);
+      // Retry on network errors
+      if (retryCount < maxRetries) {
+        console.warn(`[Polling] Error loading new messages, retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries}):`, error);
+        setTimeout(() => {
+          loadNewMessages(retryCount + 1);
+        }, retryDelay);
+        return;
+      }
+      console.error("[Polling] Error loading new messages after retries:", error);
       // Silently fail for auto-refresh to avoid spamming errors
     }
-  }, [roomId, loading, addNewMessage, roomName]);
+  }, [roomId, addNewMessage, roomName]);
 
   // Load messages on mount and when roomId changes
   useEffect(() => {
@@ -385,13 +408,21 @@ export function useChat(roomId?: string, roomName?: string) {
       // Clear message input
       setMessageText("");
 
-      // Immediately reload the first page of messages to show the newly sent message
-      // This is more reliable than loadNewMessages which can be blocked by loading state
+      // Update lastMessageIdRef with the new message ID if available
+      // This ensures polling will fetch messages after this one
+      if (data.messageId && typeof data.messageId === 'number') {
+        // Use the message ID minus 1 to ensure we fetch the new message
+        lastMessageIdRef.current = data.messageId - 1;
+        console.log(`[SendMessage] Updated lastMessageIdRef to ${lastMessageIdRef.current} (new message ID: ${data.messageId})`);
+      }
+
+      // Use loadNewMessages instead of loadMessages for better performance
+      // This fetches only new messages instead of reloading everything
       // Use a small delay to ensure the database has committed the transaction
       setTimeout(async () => {
-        // Reload messages without blocking UI
-        await loadMessages();
-      }, 150);
+        // Fetch new messages including the one we just sent
+        await loadNewMessages();
+      }, 200);
     } catch (error) {
       setState((prev) => ({
         ...prev,

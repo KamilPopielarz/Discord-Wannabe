@@ -80,19 +80,60 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    // Ensure username is properly saved in user_metadata using admin API
+    // Ensure username is properly saved in user_metadata and user_profiles
     if (data.user && supabaseAdminClient) {
       try {
+        // Update user_metadata with username using admin API
         const { error: updateError } = await supabaseAdminClient.auth.admin.updateUserById(data.user.id, {
           user_metadata: { username: username },
         });
 
         if (updateError) {
-          console.error("Warning: Failed to update user metadata:", updateError.message);
+          console.error("[Register] Warning: Failed to update user metadata:", updateError.message);
           // Don't fail registration, but log the error
+        } else {
+          console.log(`[Register] Successfully updated user_metadata for user ${data.user.id}`);
+        }
+
+        // Also create/update user_profiles record (more reliable source)
+        try {
+          const { error: profileError } = await supabaseAdminClient
+            .from("user_profiles")
+            .upsert({
+              user_id: data.user.id,
+              username: username,
+              social: {},
+            }, {
+              onConflict: "user_id"
+            });
+
+          if (profileError) {
+            // Table might not exist, log but continue
+            if (profileError.code === '42P01' || profileError.message?.includes('does not exist')) {
+              console.warn("[Register] user_profiles table not available, skipping profile creation");
+            } else {
+              console.error("[Register] Warning: Failed to create user_profiles:", profileError.message);
+            }
+          } else {
+            console.log(`[Register] Successfully created user_profiles for user ${data.user.id}`);
+          }
+        } catch (profileError) {
+          console.warn("[Register] Error creating user_profiles:", (profileError as Error).message);
+          // Don't fail registration if profile creation fails
+        }
+
+        // Verify username was saved (check both sources)
+        const { data: verifyUser } = await supabaseAdminClient.auth.admin.getUserById(data.user.id);
+        if (verifyUser?.user) {
+          const savedUsername = verifyUser.user.user_metadata?.username;
+          if (savedUsername !== username) {
+            console.warn(`[Register] Username mismatch: expected ${username}, got ${savedUsername}`);
+          } else {
+            console.log(`[Register] Verified username saved correctly: ${username}`);
+          }
         }
       } catch (metadataError) {
-        console.error("Warning: Error updating user metadata:", (metadataError as Error).message);
+        console.error("[Register] Warning: Error updating user metadata:", (metadataError as Error).message);
         // Don't fail registration, but log the error
       }
     }

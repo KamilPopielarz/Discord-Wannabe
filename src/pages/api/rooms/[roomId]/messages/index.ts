@@ -125,14 +125,30 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     // Add since filter if provided (filter by message ID for more reliable incremental loading)
     if (since) {
       // since is already parsed as integer by validator
-      query = query.gt("id", since).order("created_at", { ascending: true }); // Ascending for new messages
+      // Validate that since is a positive integer
+      if (typeof since !== 'number' || since <= 0 || !Number.isInteger(since)) {
+        return new Response(
+          JSON.stringify({
+            error: "Invalid 'since' parameter - must be a positive integer",
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      
+      // For 'since' queries, we want messages newer than the given ID
+      // Sort ascending to get oldest new messages first, then limit
+      query = query.gt("id", since).order("created_at", { ascending: true });
+      
+      // Limit results for 'since' queries (don't use offset, just limit)
+      query = query.limit(limit);
     } else {
-      query = query.order("created_at", { ascending: false }); // Descending for pagination
+      // For pagination queries, sort descending and use offset
+      query = query.order("created_at", { ascending: false });
+      
+      // Add pagination
+      const offset = (page - 1) * limit;
+      query = query.range(offset, offset + limit - 1);
     }
-
-    // Add pagination
-    const offset = (page - 1) * limit;
-    query = query.range(offset, offset + limit - 1);
 
     const { data: messages, error: messagesError } = await query;
 
@@ -145,43 +161,99 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     }
 
     // Check if there are more messages (for pagination)
-    const { count } = await supabase.from("messages").select("*", { count: "exact", head: true }).eq("room_id", roomId);
-
-    const totalMessages = count || 0;
-    const hasNextPage = offset + limit < totalMessages;
+    let hasNextPage = false;
+    
+    if (since) {
+      // For 'since' queries, check if we got the full limit of messages
+      // If we got fewer than limit, there are no more messages
+      hasNextPage = messages && messages.length >= limit;
+    } else {
+      // For pagination queries, check total count
+      const { count } = await supabase.from("messages").select("*", { count: "exact", head: true }).eq("room_id", roomId);
+      const totalMessages = count || 0;
+      const offset = (page - 1) * limit;
+      hasNextPage = offset + limit < totalMessages;
+    }
 
     // Collect unique user IDs to batch fetch usernames
     const uniqueUserIds = [...new Set((messages || []).filter(m => m.user_id).map(m => m.user_id))];
     const usernameMap = new Map<string, string>();
 
     // Batch fetch usernames for all users
-    if (uniqueUserIds.length > 0 && supabaseAdminClient) {
+    // Priority: user_profiles > user_metadata > email > fallback
+    if (uniqueUserIds.length > 0) {
+      // First, try to fetch from user_profiles table (most reliable source)
+      try {
+        const { data: profiles, error: profilesError } = await supabase
+          .from("user_profiles")
+          .select("user_id, username")
+          .in("user_id", uniqueUserIds);
+
+        if (profilesError) {
+          // Table might not exist, log but continue
+          console.warn(`[Messages] user_profiles table not available:`, profilesError.message);
+        } else if (profiles) {
+          // Map usernames from user_profiles
+          profiles.forEach((profile) => {
+            if (profile.username) {
+              usernameMap.set(profile.user_id, profile.username);
+            }
+          });
+        }
+      } catch (error) {
+        console.warn(`[Messages] Error fetching from user_profiles:`, error);
+      }
+
+      // Then, fetch from auth admin API for users not found in user_profiles
+      const missingUserIds = uniqueUserIds.filter(uid => !usernameMap.has(uid));
+      
+      if (missingUserIds.length > 0 && supabaseAdminClient) {
+        await Promise.all(
+          missingUserIds.map(async (uid) => {
+            try {
+              const { data: userData, error } = await supabaseAdminClient.auth.admin.getUserById(uid);
+              if (error) {
+                console.error(`[Messages] Admin API error for user ${uid}:`, error.message);
+                return;
+              }
+              if (userData?.user) {
+                // Try multiple sources for username (user_metadata > email)
+                const username = userData.user.user_metadata?.username || 
+                                userData.user.user_metadata?.name ||
+                                (userData.user.email ? userData.user.email.split("@")[0] : null);
+                if (username) {
+                  usernameMap.set(uid, username);
+                } else {
+                  console.warn(`[Messages] No username found for user ${uid}, metadata:`, userData.user.user_metadata);
+                }
+              }
+            } catch (error) {
+              console.error(`[Messages] Failed to fetch username for user ${uid}:`, error);
+            }
+          })
+        );
+      } else if (missingUserIds.length > 0) {
+        console.warn(`[Messages] supabaseAdminClient not available, cannot fetch usernames for ${missingUserIds.length} users`);
+      }
+    }
+
+    // Fetch emails for users without usernames (for better fallback)
+    const usersWithoutUsernames = uniqueUserIds.filter(uid => !usernameMap.has(uid));
+    const emailMap = new Map<string, string>();
+    
+    if (usersWithoutUsernames.length > 0 && supabaseAdminClient) {
       await Promise.all(
-        uniqueUserIds.map(async (uid) => {
+        usersWithoutUsernames.map(async (uid) => {
           try {
             const { data: userData, error } = await supabaseAdminClient.auth.admin.getUserById(uid);
-            if (error) {
-              console.error(`Admin API error for user ${uid}:`, error);
-              return;
-            }
-            if (userData?.user) {
-              // Try multiple sources for username
-              const username = userData.user.user_metadata?.username || 
-                              userData.user.user_metadata?.name ||
-                              (userData.user.email ? userData.user.email.split("@")[0] : null);
-              if (username) {
-                usernameMap.set(uid, username);
-              } else {
-                console.warn(`No username found for user ${uid}, metadata:`, userData.user.user_metadata);
-              }
+            if (!error && userData?.user?.email) {
+              emailMap.set(uid, userData.user.email);
             }
           } catch (error) {
-            console.error(`Failed to fetch username for user ${uid}:`, error);
+            // Silently fail - we'll use ID fallback
           }
         })
       );
-    } else if (uniqueUserIds.length > 0) {
-      console.warn("supabaseAdminClient not available, cannot fetch usernames");
     }
 
     // Process messages to add author names
@@ -198,8 +270,13 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
           if (cachedUsername) {
             authorName = cachedUsername;
           } else {
-            // Fallback: use user ID suffix
-            authorName = `Użytkownik ${message.user_id.slice(-6)}`;
+            // Fallback: try email first, then user ID suffix
+            const email = emailMap.get(message.user_id);
+            if (email) {
+              authorName = email.split("@")[0];
+            } else {
+              authorName = `Użytkownik ${message.user_id.slice(-6)}`;
+            }
           }
         }
       } else if (message.session_id) {

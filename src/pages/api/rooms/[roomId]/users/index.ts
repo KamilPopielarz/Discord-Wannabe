@@ -37,16 +37,22 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
     if (userId) {
       // Check user room membership
-      const { data: membership } = await supabase
+      const { data: membership, error: membershipError } = await supabase
         .from("user_room")
         .select("role")
         .eq("user_id", userId)
         .eq("room_id", roomId)
-        .single();
+        .maybeSingle();
+
+      if (membershipError && membershipError.code !== 'PGRST116') {
+        // PGRST116 is "not found" which is expected, other errors are real problems
+        console.error(`[users/index] Error checking membership for user ${userId}:`, membershipError);
+      }
 
       if (membership) {
         hasAccess = true;
         userRole = membership.role;
+        console.log(`[users/index] User ${userId} already in room ${roomId} with role ${membership.role}`);
       } else {
         // User is not in user_room - check if they should have access
         // First, get server_id from room
@@ -79,11 +85,18 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
             if (!roomJoinError) {
               userRole = "Member";
-              console.log("Auto-added user to room (via server membership):", { userId, roomId });
+              console.log(`[users/index] Auto-added user ${userId} to room ${roomId} (via server membership)`);
             } else {
-              console.error("Failed to auto-add user to room:", roomJoinError);
-              // Still grant access even if insert fails
-              userRole = "Member";
+              // Check if it's a duplicate key error (user already exists)
+              if (roomJoinError.code === '23505' || roomJoinError.message?.includes('duplicate')) {
+                console.log(`[users/index] User ${userId} already in room ${roomId} (race condition)`);
+                userRole = "Member";
+                hasAccess = true;
+              } else {
+                console.error(`[users/index] Failed to auto-add user ${userId} to room ${roomId}:`, roomJoinError);
+                // Still grant access even if insert fails
+                userRole = "Member";
+              }
             }
           } else {
             // Check if user can access via valid invite link
@@ -122,11 +135,18 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
               if (!roomJoinError) {
                 userRole = "Member";
-                console.log("Auto-added user to room (via invite link):", { userId, roomId });
+                console.log(`[users/index] Auto-added user ${userId} to room ${roomId} (via invite link)`);
               } else {
-                console.error("Failed to auto-add user to room:", roomJoinError);
-                // Still grant access even if insert fails
-                userRole = "Member";
+                // Check if it's a duplicate key error (user already exists)
+                if (roomJoinError.code === '23505' || roomJoinError.message?.includes('duplicate')) {
+                  console.log(`[users/index] User ${userId} already in room ${roomId} (race condition)`);
+                  userRole = "Member";
+                  hasAccess = true;
+                } else {
+                  console.error(`[users/index] Failed to auto-add user ${userId} to room ${roomId}:`, roomJoinError);
+                  // Still grant access even if insert fails
+                  userRole = "Member";
+                }
               }
             }
           }
@@ -190,48 +210,77 @@ export const GET: APIRoute = async ({ params, locals }) => {
     const sixtySecondsAgo = new Date(Date.now() - 60 * 1000).toISOString();
 
     // Process users from user_room table
+    // IMPORTANT: Always return all users from user_room, even if they don't have presence records
     for (const roomUser of roomUsers || []) {
       try {
         // Check if this is the current user making the request
         const isCurrentUser = userId && roomUser.user_id === userId;
         
         // Get user details from Supabase Auth
-        const { data: authUser } = await supabase.auth.admin.getUserById(roomUser.user_id);
+        const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(roomUser.user_id);
+        
+        // Determine online status
+        // Current user is always online
+        let isOnline = isCurrentUser;
+        
+        if (!isOnline) {
+          // Check presence for other users - they are online if they have a recent presence record
+          const { data: presence } = await supabase
+            .from("user_presence")
+            .select("last_seen")
+            .eq("user_id", roomUser.user_id)
+            .eq("room_id", roomId)
+            .gt("last_seen", sixtySecondsAgo)
+            .limit(1);
+
+          isOnline = presence && presence.length > 0;
+        }
+        
+        // Extract username - try multiple sources
+        let username = `User-${roomUser.user_id.slice(-6)}`; // Fallback
+        let email: string | undefined = undefined;
         
         if (authUser?.user) {
-          // Current user is always online
-          let isOnline = isCurrentUser;
-          
-          if (!isOnline) {
-            // Check presence for other users
-            const { data: presence } = await supabase
-              .from("user_presence")
-              .select("last_seen")
+          // Try user_profiles first (most reliable)
+          try {
+            const { data: profile } = await supabase
+              .from("user_profiles")
+              .select("username")
               .eq("user_id", roomUser.user_id)
-              .eq("room_id", roomId)
-              .gt("last_seen", sixtySecondsAgo)
-              .limit(1);
-
-            isOnline = presence && presence.length > 0;
+              .maybeSingle();
+            
+            if (profile?.username) {
+              username = profile.username;
+            } else {
+              // Fallback to user_metadata or email
+              username = authUser.user.user_metadata?.username || 
+                        authUser.user.user_metadata?.name ||
+                        (authUser.user.email ? authUser.user.email.split("@")[0] : username);
+            }
+          } catch (profileError) {
+            // If user_profiles lookup fails, use metadata/email
+            username = authUser.user.user_metadata?.username || 
+                      authUser.user.user_metadata?.name ||
+                      (authUser.user.email ? authUser.user.email.split("@")[0] : username);
           }
           
-          // Extract username from metadata or fallback to email
-          const username = authUser.user.user_metadata?.username || 
-                          authUser.user.email?.split('@')[0] || 
-                          `User-${roomUser.user_id.slice(-6)}`;
-
-          users.push({
-            id: roomUser.user_id,
-            username,
-            email: authUser.user.email,
-            role: roomUser.role as RoomUserDto['role'],
-            isOnline,
-            joinedAt: roomUser.created_at,
-          });
+          email = authUser.user.email;
+        } else if (authError) {
+          console.warn(`[users/index] Auth lookup failed for user ${roomUser.user_id}:`, authError.message);
         }
+
+        // Always add user to list, even if auth lookup failed
+        users.push({
+          id: roomUser.user_id,
+          username,
+          email,
+          role: roomUser.role as RoomUserDto['role'],
+          isOnline,
+          joinedAt: roomUser.created_at,
+        });
       } catch (error) {
-        console.error(`Failed to get user details for ${roomUser.user_id}:`, error);
-        // Add user with minimal info if auth lookup fails
+        console.error(`[users/index] Failed to process user ${roomUser.user_id}:`, error);
+        // Add user with minimal info if processing fails - ensure they're still in the list
         const isCurrentUser = userId && roomUser.user_id === userId;
         users.push({
           id: roomUser.user_id,

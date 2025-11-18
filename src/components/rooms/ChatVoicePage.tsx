@@ -282,23 +282,49 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
     // Wait a bit to ensure user is added to room first
     const timeoutId = setTimeout(() => {
       // Update presence immediately when entering room
-      const updatePresence = async () => {
+      const updatePresence = async (retryCount = 0) => {
+        const maxRetries = 3;
+        const retryDelay = 2000 * (retryCount + 1); // Exponential backoff: 2s, 4s, 6s
+        
         try {
           const response = await fetch(`/api/rooms/${roomId}/presence`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include', // Include cookies for authentication
           });
           
           if (!response.ok) {
+            // Retry on server errors (5xx) or rate limiting (429)
+            if ((response.status >= 500 || response.status === 429) && retryCount < maxRetries) {
+              const errorData = await response.text();
+              console.warn(`[Presence] Failed to update presence (${response.status}), retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries}):`, errorData);
+              setTimeout(() => {
+                updatePresence(retryCount + 1);
+              }, retryDelay);
+              return;
+            }
+            
             const errorData = await response.text();
-            console.error('Failed to update presence:', response.status, errorData);
+            console.error(`[Presence] Failed to update presence after retries:`, response.status, errorData);
           } else {
-            console.log('Presence updated successfully');
+            if (retryCount > 0) {
+              console.log(`[Presence] Successfully updated presence after ${retryCount} retries`);
+            } else {
+              console.log(`[Presence] Presence updated successfully`);
+            }
           }
         } catch (error) {
-          console.error('Failed to update presence:', error);
+          // Retry on network errors
+          if (retryCount < maxRetries) {
+            console.warn(`[Presence] Error updating presence, retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries}):`, error);
+            setTimeout(() => {
+              updatePresence(retryCount + 1);
+            }, retryDelay);
+            return;
+          }
+          console.error('[Presence] Failed to update presence after retries:', error);
         }
       };
 
@@ -306,6 +332,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
       updatePresence();
 
       // Set up heartbeat interval (every 15 seconds)
+      // Continue heartbeat even if user is not active (presence should be maintained)
       heartbeatIntervalRef.current = setInterval(() => {
         updatePresence();
       }, 15000);
