@@ -10,17 +10,33 @@ import { Button } from "../ui/button";
 import { ArrowLeft, Clock } from "lucide-react";
 import { useServerRooms } from "../../lib/hooks/useServerRooms";
 
+interface CurrentUserProfile {
+  username: string;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  isAdmin: boolean;
+}
+
 interface ServerDetailPageProps {
   inviteLink?: string;
   initialUsername?: string | null;
+  initialProfile?: {
+    username: string;
+    displayName?: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }
 
-export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerDetailPageProps) {
+export function ServerDetailPage({ inviteLink, initialUsername = null, initialProfile = null }: ServerDetailPageProps) {
   const { state, createModalOpen, setCreateModalOpen, creating, loadRooms, createRoom, deleteRoom } =
     useServerRooms(inviteLink);
 
-  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(
-    initialUsername ? { username: initialUsername, isAdmin: false } : null
+  const [currentUserData, setCurrentUserData] = useState<CurrentUserProfile | null>(
+    initialProfile
+      ? { ...initialProfile, isAdmin: false }
+      : initialUsername
+        ? { username: initialUsername, displayName: initialUsername, avatarUrl: null, isAdmin: false }
+        : null
   );
   
   // Get current user data from server
@@ -38,7 +54,9 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
           console.log('[ServerDetailPage] User data from /api/me:', userData);
           setCurrentUserData({
             username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
-            isAdmin: false // Will be determined by actual permissions later
+            displayName: userData.displayName || userData.username,
+            avatarUrl: userData.avatarUrl || null,
+            isAdmin: false
           });
         } else {
           console.error('[ServerDetailPage] /api/me failed:', response.status, response.statusText);
@@ -48,13 +66,15 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
         // Fallback to default
         setCurrentUserData({
           username: 'Użytkownik',
+          displayName: 'Użytkownik',
+          avatarUrl: null,
           isAdmin: false
         });
       }
     };
     
     fetchUserData();
-  }, []);
+  }, [initialProfile?.username]);
 
   const goBack = () => {
     window.location.href = "/servers";
@@ -160,6 +180,8 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
                 )}
                 <UserMenu 
                   username={currentUserData?.username || "Użytkownik"} 
+                  displayName={currentUserData?.displayName}
+                  avatarUrl={currentUserData?.avatarUrl || null}
                   isAdmin={currentUserData?.isAdmin || false} 
                   onLogout={handleLogout}
                 />

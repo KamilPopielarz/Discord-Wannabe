@@ -173,3 +173,110 @@ export interface DataExportResponseDto {
 }
 
 export type DeleteUserCommand = Record<string, never>;
+
+// 11. User Settings
+export interface SocialLinkDto {
+  label: string;
+  url: string;
+}
+
+export interface UserProfileDto {
+  username: string;
+  displayName?: string | null;
+  status?: string | null;
+  bio?: string | null;
+  timezone?: string | null;
+  avatarUrl?: string | null;
+  socialLinks?: SocialLinkDto[];
+  updatedAt?: string;
+}
+
+export interface UpdateUserProfileCommand {
+  username: string;
+  displayName?: string | null;
+  status?: string | null;
+  bio?: string | null;
+  timezone?: string | null;
+  avatarUrl?: string | null;
+  socialLinks?: SocialLinkDto[];
+}
+
+export interface UserNotificationPreferences {
+  push: boolean;
+  email: boolean;
+  mentions: boolean;
+  digest: "never" | "daily" | "weekly";
+}
+
+export interface UserAppearancePreferences {
+  theme: "light" | "dark" | "system";
+  fontScale: number;
+  highContrast: boolean;
+  reducedMotion: boolean;
+  chatDensity: "comfortable" | "compact";
+}
+
+export interface UserPrivacyPreferences {
+  showPresence: boolean;
+  autoMuteVoice: boolean;
+  autoDeafenVoice: boolean;
+  allowDmFromNonMutual: boolean;
+  shareActivityInsights: boolean;
+  twoFactorEnabled: boolean;
+  twoFactorSecret?: string | null;
+}
+
+export interface UserSoundPreferences {
+  enabled: boolean;
+  volume: number;
+  messageSound: boolean;
+  typingSound: boolean;
+  userJoinSound: boolean;
+}
+
+export interface UserPreferencesDto {
+  notifications: UserNotificationPreferences;
+  appearance: UserAppearancePreferences;
+  privacy: UserPrivacyPreferences;
+  sound: UserSoundPreferences;
+  updatedAt?: string;
+}
+
+export interface UpdateUserPreferencesCommand {
+  notifications?: Partial<UserNotificationPreferences>;
+  appearance?: Partial<UserAppearancePreferences>;
+  privacy?: Partial<UserPrivacyPreferences>;
+  sound?: Partial<UserSoundPreferences>;
+}
+
+export interface UserSessionSummaryDto {
+  sessionId: string;
+  createdAt: string;
+  lastSeen: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  current: boolean;
+}
+
+export interface ChangePasswordCommand {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ToggleTwoFactorCommand {
+  enabled: boolean;
+}
+
+export interface DeleteAccountCommand {
+  confirm: string;
+}
+
+export interface RevokeSessionCommand {
+  sessionId: string;
+}
+
+export interface UserSettingsResponseDto {
+  profile: UserProfileDto;
+  preferences: UserPreferencesDto;
+  sessions: UserSessionSummaryDto[];
+}

@@ -19,9 +19,14 @@ interface ChatVoicePageProps {
   inviteLink?: string;
   view?: string;
   initialUsername?: string | null;
+  initialProfile?: {
+    username: string;
+    displayName?: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }
 
-export function ChatVoicePage({ inviteLink, view, initialUsername = null }: ChatVoicePageProps) {
+export function ChatVoicePage({ inviteLink, view, initialUsername = null, initialProfile = null }: ChatVoicePageProps) {
 
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
   const [roomName, setRoomName] = useState<string | undefined>(undefined);
@@ -149,8 +154,30 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   };
 
   // Current user data - must be declared before using in hooks
-  const [currentUserData, setCurrentUserData] = useState<{userId: string; username: string; isAdmin: boolean} | null>(
-    initialUsername ? { userId: 'loading', username: initialUsername, isAdmin: false } : null
+  const [currentUserData, setCurrentUserData] = useState<{
+    userId: string;
+    username: string;
+    displayName?: string | null;
+    avatarUrl?: string | null;
+    isAdmin: boolean;
+  } | null>(
+    initialProfile
+      ? {
+          userId: 'loading',
+          username: initialProfile.username,
+          displayName: initialProfile.displayName ?? initialProfile.username,
+          avatarUrl: initialProfile.avatarUrl ?? null,
+          isAdmin: false,
+        }
+      : initialUsername
+      ? {
+          userId: 'loading',
+          username: initialUsername,
+          displayName: initialUsername,
+          avatarUrl: null,
+          isAdmin: false,
+        }
+      : null,
   );
   
   // Ref to store heartbeat interval
@@ -203,6 +230,8 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
           setCurrentUserData({
             userId: userData.userId,
             username: userData.username || userData.email?.split('@')[0] || initialUsername || 'Użytkownik',
+            displayName: userData.displayName || userData.username,
+            avatarUrl: userData.avatarUrl || null,
             isAdmin: false // Will be determined by actual permissions later
           });
         }
@@ -212,13 +241,15 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
         setCurrentUserData({
           userId: 'unknown',
           username: initialUsername || 'Użytkownik',
+          displayName: initialUsername || 'Użytkownik',
+          avatarUrl: null,
           isAdmin: false
         });
       }
     };
     
     fetchUserData();
-  }, [initialUsername]);
+  }, [initialUsername, initialProfile?.username]);
 
   // Find current user in room users list
   const currentUser = roomUsers.find(user => user.id === currentUserData?.userId);
@@ -559,6 +590,8 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
 
               <UserMenu 
                 username={currentUser?.username || currentUserData?.username || initialUsername || "Użytkownik"} 
+                displayName={currentUserData?.displayName || currentUser?.username}
+                avatarUrl={currentUserData?.avatarUrl || null}
                 isAdmin={currentUserRole === 'admin' || currentUserRole === 'owner'} 
                 onLogout={handleLogout}
               />

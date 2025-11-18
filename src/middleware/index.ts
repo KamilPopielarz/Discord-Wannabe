@@ -1,5 +1,6 @@
 import { createSupabaseServerInstance } from '../db/supabase.client.ts';
 import { defineMiddleware } from 'astro:middleware';
+import { UserService } from '../lib/services/user.service.ts';
 
 // Public paths - Auth API endpoints & Server-Rendered Astro Pages
 const PUBLIC_PATHS = [
@@ -55,6 +56,25 @@ export const onRequest = defineMiddleware(
       const emailFallback = user.email ? user.email.split("@")[0] : undefined;
       // Ensure we always have a username - use metadata first, then email, then generic fallback
       locals.username = metadataUsername || emailFallback || "Użytkownik";
+
+      locals.profile = {
+        username: locals.username,
+      };
+
+      try {
+        const userService = new UserService(supabase);
+        const profile = await userService.getProfile(user.id, {
+          fallbackUsername: locals.username,
+          email: user.email ?? undefined,
+        });
+        locals.profile = {
+          username: profile.username,
+          displayName: profile.displayName,
+          avatarUrl: profile.avatarUrl ?? null,
+        };
+      } catch (profileError) {
+        console.error('[middleware] Failed to hydrate profile', profileError);
+      }
     } else {
       // For API routes, return 401
       if (url.pathname.startsWith('/api/')) {

@@ -1,0 +1,26 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { UserSettingsPage } from "../components/settings/UserSettingsPage";
+import { UserService } from "../lib/services/user.service";
+
+const supabase = Astro.locals.supabase;
+const userId = Astro.locals.userId;
+
+if (!supabase || !userId) {
+  throw Astro.redirect("/login");
+}
+
+const service = new UserService(supabase);
+const initialSettings = await service.getSettings(userId, {
+  fallbackUsername: Astro.locals.username,
+  currentSessionId: Astro.locals.sessionId,
+  email: Astro.locals.user?.email,
+});
+
+const section = Astro.url.searchParams.get("section");
+---
+
+<Layout title="Ustawienia konta – Discord Wannabe">
+  <UserSettingsPage client:load initialSettings={initialSettings} initialSection={section} />
+</Layout>
+

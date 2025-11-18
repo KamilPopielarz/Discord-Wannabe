@@ -16,6 +16,11 @@ declare global {
       sessionId?: string;
       username?: string;
       guestNick?: string;
+      profile?: {
+        username: string;
+        displayName?: string | null;
+        avatarUrl?: string | null;
+      };
     }
   }
 }

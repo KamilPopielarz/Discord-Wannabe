@@ -6,11 +6,19 @@ import { GlitchText } from "./GlitchText";
 
 interface UserMenuProps {
   username?: string;
+  displayName?: string | null;
+  avatarUrl?: string | null;
   isAdmin?: boolean;
   onLogout: () => void;
 }
 
-export function UserMenu({ username = "User", isAdmin = false, onLogout }: UserMenuProps) {
+export function UserMenu({
+  username = "User",
+  displayName,
+  avatarUrl,
+  isAdmin = false,
+  onLogout,
+}: UserMenuProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -53,31 +61,42 @@ export function UserMenu({ username = "User", isAdmin = false, onLogout }: UserM
           className="h-auto rounded-full border border-[var(--border)] bg-transparent px-3 py-2 transition hover:bg-[var(--retro-orange-soft)]/60"
         >
           <div className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)] text-[var(--retro-orange-bright)] shadow-inner">
-              <User className="h-4 w-4" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)] text-[var(--retro-orange-bright)] shadow-inner overflow-hidden">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={displayName ?? username} className="h-full w-full object-cover" />
+              ) : (
+                <User className="h-4 w-4" />
+              )}
             </div>
             <div className="text-left hidden sm:block">
               <span className="text-[0.55rem] uppercase tracking-[0.3em] text-[var(--retro-orange-bright)]">Discord-Wannabe</span>
               <p className="text-sm font-semibold text-[var(--foreground)] leading-tight">
-                <GlitchText text={username} />
+                <GlitchText text={displayName || username} />
               </p>
-              <p className="text-xs text-muted-foreground">{isAdmin ? "Administrator" : "Użytkownik"}</p>
+              <p className="text-xs text-muted-foreground">@{username}</p>
             </div>
           </div>
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56 retro-card border border-[var(--border)] bg-[var(--sidebar)]">
-        <div className="px-2 py-1.5 space-y-1">
-          <p className="text-sm font-semibold text-[var(--retro-orange-bright)]">{username}</p>
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--retro-cream)]/70">
-            {isAdmin ? "Administrator" : "Użytkownik"}
+        <div className="px-2 py-1.5 space-y-0.5">
+          <p className="text-sm font-semibold text-[var(--retro-orange-bright)]">{displayName || username}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-[var(--retro-cream)]/70 flex items-center gap-1">
+            <span>@{username}</span>
+            <span>•</span>
+            <span>{isAdmin ? "Administrator" : "Użytkownik"}</span>
           </p>
         </div>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className="retro-text hover:bg-[var(--retro-orange-soft)]/40">
+        <DropdownMenuItem
+          className="retro-text hover:bg-[var(--retro-orange-soft)]/40"
+          onSelect={() => {
+            window.location.href = "/settings";
+          }}
+        >
           <Settings className="mr-2 h-4 w-4" />
           Ustawienia
         </DropdownMenuItem>

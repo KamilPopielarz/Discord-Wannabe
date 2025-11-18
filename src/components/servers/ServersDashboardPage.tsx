@@ -7,16 +7,32 @@ import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { useServers } from "../../lib/hooks/useServers";
 
-interface ServersDashboardPageProps {
-  initialUsername?: string | null;
+interface CurrentUserProfile {
+  username: string;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  isAdmin: boolean;
 }
 
-export function ServersDashboardPage({ initialUsername = null }: ServersDashboardPageProps) {
+interface ServersDashboardPageProps {
+  initialUsername?: string | null;
+  initialProfile?: {
+    username: string;
+    displayName?: string | null;
+    avatarUrl?: string | null;
+  } | null;
+}
+
+export function ServersDashboardPage({ initialUsername = null, initialProfile = null }: ServersDashboardPageProps) {
   const { state, createModalOpen, setCreateModalOpen, creating, loadServers, createServer, deleteServer } =
     useServers();
 
-  const [currentUserData, setCurrentUserData] = useState<{username: string; isAdmin: boolean} | null>(
-    initialUsername ? { username: initialUsername, isAdmin: false } : null
+  const [currentUserData, setCurrentUserData] = useState<CurrentUserProfile | null>(
+    initialProfile
+      ? { ...initialProfile, isAdmin: false }
+      : initialUsername
+        ? { username: initialUsername, displayName: initialUsername, avatarUrl: null, isAdmin: false }
+        : null,
   );
   
   // Get current user data from server (only if initialUsername is not provided)
@@ -36,12 +52,12 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
             const userData = await response.json();
             console.log('[ServersDashboardPage] User data from /api/me:', userData);
             // Only update if we got a different/better username
-            if (userData.username && userData.username !== initialUsername) {
-              setCurrentUserData({
-                username: userData.username || userData.email?.split('@')[0] || initialUsername,
-                isAdmin: false
-              });
-            }
+            setCurrentUserData({
+              username: userData.username || userData.email?.split('@')[0] || initialUsername,
+              displayName: userData.displayName || userData.username,
+              avatarUrl: userData.avatarUrl || null,
+              isAdmin: false
+            });
           }
         } catch (error) {
           console.error('[ServersDashboardPage] Failed to fetch user data:', error);
@@ -64,6 +80,8 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
             console.log('[ServersDashboardPage] User data from /api/me:', userData);
             setCurrentUserData({
               username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
+              displayName: userData.displayName || userData.username,
+              avatarUrl: userData.avatarUrl || null,
               isAdmin: false
             });
           } else {
@@ -73,13 +91,15 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
           console.error('[ServersDashboardPage] Failed to fetch user data:', error);
           setCurrentUserData({
             username: 'Użytkownik',
+            displayName: 'Użytkownik',
+            avatarUrl: null,
             isAdmin: false
           });
         }
       };
       fetchUserData();
     }
-  }, [initialUsername]);
+  }, [initialUsername, initialProfile?.username]);
 
   const handleLogout = () => {
     // This will be handled by the UserMenu component
@@ -109,6 +129,8 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
                 />
                 <UserMenu 
                   username={currentUserData?.username || initialUsername || "Użytkownik"} 
+                  displayName={currentUserData?.displayName}
+                  avatarUrl={currentUserData?.avatarUrl || null}
                   isAdmin={currentUserData?.isAdmin || false} 
                   onLogout={handleLogout}
                 />

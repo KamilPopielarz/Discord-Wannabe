@@ -4,12 +4,13 @@ import { ServerDetailPage } from "../../components/servers/ServerDetailPage";
 
 const { inviteLink } = Astro.params;
 const initialUsername = Astro.locals.username || null;
+const initialProfile = Astro.locals.profile || (initialUsername ? { username: initialUsername } : null);
 ---
 
 <Layout title="Serwer - Discord Wannabe">
   <main class="min-h-screen bg-background">
     <div class="container mx-auto p-6">
-      <ServerDetailPage client:load inviteLink={inviteLink} initialUsername={initialUsername} />
+      <ServerDetailPage client:load inviteLink={inviteLink} initialUsername={initialUsername} initialProfile={initialProfile} />
     </div>
   </main>
 </Layout>
