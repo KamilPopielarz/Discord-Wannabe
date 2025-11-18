@@ -3,7 +3,7 @@ import { RoomList } from "./RoomList";
 import { CreateRoomModal } from "./CreateRoomModal";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
+import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -74,11 +74,11 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
   if (state.loadingServer) {
     return (
       <>
-        <MatrixBackground />
+        <RetroGridBackground />
         <div className="min-h-screen bg-background flex items-center justify-center relative z-10">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-matrix-green mx-auto mb-4"></div>
-            <p className="text-muted-foreground matrix-text">ŁĄCZENIE Z SERWEREM...</p>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-[var(--retro-orange)]"></div>
+            <p className="text-muted-foreground retro-text">ŁĄCZENIE Z SERWEREM...</p>
           </div>
         </div>
       </>
@@ -88,9 +88,9 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
   if (state.error && !state.serverInfo) {
     return (
       <>
-        <MatrixBackground />
+        <RetroGridBackground />
         <div className="min-h-screen bg-background flex items-center justify-center relative z-10">
-          <div className="text-center max-w-md p-6 matrix-form">
+          <div className="text-center max-w-md p-6 retro-card">
             <div className="mx-auto w-24 h-24 bg-destructive/10 border border-destructive/30 rounded-full flex items-center justify-center mb-4">
               <svg className="w-12 h-12 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -101,9 +101,9 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold mb-2 matrix-title">BŁĄD POŁĄCZENIA</h1>
-            <p className="text-muted-foreground mb-4 matrix-error">{state.error}</p>
-            <Button onClick={goBack} className="matrix-button">
+            <h1 className="text-2xl font-bold mb-2 retro-heading">BŁĄD POŁĄCZENIA</h1>
+            <p className="text-muted-foreground mb-4 retro-error">{state.error}</p>
+            <Button onClick={goBack} className="retro-button">
               <ArrowLeft className="h-4 w-4 mr-2" />
               POWRÓT DO SERWERÓW
             </Button>
@@ -115,35 +115,35 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
 
   return (
     <>
-      <MatrixBackground />
+      <RetroGridBackground />
       <div className="min-h-screen bg-background relative z-10">
         {/* Header */}
-        <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="border-b border-[var(--border)] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm" onClick={goBack} className="matrix-button">
+                <Button variant="ghost" size="sm" onClick={goBack} className="retro-button">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   SERWERY
                 </Button>
                 <div>
-                  <h1 className="text-2xl font-bold flex items-center matrix-title" data-testid="server-detail-title">
+                  <h1 className="text-2xl font-bold flex items-center retro-heading" data-testid="server-detail-title">
                     <TypingAnimation 
                       text={state.serverInfo?.name || `SERWER-${state.serverInfo?.serverId?.slice(-6).toUpperCase()}`}
                       speed={60}
                     />
                     {isServerExpired ? (
-                      <Badge variant="destructive" className="ml-2 matrix-error">
+                      <Badge variant="destructive" className="ml-2 retro-error">
                         OFFLINE
                       </Badge>
                     ) : (
-                      <Badge variant="secondary" className="ml-2 bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                      <Badge variant="secondary" className="ml-2 rounded-full border border-[var(--retro-orange)]/50 bg-[var(--retro-orange-soft)] px-2 py-0.5 text-[var(--retro-orange-bright)]">
                         <Clock className="h-3 w-3 mr-1" />
                         {hoursLeft > 0 ? `${hoursLeft}H ${minutesLeft}M` : `${minutesLeft}M`}
                       </Badge>
                     )}
                   </h1>
-                  <p className="text-muted-foreground matrix-text">
+                  <p className="text-muted-foreground retro-text">
                     LINK: {inviteLink} • NODE: {state.serverInfo?.serverId?.slice(0, 8).toUpperCase()}
                   </p>
                 </div>
@@ -176,11 +176,11 @@ export function ServerDetailPage({ inviteLink, initialUsername = null }: ServerD
             <div className="mx-auto w-24 h-24 bg-destructive/10 border border-destructive/30 rounded-full flex items-center justify-center mb-4">
               <Clock className="w-12 h-12 text-destructive" />
             </div>
-            <h2 className="text-xl font-bold mb-2 matrix-title">SERWER OFFLINE</h2>
-            <p className="text-muted-foreground mb-4 matrix-error">
+            <h2 className="text-xl font-bold mb-2 retro-heading">SERWER OFFLINE</h2>
+            <p className="text-muted-foreground mb-4 retro-error">
               Połączenie wygasło: {serverExpiresAt?.toLocaleString("pl-PL")}
             </p>
-            <Button onClick={goBack} className="matrix-button">
+            <Button onClick={goBack} className="retro-button">
               <ArrowLeft className="h-4 w-4 mr-2" />
               POWRÓT DO SERWERÓW
             </Button>

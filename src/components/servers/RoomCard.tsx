@@ -40,30 +40,36 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
   };
 
   return (
-    <Card className="w-full matrix-form hover:shadow-lg hover:shadow-matrix-green/10 transition-all duration-300" data-testid="room-card">
+    <Card className="w-full retro-card transition-all duration-300 hover:shadow-[0_20px_45px_rgba(255,122,24,0.25)]" data-testid="room-card">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg flex items-center matrix-title" data-testid="room-card-name">
+            <CardTitle className="text-lg flex items-center retro-heading" data-testid="room-card-name">
               {room.name.toUpperCase()}
-              {room.requiresPassword && <Lock className="h-4 w-4 ml-2 text-matrix-green" />}
+              {room.requiresPassword && <Lock className="ml-2 h-4 w-4 text-[var(--retro-orange-bright)]" />}
               {room.isPermanent && (
-                <Badge variant="outline" className="ml-2 text-xs bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                <Badge
+                  variant="outline"
+                  className="ml-2 rounded-full border border-[var(--retro-orange)]/40 bg-[var(--retro-orange-soft)] px-2 py-0.5 text-xs text-[var(--retro-orange-bright)]"
+                >
                   24H
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription className="matrix-text">
+            <CardDescription className="retro-text">
               ROOM: {room.roomId.slice(-8).toUpperCase()}
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
             {room.requiresPassword ? (
-              <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+              <Badge variant="secondary" className="rounded-full border border-yellow-500/40 bg-yellow-500/15 px-3 py-1 text-yellow-300">
                 SECURED
               </Badge>
             ) : (
-              <Badge variant="outline" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+              <Badge
+                variant="outline"
+                className="rounded-full border border-[var(--retro-orange)]/40 bg-[var(--retro-orange-soft)] px-3 py-1 text-[var(--retro-orange-bright)]"
+              >
                 PUBLIC
               </Badge>
             )}
@@ -71,10 +77,10 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-sm text-muted-foreground matrix-text">
+        <div className="text-sm text-muted-foreground retro-text">
           <p className="flex items-center space-x-2">
             <span>LINK:</span>
-            <code className="text-xs bg-matrix-green/10 border border-matrix-green/30 px-2 py-1 rounded font-mono text-matrix-green">
+            <code className="rounded border border-[var(--retro-orange)]/40 bg-[var(--retro-orange-soft)] px-2 py-1 text-xs font-mono text-[var(--retro-orange-bright)]">
               {room.inviteLink}
             </code>
           </p>
@@ -85,7 +91,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="default" 
             size="sm" 
             onClick={() => joinRoom("chat")} 
-            className="flex items-center matrix-button"
+            className="flex items-center retro-button"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
             CHAT
@@ -95,7 +101,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={() => joinRoom("voice")} 
-            className="flex items-center matrix-button"
+            className="flex items-center retro-button"
           >
             <Mic className="h-4 w-4 mr-2" />
             VOICE
@@ -107,7 +113,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={openRoomJoin} 
-            className="flex-1 min-w-0 matrix-button"
+            className="flex-1 min-w-0 retro-button"
           >
             JOIN VIA LINK
           </Button>
@@ -116,7 +122,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={copyInviteLink}
-            className="matrix-button"
+            className="retro-button"
           >
             <Copy className="h-4 w-4 mr-2" />
             COPY

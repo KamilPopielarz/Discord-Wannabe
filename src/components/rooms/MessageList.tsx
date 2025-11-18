@@ -37,18 +37,16 @@ const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: 
   const authorName = message.authorName || "NIEZNANY_UŻYTKOWNIK";
 
   return (
-    <div className="group flex items-start space-x-3 p-3 hover:bg-matrix-green/5 rounded-lg transition-all duration-200 border-l-2 border-transparent hover:border-matrix-green/30">
-      {/* Avatar with Matrix styling */}
-      <div className="flex-shrink-0 w-8 h-8 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center">
-        <span className="text-xs font-medium text-matrix-green font-mono">
+    <div className="group flex items-start space-x-3 rounded-xl border border-transparent p-3 transition-all duration-200 hover:border-[var(--retro-orange)]/50 hover:bg-[var(--retro-orange-soft)]/40">
+      <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)] font-semibold text-[var(--retro-orange-bright)]">
+        <span className="text-xs font-mono">
           {authorName.charAt(0).toUpperCase()}
         </span>
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* Message header with Matrix styling */}
         <div className="flex items-center space-x-2 mb-1">
-          <span className="text-sm font-medium matrix-text font-mono tracking-wide">
+          <span className="text-sm font-semibold retro-text tracking-wide">
             {authorName}
           </span>
           <span className="text-xs text-muted-foreground font-mono">
@@ -56,20 +54,18 @@ const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: 
           </span>
         </div>
 
-        {/* Message content with Matrix font */}
-        <div className="text-sm matrix-text break-words font-mono leading-relaxed bg-matrix-green/5 px-3 py-2 rounded-md border border-matrix-green/10">
+        <div className="retro-panel text-sm retro-text break-words rounded-lg border border-[var(--border)] px-3 py-2 font-mono leading-relaxed">
           {message.content}
         </div>
       </div>
 
-      {/* Delete button with Matrix styling */}
       {canDelete && (
         <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onDelete(message.id)}
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 matrix-button"
+            className="h-8 w-8 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
             title="Usuń wiadomość"
           >
             <Trash2 className="h-4 w-4" />
@@ -93,8 +89,8 @@ export const MessageList = memo(function MessageList({
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md">
-          <div className="mx-auto w-20 h-20 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-matrix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)]">
+            <svg className="h-10 w-10 text-[var(--retro-orange-bright)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -103,15 +99,15 @@ export const MessageList = memo(function MessageList({
               />
             </svg>
           </div>
-          <h3 className="text-xl font-medium mb-2 matrix-title">KANAŁ JEST PUSTY</h3>
-          <p className="text-muted-foreground matrix-text font-mono">
-            Rozpocznij rozmowę wysyłając pierwszą wiadomość na tym kanale.
+          <h3 className="retro-heading mb-2 text-xl">Kanał Discord-Wannabe jest pusty</h3>
+          <p className="retro-text font-mono text-muted-foreground">
+            Zacznij rozmowę i pozwól, by retro vibe przemówił pierwszy.
           </p>
-          <div className="mt-4 p-3 matrix-form rounded-lg text-xs">
-            <p className="matrix-text">
-              ● WIADOMOŚCI W CZASIE RZECZYWISTYM<br/>
-              ● BEZPIECZNA KOMUNIKACJA<br/>
-              ● PEŁNA KONTROLA NAD ROZMOWĄ
+          <div className="retro-panel text-xs mt-4 rounded-lg p-3">
+            <p className="retro-text space-y-1">
+              • Wiadomości natychmiastowe<br />
+              • Bezpieczna komunikacja retro<br />
+              • Kontrola nad całym pokojem
             </p>
           </div>
         </div>

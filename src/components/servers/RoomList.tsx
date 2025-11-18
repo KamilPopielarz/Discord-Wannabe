@@ -25,8 +25,8 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
   if (loading && rooms.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <LoadingSpinner size="lg" className="mb-4 matrix-spinner" />
-        <p className="text-muted-foreground matrix-text">SKANOWANIE POKOI...</p>
+        <LoadingSpinner size="lg" className="mb-4 retro-spinner" />
+        <p className="text-muted-foreground retro-text">SKANOWANIE POKOI...</p>
       </div>
     );
   }
@@ -34,13 +34,13 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold matrix-title" data-testid="rooms-list-title">AKTYWNE POKOJE ({rooms.length})</h2>
+        <h2 className="text-xl font-semibold retro-heading" data-testid="rooms-list-title">AKTYWNE POKOJE ({rooms.length})</h2>
         <Button 
           variant="outline" 
           size="sm" 
           onClick={onRefresh} 
           disabled={loading}
-          className="matrix-button"
+          className="retro-button"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           ODŚWIEŻ
@@ -51,8 +51,8 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
 
       {rooms.length === 0 ? (
         <div className="text-center py-12" data-testid="rooms-empty-state">
-          <div className="mx-auto w-24 h-24 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-12 h-12 text-matrix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)]">
+            <svg className="h-12 w-12 text-[var(--retro-orange-bright)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -61,8 +61,8 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium mb-2 matrix-title">BRAK AKTYWNYCH POKOI</h3>
-          <p className="text-muted-foreground mb-4 matrix-text">
+          <h3 className="text-lg font-medium mb-2 retro-heading">BRAK AKTYWNYCH POKOI</h3>
+          <p className="text-muted-foreground mb-4 retro-text">
             Serwer nie posiada żadnych pokoi komunikacyjnych. Zainicjuj pierwszy pokój.
           </p>
         </div>

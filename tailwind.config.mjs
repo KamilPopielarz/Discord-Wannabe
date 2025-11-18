@@ -6,6 +6,14 @@ export default {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        retro: "0 12px 32px rgba(12, 4, 2, 0.65)",
+        "retro-card": "0 16px 45px rgba(255, 122, 24, 0.35)",
+      },
+      backgroundImage: {
+        "retro-gradient": "linear-gradient(145deg, rgba(255,122,24,0.25), rgba(132,57,255,0.3))",
+        "retro-sunset": "linear-gradient(180deg, rgba(255,195,140,0.35), rgba(29,19,15,0.85))",
+      },
       colors: {
         border: "var(--border)",
         input: "var(--input)",

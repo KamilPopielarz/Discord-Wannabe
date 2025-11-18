@@ -1,65 +1,69 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
-import { MatrixBackground } from "../components/ui/MatrixBackground";
+import { RetroGridBackground } from "../components/ui/RetroGridBackground";
 import { GlitchText } from "../components/ui/GlitchText";
 import { TypingAnimation } from "../components/ui/TypingAnimation";
 ---
 
-<Layout title="Discord Wannabe - Komunikator">
-  <main class="relative min-h-screen flex items-center justify-center bg-background overflow-hidden p-4">
-    <!-- Animated matrix rain background -->
-    <MatrixBackground client:load />
+<Layout title="Discord-Wannabe — Retro komunikator">
+  <main class="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4">
+    <RetroGridBackground client:load />
 
-    <!-- Utilities (theme) -->
-    <div class="absolute top-4 right-4 z-20">
+    <div class="absolute right-4 top-4 z-20">
       <ThemeToggle client:load />
     </div>
 
-    <!-- Hero card -->
-    <section class="relative z-10 w-full max-w-xl">
-      <div class="matrix-form rounded-xl p-8 border">
-        <header class="text-center space-y-3 mb-6">
-          <h1 class="text-4xl md:text-5xl font-extrabold tracking-widest matrix-title">
-            Discord Wannabe
-          </h1>
-          <p class="text-sm md:text-base">
-            <GlitchText client:load text="Komunikator do czatu i rozmów głosowych" />
+    <section class="relative z-10 w-full max-w-3xl">
+      <div class="retro-card rounded-2xl border border-[var(--border)] p-8 shadow-retro-card">
+        <span class="retro-chip mb-4 inline-flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-[var(--retro-orange-bright)] animate-pulse" />
+          Discord-Wannabe // Build 1997.4
+        </span>
+        <header class="space-y-3 text-center">
+          <h1 class="retro-heading text-4xl md:text-5xl">Discord-Wannabe</h1>
+          <p class="text-base text-[var(--retro-cream)]/80">
+            <GlitchText client:load text="Retro komunikator głosowo-tekstowy dla miłośników VHS" />
           </p>
         </header>
 
-        <nav class="space-y-3" aria-label="Główne działania">
-          <a href="/login" class="matrix-button block w-full text-center py-3 px-4 rounded-md" aria-label="Przejdź do logowania">
-            Zaloguj się
+        <div class="mt-8 grid gap-4 md:grid-cols-3">
+          <a href="/login" class="retro-button block rounded-xl py-4 text-center text-sm" aria-label="Przejdź do logowania">
+            Wejdź do panelu
           </a>
-          <a href="/register" class="matrix-button block w-full text-center py-3 px-4 rounded-md" aria-label="Przejdź do rejestracji">
-            Zarejestruj się
+          <a href="/register" class="retro-button block rounded-xl bg-[var(--retro-teal)] text-center text-sm text-[var(--sidebar-primary-foreground)]" aria-label="Przejdź do rejestracji">
+            Uruchom nowy serwer
           </a>
-          <a href="/guest" class="matrix-button block w-full text-center py-3 px-4 rounded-md" aria-label="Dołącz jako gość">
+          <a href="/guest" class="retro-button block rounded-xl bg-[var(--retro-plum)] text-center text-sm text-[var(--sidebar-primary-foreground)]" aria-label="Dołącz jako gość">
             Dołącz jako gość
           </a>
-        </nav>
+        </div>
 
-        <div class="mt-8 grid grid-cols-1 gap-3 text-sm">
-          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
-            <p class="matrix-text"><TypingAnimation client:load text="• Czat tekstowy w czasie rzeczywistym" speed={30} /></p>
+        <div class="mt-10 grid gap-3 md:grid-cols-2">
+          <div class="retro-panel rounded-xl p-4">
+            <p class="text-sm font-semibold text-[var(--retro-orange-bright)]">
+              <TypingAnimation client:load text="• Tekst + głos w jednej aplikacji" speed={25} />
+            </p>
+            <p class="text-xs text-[var(--retro-cream)]/70">Serwery Discord-Wannabe aktualizują się w czasie rzeczywistym.</p>
           </div>
-          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
-            <p class="matrix-text">• Rozmowy głosowe (WebRTC)</p>
+          <div class="retro-panel rounded-xl p-4">
+            <p class="text-sm font-semibold text-[var(--retro-orange-bright)]">• Sesje gościa 24h</p>
+            <p class="text-xs text-[var(--retro-cream)]/70">Wejdź jak w cyberkafejce bez konta i baw się pełnią funkcji.</p>
           </div>
-          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
-            <p class="matrix-text">• Tworzenie serwerów i pokoi</p>
+          <div class="retro-panel rounded-xl p-4">
+            <p class="text-sm font-semibold text-[var(--retro-orange-bright)]">• Pokoje głosowe LiveKit</p>
+            <p class="text-xs text-[var(--retro-cream)]/70">Stabilny streaming audio z klimatem lat 90.</p>
           </div>
-          <div class="rounded-md border border-[color:var(--matrix-green-dark)]/60 bg-[color:var(--matrix-dark-green)]/10 p-3">
-            <p class="matrix-text">• Sesje gościa (24h)</p>
+          <div class="retro-panel rounded-xl p-4">
+            <p class="text-sm font-semibold text-[var(--retro-orange-bright)]">• Kontrola serwerów</p>
+            <p class="text-xs text-[var(--retro-cream)]/70">Narzędzia administracyjne w stylu panelu DOS.</p>
           </div>
         </div>
       </div>
 
-      <!-- Footnote CTA -->
-      <p class="mt-4 text-center text-xs matrix-text opacity-70">
-        Tip: Motyw możesz przełączyć w prawym górnym rogu.
-      </p>
+      <div class="retro-ticker mt-5 rounded-full border border-[var(--border)] text-center text-xs uppercase tracking-[0.4em] text-[var(--retro-orange-bright)]">
+        <span>Discord-Wannabe • Retro vibe • Dial-up friendly • Kliknij Theme Toggle aby zmienić tryb</span>
+      </div>
     </section>
   </main>
 </Layout>

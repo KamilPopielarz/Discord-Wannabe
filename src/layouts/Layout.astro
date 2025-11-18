@@ -6,7 +6,7 @@ interface Props {
   title?: string;
 }
 
-const { title = "Matrix Communication System" } = Astro.props;
+const { title = "Discord-Wannabe — Retro Communicator" } = Astro.props;
 ---
 
 <!doctype html>
@@ -14,8 +14,16 @@ const { title = "Matrix Communication System" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <meta
+      name="description"
+      content="Discord-Wannabe to retro-komunikator inspirowany latami 90., łączący czaty, głos i klimat kaset VHS."
+    />
+    <meta name="application-name" content="Discord-Wannabe" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&display=swap" rel="stylesheet" />
     <title>{title}</title>
     <script is:inline>
       /* eslint-disable */

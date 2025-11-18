@@ -1,71 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface GlitchTextProps {
   text: string;
   className?: string;
-  intensity?: 'low' | 'medium' | 'high';
+  intensity?: "subtle" | "bold";
   trigger?: boolean;
 }
 
-export function GlitchText({ 
-  text, 
-  className = '', 
-  intensity = 'medium',
-  trigger = false 
-}: GlitchTextProps) {
-  const [glitchedText, setGlitchedText] = useState(text);
-  const [isGlitching, setIsGlitching] = useState(false);
-
-  const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  
-  const intensitySettings = {
-    low: { duration: 100, frequency: 0.1 },
-    medium: { duration: 200, frequency: 0.2 },
-    high: { duration: 300, frequency: 0.3 }
-  };
-
-  const createGlitch = () => {
-    const settings = intensitySettings[intensity];
-    return text.split('').map(char => {
-      if (Math.random() < settings.frequency) {
-        return glitchChars[Math.floor(Math.random() * glitchChars.length)];
-      }
-      return char;
-    }).join('');
-  };
+export function GlitchText({ text, className = "", intensity = "subtle", trigger = false }: GlitchTextProps) {
+  const [displayText, setDisplayText] = useState(text);
+  const [glitching, setGlitching] = useState(false);
 
   useEffect(() => {
-    if (trigger) {
-      setIsGlitching(true);
-      const settings = intensitySettings[intensity];
-      
-      const glitchInterval = setInterval(() => {
-        setGlitchedText(createGlitch());
-      }, 50);
+    if (!trigger) return;
+    setGlitching(true);
 
-      const stopTimer = setTimeout(() => {
-        clearInterval(glitchInterval);
-        setGlitchedText(text);
-        setIsGlitching(false);
-      }, settings.duration);
+    const charset = "▲◆◼︎●★✦✧☼0123456789DISCORDWANABE";
+    const duration = intensity === "bold" ? 400 : 220;
+    const frequency = intensity === "bold" ? 0.35 : 0.18;
 
-      return () => {
-        clearInterval(glitchInterval);
-        clearTimeout(stopTimer);
-      };
-    }
-  }, [trigger, text, intensity]);
+    const glitchInterval = setInterval(() => {
+      const scrambled = text
+        .split("")
+        .map((char) => (Math.random() < frequency ? charset[Math.floor(Math.random() * charset.length)] : char))
+        .join("");
+      setDisplayText(scrambled);
+    }, 45);
+
+    const stopTimeout = setTimeout(() => {
+      clearInterval(glitchInterval);
+      setDisplayText(text);
+      setGlitching(false);
+    }, duration);
+
+    return () => {
+      clearInterval(glitchInterval);
+      clearTimeout(stopTimeout);
+    };
+  }, [text, trigger, intensity]);
 
   return (
-    <span 
-      className={`matrix-text ${isGlitching ? 'matrix-flicker' : ''} ${className}`}
+    <span
+      className={`retro-text ${className}`}
       style={{
-        textShadow: isGlitching 
-          ? '2px 0 #ff0000, -2px 0 #00ff00, 0 2px #0000ff' 
-          : undefined
+        textShadow: glitching ? "2px 0 var(--retro-plum), -2px 0 var(--retro-orange), 0 2px var(--retro-teal)" : undefined,
+        letterSpacing: "0.08em",
       }}
     >
-      {glitchedText}
+      {displayText}
     </span>
   );
 }

@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { ErrorBanner } from "../ui/ErrorBanner";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
-import { MatrixBackground } from "../ui/MatrixBackground";
+import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { TurnstileCaptcha } from "../ui/TurnstileCaptcha";
 import { useFormValidation } from "../../lib/hooks/useFormValidation";
 import type { RegisterUserCommand } from "../../types";
@@ -135,13 +135,13 @@ export function RegisterForm({
 
   return (
     <>
-      <MatrixBackground />
-      <Card className="w-full max-w-md mx-auto matrix-form relative z-10">
+      <RetroGridBackground />
+      <Card className="w-full max-w-md mx-auto retro-card relative z-10">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center matrix-title">
+          <CardTitle className="text-2xl font-bold text-center retro-heading">
             REJESTRACJA UŻYTKOWNIKA
           </CardTitle>
-          <CardDescription className="text-center matrix-text">
+          <CardDescription className="text-center retro-text">
             Utwórz nowe konto w systemie
           </CardDescription>
         </CardHeader>
@@ -150,53 +150,53 @@ export function RegisterForm({
             <ErrorBanner error={error} className="mb-4" />
 
             <div className="space-y-2">
-              <label htmlFor="register-email" className="text-sm font-medium matrix-text">
+              <label htmlFor="register-email" className="text-sm font-medium retro-text">
                 ADRES E-MAIL
               </label>
               <Input
                 id="register-email"
                 type="email"
-                placeholder="user@matrix.net"
+                placeholder="user@discord-wannabe.net"
                 value={email}
                 onChange={(e) => handleEmailChange(e.target.value)}
                 disabled={loading}
                 required
-                className="matrix-input"
+                className="retro-input"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "email-error" : undefined}
               />
               {errors.email && (
-                <p id="email-error" className="text-xs matrix-error">
+                <p id="email-error" className="text-xs retro-error">
                   {errors.email}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="register-username" className="text-sm font-medium matrix-text">
+              <label htmlFor="register-username" className="text-sm font-medium retro-text">
                 NAZWA UŻYTKOWNIKA
               </label>
               <Input
                 id="register-username"
                 type="text"
-                placeholder="neo_matrix"
+                placeholder="retro_user"
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
                 disabled={loading}
                 required
-                className="matrix-input"
+                className="retro-input"
                 aria-invalid={!!errors.username}
                 aria-describedby={errors.username ? "username-error" : undefined}
               />
               {errors.username && (
-                <p id="username-error" className="text-xs matrix-error">
+                <p id="username-error" className="text-xs retro-error">
                   {errors.username}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="register-password" className="text-sm font-medium matrix-text">
+              <label htmlFor="register-password" className="text-sm font-medium retro-text">
                 HASŁO DOSTĘPU
               </label>
               <Input
@@ -208,7 +208,7 @@ export function RegisterForm({
                 onFocus={() => setShowPasswordHints(true)}
                 disabled={loading}
                 required
-                className="matrix-input"
+                className="retro-input"
                 aria-invalid={!!errors.password}
                 aria-describedby={errors.password ? "password-error" : showPasswordHints ? "password-hints" : undefined}
               />
@@ -232,7 +232,7 @@ export function RegisterForm({
                       />
                     ))}
                   </div>
-                  <p className="text-xs matrix-text">
+                  <p className="text-xs retro-text">
                     Siła hasła: {
                       passwordStrength.score <= 2 ? 'SŁABE' :
                       passwordStrength.score <= 3 ? 'ŚREDNIE' :
@@ -254,14 +254,14 @@ export function RegisterForm({
               )}
               
               {errors.password && (
-                <p id="password-error" className="text-xs matrix-error">
+                <p id="password-error" className="text-xs retro-error">
                   {errors.password}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirm-password" className="text-sm font-medium matrix-text">
+              <label htmlFor="confirm-password" className="text-sm font-medium retro-text">
                 POTWIERDŹ HASŁO
               </label>
               <Input
@@ -272,12 +272,12 @@ export function RegisterForm({
                 onChange={(e) => handleConfirmPasswordChange(e.target.value)}
                 disabled={loading}
                 required
-                className="matrix-input"
+                className="retro-input"
                 aria-invalid={!!errors.confirmPassword}
                 aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
               />
               {errors.confirmPassword && (
-                <p id="confirm-password-error" className="text-xs matrix-error">
+                <p id="confirm-password-error" className="text-xs retro-error">
                   {errors.confirmPassword}
                 </p>
               )}
@@ -295,12 +295,12 @@ export function RegisterForm({
 
             <Button 
               type="submit" 
-              className="w-full matrix-button" 
+              className="w-full retro-button" 
               disabled={loading || !isFormValid}
             >
               {loading ? (
                 <>
-                  <LoadingSpinner size="sm" className="mr-2 matrix-spinner" />
+                  <LoadingSpinner size="sm" className="mr-2 retro-spinner" />
                   REJESTROWANIE...
                 </>
               ) : (
@@ -310,7 +310,7 @@ export function RegisterForm({
 
             <div className="text-center text-sm">
               <span className="text-muted-foreground">Masz już konto? </span>
-              <a href="/login" className="matrix-link">
+              <a href="/login" className="retro-link">
                 Zaloguj się
               </a>
             </div>

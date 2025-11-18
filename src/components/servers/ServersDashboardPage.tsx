@@ -3,7 +3,7 @@ import { ServerList } from "./ServerList";
 import { CreateServerModal } from "./CreateServerModal";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
+import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { useServers } from "../../lib/hooks/useServers";
 
@@ -88,17 +88,17 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
 
   return (
     <>
-      <MatrixBackground />
+      <RetroGridBackground />
       <div className="min-h-screen bg-background relative z-10">
         {/* Header */}
-        <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="border-b border-[var(--border)] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold matrix-title">
+                <h1 className="text-2xl font-bold retro-heading">
                   <TypingAnimation text="DISCORD WANNABE - SERWERY" speed={80} />
                 </h1>
-                <p className="text-muted-foreground matrix-text">Twoje serwery komunikacyjne</p>
+                <p className="text-muted-foreground retro-text">Twoje serwery komunikacyjne</p>
               </div>
               <div className="flex items-center space-x-4">
                 <CreateServerModal
@@ -130,20 +130,20 @@ export function ServersDashboardPage({ initialUsername = null }: ServersDashboar
       </main>
 
         {/* Footer */}
-        <footer className="border-t border-matrix-green/20 mt-auto">
+        <footer className="border-t border-[var(--border)] mt-auto">
           <div className="container mx-auto px-4 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-              <p className="text-sm text-muted-foreground matrix-text">
-                © 2024 MATRIX COMMUNICATION SYSTEM. WSZYSTKIE PRAWA ZASTRZEŻONE.
+              <p className="text-sm text-muted-foreground retro-text">
+                © 2024 Discord-Wannabe. Wszystkie fale zastrzeżone.
               </p>
               <div className="flex space-x-4 text-sm">
-                <a href="/login" className="matrix-link text-xs">
+                <a href="/login" className="retro-link text-xs">
                   DOSTĘP DO SYSTEMU
                 </a>
-                <a href="/register" className="matrix-link text-xs">
+                <a href="/register" className="retro-link text-xs">
                   REJESTRACJA
                 </a>
-                <a href="/guest" className="matrix-link text-xs">
+                <a href="/guest" className="retro-link text-xs">
                   TRYB GOŚCINNY
                 </a>
               </div>

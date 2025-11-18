@@ -5,7 +5,7 @@ import { TypingIndicator } from "./TypingIndicator";
 import { UserList, type RoomUser } from "./UserList";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { UserMenu } from "../ui/UserMenu";
-import { MatrixBackground } from "../ui/MatrixBackground";
+import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -396,11 +396,11 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   if (loadingRoomInfo) {
     return (
       <>
-        <MatrixBackground />
-        <div className="h-screen flex items-center justify-center bg-background relative z-10">
+        <RetroGridBackground />
+        <div className="relative z-10 flex h-screen items-center justify-center bg-background">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-matrix-green mx-auto mb-4"></div>
-            <p className="text-muted-foreground matrix-text">ŁĄCZENIE Z POKOJEM...</p>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-[var(--retro-orange)]"></div>
+            <p className="retro-text text-muted-foreground">ŁĄCZENIE Z POKOJEM...</p>
           </div>
         </div>
       </>
@@ -411,9 +411,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
   if (roomError) {
     return (
       <>
-        <MatrixBackground />
+        <RetroGridBackground />
         <div className="h-screen flex items-center justify-center bg-background relative z-10">
-          <div className="text-center max-w-md p-6 matrix-form">
+          <div className="text-center max-w-md p-6 retro-card">
             <div className="mx-auto w-24 h-24 bg-destructive/10 border border-destructive/30 rounded-full flex items-center justify-center mb-4">
               <svg className="w-12 h-12 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -424,8 +424,8 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold mb-2 matrix-title">BŁĄD DOSTĘPU</h1>
-            <p className="text-muted-foreground mb-4 matrix-error">{roomError}</p>
+            <h1 className="text-2xl font-bold mb-2 retro-heading">BŁĄD DOSTĘPU</h1>
+            <p className="text-muted-foreground mb-4 retro-error">{roomError}</p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <Button
                 onClick={() => {
@@ -433,14 +433,14 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                   window.location.href = `/login?returnTo=${returnTo}`;
                 }}
                 variant="default"
-                className="matrix-button"
+                className="retro-button"
               >
                 ZALOGUJ SIĘ
               </Button>
-              <Button onClick={() => window.location.reload()} variant="outline" className="matrix-button">
+              <Button onClick={() => window.location.reload()} variant="outline" className="retro-button">
                 SPRÓBUJ PONOWNIE
               </Button>
-              <Button onClick={goBack} variant="ghost" className="matrix-button">
+              <Button onClick={goBack} variant="ghost" className="retro-button">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 WSTECZ
               </Button>
@@ -453,24 +453,27 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
 
   return (
     <>
-      <MatrixBackground />
-      <div className="h-screen flex flex-col bg-background relative z-10">
+      <RetroGridBackground />
+      <div className="relative z-10 flex h-screen flex-col bg-background">
         {/* Header */}
-        <header className="border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
+        <header className="border-b border-[var(--border)] bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" onClick={goBack} className="matrix-button">
+              <Button variant="ghost" size="sm" onClick={goBack} className="retro-button">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 WSTECZ
               </Button>
 
               <div>
-                <h1 className="text-lg font-semibold flex items-center matrix-title">
+                <h1 className="text-lg font-semibold flex items-center retro-heading">
                   <TypingAnimation 
                     text={roomName || `POKÓJ-${roomId?.slice(-6).toUpperCase()}`}
                     speed={50}
                   />
-                  <Badge variant="outline" className="ml-2 bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+                  <Badge
+                    variant="outline"
+                    className="ml-2 rounded-full border border-[var(--retro-orange)]/40 bg-[var(--retro-orange-soft)] px-2 py-0.5 text-[var(--retro-orange-bright)]"
+                  >
                     {view === "voice" ? (
                       <>
                         <Mic className="h-3 w-3 mr-1" />
@@ -489,7 +492,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                     )}
                   </Badge>
                 </h1>
-                <p className="text-sm text-muted-foreground matrix-text">LINK: {inviteLink}</p>
+                <p className="text-sm text-muted-foreground retro-text">LINK: {inviteLink}</p>
               </div>
             </div>
 
@@ -499,7 +502,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                   variant="outline" 
                   size="sm" 
                   onClick={requestNotificationPermission}
-                  className="matrix-button text-xs"
+                  className="retro-button text-xs"
                   title="Włącz powiadomienia o nowych wiadomościach"
                 >
                   🔔 POWIADOMIENIA
@@ -507,11 +510,11 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
               )}
 
               {/* Sound settings */}
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => updateSoundSettings({ enabled: !soundSettings.enabled })}
-                className={`matrix-button text-xs ${soundSettings.enabled ? 'text-matrix-green' : 'text-muted-foreground'}`}
+                className={`retro-button text-xs ${soundSettings.enabled ? 'text-[var(--retro-orange-bright)]' : 'text-muted-foreground'}`}
                 title={soundSettings.enabled ? "Wyłącz dźwięki" : "Włącz dźwięki"}
               >
                 {soundSettings.enabled ? <Volume2 className="h-3 w-3 mr-1" /> : <VolumeOff className="h-3 w-3 mr-1" />}
@@ -522,13 +525,13 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 variant="outline" 
                 size="sm" 
                 onClick={testSound}
-                className="matrix-button text-xs"
+                className="retro-button text-xs"
                 title="Testuj dźwięk powiadomienia"
               >
                 🔊 TEST
               </Button>
               
-              <Button variant="outline" size="sm" onClick={toggleView} className="matrix-button">
+              <Button variant="outline" size="sm" onClick={toggleView} className="retro-button">
                 {view === "chat" ? (
                   <>
                     <Mic className="h-4 w-4 mr-2" />
@@ -547,7 +550,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="matrix-button"
+                  className="retro-button"
                   title="Ustawienia pokoju"
                 >
                   <Settings className="h-4 w-4" />
@@ -573,14 +576,16 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
             <div className="flex-1 flex flex-col items-center justify-center p-8">
               <div className="text-center max-w-lg">
                 {/* Voice Status Indicator */}
-                <div className={`mx-auto w-32 h-32 rounded-full flex items-center justify-center mb-6 transition-all duration-300 ${
-                  isVoiceConnected 
-                    ? 'bg-matrix-green/20 border-2 border-matrix-green animate-pulse' 
-                    : 'bg-matrix-green/10 border border-matrix-green/30'
-                }`}>
+                <div
+                  className={`mx-auto mb-6 flex h-32 w-32 items-center justify-center rounded-full transition-all duration-300 ${
+                    isVoiceConnected
+                      ? 'border-2 border-[var(--retro-teal)] bg-[var(--retro-teal)]/15 animate-pulse'
+                      : 'border border-[var(--border)] bg-[var(--retro-orange-soft)]/40'
+                  }`}
+                >
                   {isVoiceConnected ? (
                     <div className="relative">
-                      <Mic className={`w-16 h-16 ${isMuted ? 'text-destructive' : 'text-matrix-green'}`} />
+                      <Mic className={`w-16 h-16 ${isMuted ? 'text-destructive' : 'text-[var(--retro-orange-bright)]'}`} />
                       {isMuted && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="w-20 h-1 bg-destructive rotate-45 rounded-full"></div>
@@ -588,36 +593,33 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                       )}
                     </div>
                   ) : (
-                    <Mic className="w-16 h-16 text-matrix-green/50" />
+                    <Mic className="w-16 h-16 text-[var(--retro-orange)]/60" />
                   )}
                 </div>
 
-                <h2 className="text-3xl font-bold mb-2 matrix-title">
-                  <TypingAnimation 
-                    text="KANAŁ GŁOSOWY MATRIX" 
-                    speed={60}
-                  />
+                <h2 className="text-3xl font-bold mb-2 retro-heading">
+                    <TypingAnimation text="KANAŁ GŁOSOWY DISCORD-WANNABE" speed={60} />
                 </h2>
                 
                 <div className="mb-6">
                   {isVoiceConnected ? (
                     <div className="space-y-2">
-                      <p className="text-matrix-green matrix-text font-medium">
+                      <p className="retro-text font-medium text-[var(--retro-orange-bright)]">
                         ● POŁĄCZENIE AKTYWNE - TRANSMISJA GŁOSOWA
                       </p>
                       <div className="flex items-center justify-center space-x-4 text-sm">
-                        <span className={`flex items-center space-x-1 ${isMuted ? 'text-destructive' : 'text-matrix-green'}`}>
+                        <span className={`flex items-center space-x-1 ${isMuted ? 'text-destructive' : 'text-[var(--retro-orange-bright)]'}`}>
                           {isMuted ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
                           <span>{isMuted ? 'WYCISZONY' : 'MIKROFON AKTYWNY'}</span>
                         </span>
-                        <span className={`flex items-center space-x-1 ${isDeafened ? 'text-destructive' : 'text-matrix-green'}`}>
+                        <span className={`flex items-center space-x-1 ${isDeafened ? 'text-destructive' : 'text-[var(--retro-teal)]'}`}>
                           {isDeafened ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
                           <span>{isDeafened ? 'SŁUCHAWKI WYŁĄCZONE' : 'SŁUCHAWKI AKTYWNE'}</span>
                         </span>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-muted-foreground matrix-text">
+                    <p className="text-muted-foreground retro-text">
                       KLIKNIJ ABY ZAINICJOWAĆ BEZPIECZNE POŁĄCZENIE GŁOSOWE
                     </p>
                   )}
@@ -632,7 +634,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                     className={`text-lg px-8 py-4 ${
                       isVoiceConnected 
                         ? "bg-destructive hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/20" 
-                        : "matrix-button text-matrix-black"
+                        : "retro-button text-[var(--primary-foreground)]"
                     }`}
                   >
                     {isVoiceConnected ? (
@@ -655,9 +657,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                         size="lg" 
                         onClick={toggleMute}
                         className={`px-6 ${
-                          isMuted 
-                            ? "bg-destructive hover:bg-destructive/90" 
-                            : "matrix-button border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                          isMuted
+                            ? "bg-destructive hover:bg-destructive/90"
+                            : "retro-button border border-[var(--retro-orange)]/60 bg-[var(--retro-orange-soft)]/30 text-[var(--retro-orange-bright)] hover:bg-[var(--retro-orange-soft)]/60"
                         }`}
                         title={isMuted ? "Włącz mikrofon" : "Wyłącz mikrofon"}
                       >
@@ -672,9 +674,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                         size="lg" 
                         onClick={toggleDeafen}
                         className={`px-6 ${
-                          isDeafened 
-                            ? "bg-destructive hover:bg-destructive/90" 
-                            : "matrix-button border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                          isDeafened
+                            ? "bg-destructive hover:bg-destructive/90"
+                            : "retro-button border border-[var(--retro-teal)]/60 bg-[var(--retro-teal)]/15 text-[var(--retro-teal)] hover:bg-[var(--retro-teal)]/30"
                         }`}
                         title={isDeafened ? "Włącz słuchawki" : "Wyłącz słuchawki"}
                       >
@@ -688,26 +690,26 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 </div>
 
                 {/* System Info */}
-                <div className="mt-8 p-6 matrix-form rounded-lg text-sm">
-                  <p className="font-medium mb-3 matrix-title flex items-center justify-center">
+                <div className="mt-8 p-6 retro-card rounded-lg text-sm">
+                  <p className="font-medium mb-3 retro-heading flex items-center justify-center">
                     <Shield className="h-4 w-4 mr-2" />
-                    ZABEZPIECZENIA SYSTEMU MATRIX:
+                    ZAPORY DISCORD-WANNABE:
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground matrix-text">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground retro-text">
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
                       <span>SZYFROWANIE END-TO-END</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
                       <span>KONTROLA MIKROFONU</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
                       <span>KONTROLA SŁUCHAWEK</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
+                      <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
                       <span>WSKAŹNIKI AKTYWNOŚCI</span>
                     </div>
                   </div>

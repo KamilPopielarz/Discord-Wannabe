@@ -2,278 +2,292 @@
 @import "tw-animate-css";
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.85 0.15 142);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.85 0.15 142);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.85 0.15 142);
-  --primary: oklch(0.65 0.25 142);
-  --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.15 0 0);
-  --secondary-foreground: oklch(0.75 0.2 142);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.55 0.1 142);
-  --accent: oklch(0.2 0 0);
-  --accent-foreground: oklch(0.85 0.15 142);
-  --destructive: oklch(0.6 0.25 15);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.25 0.05 142);
-  --input: oklch(0.18 0 0);
-  --ring: oklch(0.65 0.25 142);
-  --chart-1: oklch(0.65 0.25 142);
-  --chart-2: oklch(0.55 0.2 142);
-  --chart-3: oklch(0.45 0.15 142);
-  --chart-4: oklch(0.75 0.3 142);
-  --chart-5: oklch(0.35 0.1 142);
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.85 0.15 142);
-  --sidebar-primary: oklch(0.65 0.25 142);
-  --sidebar-primary-foreground: oklch(0.08 0 0);
-  --sidebar-accent: oklch(0.2 0 0);
-  --sidebar-accent-foreground: oklch(0.85 0.15 142);
-  --sidebar-border: oklch(0.25 0.05 142);
-  --sidebar-ring: oklch(0.65 0.25 142);
-  
-  /* Matrix-specific colors */
-  --matrix-green: oklch(0.65 0.25 142);
-  --matrix-green-bright: oklch(0.85 0.3 142);
-  --matrix-green-dim: oklch(0.45 0.15 142);
-  --matrix-green-dark: oklch(0.25 0.1 142);
-  --matrix-black: oklch(0.08 0 0);
-  --matrix-dark-green: oklch(0.15 0.05 142);
+  --radius: 0.75rem;
+
+  --retro-orange: oklch(0.73 0.19 60);
+  --retro-orange-bright: oklch(0.82 0.22 55);
+  --retro-orange-dark: oklch(0.55 0.19 55);
+  --retro-cream: oklch(0.93 0.04 90);
+  --retro-plum: oklch(0.55 0.23 310);
+  --retro-teal: oklch(0.72 0.12 200);
+  --retro-midnight: oklch(0.21 0.05 40);
+  --retro-ink: oklch(0.28 0.03 30);
+  --retro-gridline: color-mix(in srgb, var(--retro-teal) 45%, transparent);
+  --retro-orange-soft: color-mix(in srgb, var(--retro-orange) 15%, transparent);
+  --retro-orange-softer: color-mix(in srgb, var(--retro-orange) 8%, transparent);
+  --retro-shadow: 0 12px 32px rgba(12, 4, 2, 0.65);
+
+  --background: var(--retro-midnight);
+  --foreground: var(--retro-cream);
+  --card: color-mix(in srgb, var(--retro-midnight) 85%, var(--retro-cream) 15%);
+  --card-foreground: var(--retro-cream);
+  --popover: color-mix(in srgb, var(--retro-midnight) 75%, var(--retro-cream) 25%);
+  --popover-foreground: var(--retro-cream);
+  --primary: var(--retro-orange);
+  --primary-foreground: oklch(0.25 0.02 40);
+  --secondary: var(--retro-plum);
+  --secondary-foreground: var(--retro-cream);
+  --muted: color-mix(in srgb, var(--retro-ink) 85%, var(--retro-orange) 15%);
+  --muted-foreground: color-mix(in srgb, var(--retro-cream) 70%, var(--retro-orange) 30%);
+  --accent: var(--retro-teal);
+  --accent-foreground: oklch(0.27 0.04 210);
+  --destructive: oklch(0.55 0.18 25);
+  --destructive-foreground: oklch(0.15 0.02 25);
+  --border: color-mix(in srgb, var(--retro-orange) 30%, transparent);
+  --input: color-mix(in srgb, var(--retro-ink) 85%, var(--retro-orange) 15%);
+  --ring: var(--retro-orange);
+  --chart-1: var(--retro-orange);
+  --chart-2: var(--retro-teal);
+  --chart-3: var(--retro-plum);
+  --chart-4: color-mix(in srgb, var(--retro-orange) 60%, var(--retro-plum) 40%);
+  --chart-5: color-mix(in srgb, var(--retro-teal) 60%, var(--retro-cream) 40%);
+  --sidebar: color-mix(in srgb, var(--retro-midnight) 92%, var(--retro-orange) 8%);
+  --sidebar-foreground: var(--retro-cream);
+  --sidebar-primary: var(--retro-orange);
+  --sidebar-primary-foreground: var(--retro-midnight);
+  --sidebar-accent: var(--retro-teal);
+  --sidebar-accent-foreground: var(--retro-midnight);
+  --sidebar-border: color-mix(in srgb, var(--retro-teal) 40%, transparent);
+  --sidebar-ring: var(--retro-orange);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: color-mix(in srgb, var(--retro-midnight) 85%, var(--retro-plum) 15%);
+  --foreground: color-mix(in srgb, var(--retro-cream) 85%, white 15%);
+  --card: color-mix(in srgb, var(--retro-midnight) 80%, var(--retro-plum) 20%);
+  --primary: color-mix(in srgb, var(--retro-orange) 90%, var(--retro-plum) 10%);
+  --accent: color-mix(in srgb, var(--retro-teal) 80%, var(--retro-orange) 20%);
+  --muted: color-mix(in srgb, var(--retro-ink) 90%, var(--retro-plum) 10%);
+  --border: color-mix(in srgb, var(--retro-orange) 40%, transparent);
+  --input: color-mix(in srgb, var(--retro-ink) 80%, var(--retro-plum) 20%);
 }
 
 @layer base {
   * {
     border-color: var(--border);
-    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
+    outline-color: color-mix(in srgb, var(--ring) 30%, transparent);
   }
-  body {
+
+  html, body {
+    font-family: "Trebuchet MS", "Verdana", system-ui, sans-serif;
     background-color: var(--background);
     color: var(--foreground);
-    font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+    min-height: 100%;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(255, 122, 24, 0.15), transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(34, 197, 199, 0.15), transparent 40%),
+      linear-gradient(145deg, rgba(255, 122, 24, 0.05), rgba(132, 57, 255, 0.04));
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Bruno Ace SC", "Trebuchet MS", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 }
 
 @layer components {
-  /* Matrix-inspired animations */
-  @keyframes matrix-rain {
-    0% { transform: translateY(-100vh); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(100vh); opacity: 0; }
-  }
-
-  @keyframes matrix-glow {
-    0%, 100% { 
-      text-shadow: 0 0 5px var(--matrix-green), 0 0 10px var(--matrix-green), 0 0 15px var(--matrix-green);
+  @keyframes retro-glow {
+    0% {
+      box-shadow: 0 0 15px rgba(255, 122, 24, 0.1);
     }
-    50% { 
-      text-shadow: 0 0 10px var(--matrix-green-bright), 0 0 20px var(--matrix-green-bright), 0 0 30px var(--matrix-green-bright);
+    50% {
+      box-shadow: 0 0 25px rgba(34, 197, 199, 0.35);
+    }
+    100% {
+      box-shadow: 0 0 15px rgba(255, 122, 24, 0.1);
     }
   }
 
-  @keyframes matrix-flicker {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
+  @keyframes retro-scan {
+    0% {
+      transform: translateX(-50%);
+    }
+    100% {
+      transform: translateX(50%);
+    }
   }
 
-  @keyframes matrix-typing {
-    from { width: 0; }
-    to { width: 100%; }
+  @keyframes retro-float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
   }
 
-  @keyframes matrix-cursor {
-    0%, 50% { border-color: transparent; }
-    51%, 100% { border-color: var(--matrix-green); }
+  .retro-card {
+    background: linear-gradient(145deg, color-mix(in srgb, var(--card) 85%, var(--retro-orange-soft) 15%), var(--card));
+    border: 2px solid color-mix(in srgb, var(--retro-orange) 40%, transparent);
+    box-shadow: var(--retro-shadow);
+    backdrop-filter: blur(12px);
   }
 
-  /* Matrix background effect */
-  .matrix-bg {
-    position: fixed;
-    top: 0;
+  .retro-panel {
+    background: color-mix(in srgb, var(--retro-ink) 88%, var(--retro-orange) 12%);
+    border: 1px solid color-mix(in srgb, var(--retro-orange) 35%, transparent);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .retro-heading {
+    color: var(--retro-orange-bright);
+    text-shadow:
+      0 0 18px color-mix(in srgb, var(--retro-orange) 40%, transparent),
+      0 0 3px rgba(255, 255, 255, 0.45);
+  }
+
+  .retro-text {
+    color: color-mix(in srgb, var(--foreground) 90%, white 10%);
+  }
+
+  .retro-link {
+    position: relative;
+    color: var(--retro-teal);
+    font-weight: 600;
+  }
+
+  .retro-link::after {
+    content: "";
+    position: absolute;
     left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--retro-teal), transparent);
+    opacity: 0.8;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .retro-link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .retro-input {
+    background: color-mix(in srgb, var(--retro-ink) 85%, var(--retro-orange-soft) 15%);
+    border: 2px solid color-mix(in srgb, var(--retro-orange) 30%, transparent);
+    color: var(--foreground);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .retro-input:focus {
+    border-color: var(--retro-teal);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--retro-teal) 40%, transparent);
+  }
+
+  .retro-input::placeholder {
+    color: color-mix(in srgb, var(--retro-cream) 60%, transparent);
+  }
+
+  .retro-button {
+    background-image: linear-gradient(180deg, var(--retro-orange-bright), var(--retro-orange));
+    border: 2px solid color-mix(in srgb, var(--retro-orange) 70%, var(--retro-ink) 30%);
+    color: var(--primary-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    box-shadow: 0 10px 20px rgba(255, 122, 24, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .retro-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(255, 122, 24, 0.45);
+  }
+
+  .retro-button:active {
+    transform: translateY(0);
+  }
+
+  .retro-chip {
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--retro-teal) 40%, transparent);
+    background: color-mix(in srgb, var(--retro-teal) 15%, transparent);
+    color: var(--retro-teal);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .retro-error {
+    color: var(--destructive);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--destructive) 50%, transparent);
+  }
+
+  .retro-spinner {
+    border: 3px solid color-mix(in srgb, var(--retro-orange) 20%, transparent);
+    border-top-color: var(--retro-teal);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  .retro-ticker {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--retro-orange-soft) 70%, transparent);
+    border: 1px solid var(--border);
+  }
+
+  .retro-ticker span {
+    display: inline-block;
+    padding: 0.35rem 0.5rem;
+    white-space: nowrap;
+    animation: marquee 12s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .retro-grid {
+    position: fixed;
+    inset: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
     z-index: -1;
-    overflow: hidden;
   }
 
-  .matrix-bg::before {
-    content: '';
+  .retro-grid::before {
+    content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(ellipse at center, transparent 0%, var(--matrix-black) 70%);
-    z-index: 1;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--retro-gridline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--retro-gridline) 1px, transparent 1px);
+    background-size: 120px 120px;
+    opacity: 0.25;
+    animation: retro-float 12s ease-in-out infinite;
   }
 
-  /* Matrix form styling */
-  .matrix-form {
-    background: linear-gradient(135deg, 
-      rgba(0, 0, 0, 0.9) 0%, 
-      rgba(0, 20, 0, 0.8) 50%, 
-      rgba(0, 0, 0, 0.9) 100%);
-    border: 1px solid var(--matrix-green-dark);
-    box-shadow: 
-      0 0 20px rgba(0, 255, 65, 0.1),
-      inset 0 0 20px rgba(0, 255, 65, 0.05);
-    backdrop-filter: blur(10px);
-  }
-
-  .matrix-input {
-    background: rgba(0, 20, 0, 0.3);
-    border: 1px solid var(--matrix-green-dark);
-    color: var(--matrix-green);
-    transition: all 0.3s ease;
-  }
-
-  .matrix-input:focus {
-    border-color: var(--matrix-green);
-    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-    background: rgba(0, 30, 0, 0.5);
-  }
-
-  .matrix-input::placeholder {
-    color: var(--matrix-green-dim);
-  }
-
-  .matrix-button {
-    background: linear-gradient(45deg, var(--matrix-green-dark), var(--matrix-green));
-    border: 1px solid var(--matrix-green);
-    color: var(--matrix-black);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .matrix-button:hover {
-    background: linear-gradient(45deg, var(--matrix-green), var(--matrix-green-bright));
-    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
-    transform: translateY(-1px);
-  }
-
-  .matrix-button:active {
-    transform: translateY(0);
-  }
-
-  .matrix-button::before {
-    content: '';
+  .retro-grid::after {
+    content: "";
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  .matrix-button:hover::before {
-    left: 100%;
-  }
-
-  /* Matrix text effects */
-  .matrix-text {
-    color: var(--matrix-green);
-    text-shadow: 0 0 5px var(--matrix-green);
-    animation: matrix-glow 2s ease-in-out infinite alternate;
-  }
-
-  .matrix-title {
-    color: var(--matrix-green-bright);
-    text-shadow: 0 0 10px var(--matrix-green);
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    letter-spacing: 2px;
-  }
-
-  .matrix-error {
-    color: var(--destructive);
-    text-shadow: 0 0 5px var(--destructive);
-    animation: matrix-flicker 1s ease-in-out infinite;
-  }
-
-  /* Matrix loading spinner */
-  .matrix-spinner {
-    border: 2px solid var(--matrix-green-dark);
-    border-top: 2px solid var(--matrix-green);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  /* Matrix link styling */
-  .matrix-link {
-    color: var(--matrix-green);
-    text-decoration: none;
-    position: relative;
-    transition: all 0.3s ease;
-  }
-
-  .matrix-link:hover {
-    color: var(--matrix-green-bright);
-    text-shadow: 0 0 5px var(--matrix-green);
-  }
-
-  .matrix-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--matrix-green);
-    transition: width 0.3s ease;
-  }
-
-  .matrix-link:hover::after {
-    width: 100%;
+    inset: 0;
+    background: radial-gradient(circle at 70% 20%, rgba(255, 122, 24, 0.25), transparent 60%);
+    mix-blend-mode: screen;
   }
 }

@@ -12,24 +12,25 @@ export const TypingIndicator = memo(function TypingIndicator({ typingUsers }: Ty
   const getTypingText = () => {
     if (typingUsers.length === 1) {
       return `${typingUsers[0]} pisze...`;
-    } else if (typingUsers.length === 2) {
-      return `${typingUsers[0]} i ${typingUsers[1]} piszą...`;
-    } else if (typingUsers.length === 3) {
-      return `${typingUsers[0]}, ${typingUsers[1]} i ${typingUsers[2]} piszą...`;
-    } else {
-      return `${typingUsers[0]}, ${typingUsers[1]} i ${typingUsers.length - 2} innych piszą...`;
     }
+    if (typingUsers.length === 2) {
+      return `${typingUsers[0]} i ${typingUsers[1]} piszą...`;
+    }
+    if (typingUsers.length === 3) {
+      return `${typingUsers[0]}, ${typingUsers[1]} i ${typingUsers[2]} piszą...`;
+    }
+    return `${typingUsers[0]}, ${typingUsers[1]} i ${typingUsers.length - 2} innych piszą...`;
   };
 
   return (
-    <div className="px-4 py-2 text-sm text-muted-foreground matrix-text">
+    <div className="px-4 py-2 text-xs text-muted-foreground retro-text">
       <div className="flex items-center space-x-2">
         <div className="flex space-x-1">
-          <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse"></div>
-          <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-2 h-2 bg-matrix-green rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <span className="h-2 w-2 rounded-full bg-[var(--retro-orange)] animate-pulse" />
+          <span className="h-2 w-2 rounded-full bg-[var(--retro-teal)] animate-pulse [animation-delay:0.15s]" />
+          <span className="h-2 w-2 rounded-full bg-[var(--retro-plum)] animate-pulse [animation-delay:0.3s]" />
         </div>
-        <span className="font-mono">{getTypingText()}</span>
+        <span className="tracking-wide uppercase text-[var(--retro-orange-bright)]">{getTypingText()}</span>
       </div>
     </div>
   );

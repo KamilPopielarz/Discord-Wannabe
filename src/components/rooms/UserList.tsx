@@ -48,25 +48,25 @@ interface UserListProps {
 const roleConfig = {
   owner: {
     label: 'WŁAŚCICIEL',
-    color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
+    color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40',
     icon: Crown,
     priority: 4
   },
   admin: {
     label: 'ADMINISTRATOR',
-    color: 'bg-red-500/20 text-red-500 border-red-500/30',
+    color: 'bg-red-500/20 text-red-400 border-red-500/40',
     icon: Shield,
     priority: 3
   },
   moderator: {
     label: 'MODERATOR',
-    color: 'bg-blue-600/20 text-blue-600 border-blue-600/30',
+    color: 'bg-blue-500/20 text-blue-400 border-blue-500/40',
     icon: Shield,
     priority: 2
   },
   member: {
     label: 'CZŁONEK',
-    color: 'bg-matrix-green/20 text-matrix-green border-matrix-green/30',
+    color: 'bg-[var(--retro-orange-soft)] text-[var(--retro-orange-bright)] border-[var(--retro-orange)]/50',
     icon: Users,
     priority: 1
   }
@@ -111,39 +111,33 @@ function UserItem({
   };
 
   return (
-    <div 
-      className={`flex items-center space-x-2 p-2 rounded-md transition-all duration-200 ${
-        user.isOnline 
-          ? 'bg-background/50 matrix-form hover:bg-matrix-green/5' 
-          : 'bg-muted/30 opacity-60'
+    <div
+      className={`flex items-center space-x-2 rounded-xl border border-transparent p-2 transition-all duration-200 ${
+        user.isOnline
+          ? 'bg-background/70 hover:border-[var(--retro-orange)]/40 hover:bg-[var(--retro-orange-soft)]/40'
+          : 'bg-muted/40 opacity-60'
       }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
       {/* Avatar */}
-      <div className={`relative w-8 h-8 rounded-full border flex items-center justify-center ${
-        user.isOnline 
-          ? 'bg-matrix-green/10 border-matrix-green/30' 
-          : 'bg-muted border-muted-foreground/30'
-      }`}>
-        <span className={`text-xs font-medium ${
-          user.isOnline ? 'text-matrix-green' : 'text-muted-foreground'
-        }`}>
+      <div
+        className={`relative flex h-8 w-8 items-center justify-center rounded-full border ${
+          user.isOnline ? 'border-[var(--retro-orange)] bg-[var(--retro-orange-soft)]' : 'border-muted bg-muted'
+        }`}
+      >
+        <span className={`text-xs font-semibold ${user.isOnline ? 'text-[var(--retro-orange-bright)]' : 'text-muted-foreground'}`}>
           {user.username.charAt(0).toUpperCase()}
         </span>
         
         {/* Online indicator */}
-        {user.isOnline && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-matrix-green rounded-full border-2 border-background"></div>
-        )}
+        {user.isOnline && <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-[var(--retro-teal)]"></div>}
       </div>
 
       {/* User info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-1">
-          <span className={`text-sm font-medium truncate ${
-            user.isOnline ? 'matrix-text' : 'text-muted-foreground'
-          }`}>
+          <span className={`text-sm font-medium truncate ${user.isOnline ? 'retro-text' : 'text-muted-foreground'}`}>
             {user.username}
             {isCurrentUser && ' (TY)'}
           </span>
@@ -157,13 +151,13 @@ function UserItem({
 
         {/* Voice indicators */}
         {isVoiceMode && user.isInVoice && (
-          <div className="flex items-center space-x-1 mt-1">
+          <div className="mt-1 flex items-center space-x-1 text-[var(--retro-orange-bright)]">
             {user.isMuted && <MicOff className="h-3 w-3 text-destructive" />}
             {user.isDeafened && <VolumeX className="h-3 w-3 text-destructive" />}
             {!user.isMuted && !user.isDeafened && (
-              <div className="flex items-center space-x-1">
-                <Mic className="h-3 w-3 text-matrix-green" />
-                <Volume2 className="h-3 w-3 text-matrix-green" />
+              <div className="flex items-center space-x-1 text-[var(--retro-teal)]">
+                <Mic className="h-3 w-3" />
+                <Volume2 className="h-3 w-3" />
               </div>
             )}
           </div>
@@ -174,17 +168,17 @@ function UserItem({
       {canManageUser && (showActions || user.isInVoice) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-matrix-green/10"
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-[var(--retro-orange-soft)]/60"
             >
               <MoreVertical className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
           
-          <DropdownMenuContent align="end" className="w-48 matrix-form">
-            <DropdownMenuLabel className="matrix-title text-xs">
+        <DropdownMenuContent align="end" className="w-48 retro-card">
+            <DropdownMenuLabel className="retro-heading text-xs">
               AKCJE ADMINISTRATORA
             </DropdownMenuLabel>
             
@@ -195,7 +189,7 @@ function UserItem({
               <>
                 <DropdownMenuItem 
                   onClick={() => handleRoleChange('admin')}
-                  className="matrix-text hover:bg-matrix-green/10"
+                  className="retro-text hover:bg-[var(--retro-orange-soft)]/40"
                   disabled={user.role === 'admin'}
                 >
                   <Shield className="mr-2 h-3 w-3" />
@@ -204,7 +198,7 @@ function UserItem({
                 
                 <DropdownMenuItem 
                   onClick={() => handleRoleChange('moderator')}
-                  className="matrix-text hover:bg-matrix-green/10"
+                  className="retro-text hover:bg-[var(--retro-orange-soft)]/40"
                   disabled={user.role === 'moderator'}
                 >
                   <Shield className="mr-2 h-3 w-3" />
@@ -213,7 +207,7 @@ function UserItem({
                 
                 <DropdownMenuItem 
                   onClick={() => handleRoleChange('member')}
-                  className="matrix-text hover:bg-matrix-green/10"
+                  className="retro-text hover:bg-[var(--retro-orange-soft)]/40"
                   disabled={user.role === 'member'}
                 >
                   <Users className="mr-2 h-3 w-3" />
@@ -231,7 +225,7 @@ function UserItem({
                   <>
                     <DropdownMenuItem 
                       onClick={() => onMuteUser(user.id)}
-                      className="matrix-text hover:bg-matrix-green/10"
+                      className="retro-text hover:bg-[var(--retro-orange-soft)]/40"
                     >
                       {user.isMuted ? (
                         <>
@@ -248,7 +242,7 @@ function UserItem({
                     
                     <DropdownMenuItem 
                       onClick={() => onDeafenUser(user.id)}
-                      className="matrix-text hover:bg-matrix-green/10"
+                      className="retro-text hover:bg-[var(--retro-orange-soft)]/40"
                     >
                       {user.isDeafened ? (
                         <>
@@ -270,7 +264,7 @@ function UserItem({
                 {/* Kick user */}
                 <DropdownMenuItem 
                   onClick={handleKick}
-                  className="matrix-error hover:bg-destructive/10 focus:bg-destructive/10"
+                  className="retro-error hover:bg-destructive/10 focus:bg-destructive/10"
                 >
                   <UserX className="mr-2 h-3 w-3" />
                   Wyrzuć z pokoju
@@ -315,13 +309,13 @@ export function UserList({
   const voiceUsers = onlineUsers.filter(user => user.isInVoice);
 
   return (
-    <div className="w-full sm:w-64 border-l border-matrix-green/20 bg-muted/30 p-4 flex flex-col">
+    <div className="flex w-full flex-col border-l border-[var(--border)] bg-muted/20 p-4 sm:w-64">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Users className="h-4 w-4 text-matrix-green" />
-          <span className="font-medium matrix-title">UŻYTKOWNICY</span>
-          <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30">
+          <Users className="h-4 w-4 text-[var(--retro-orange-bright)]" />
+          <span className="font-medium retro-heading">UŻYTKOWNICY</span>
+          <Badge variant="secondary" className="retro-chip px-2 py-0.5">
             {sortedUsers.length}
           </Badge>
         </div>
@@ -331,9 +325,9 @@ export function UserList({
       {isVoiceMode && voiceUsers.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center space-x-2 mb-2">
-            <Mic className="h-3 w-3 text-matrix-green" />
-            <span className="text-xs font-medium matrix-title">W KANALE GŁOSOWYM</span>
-            <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30 text-xs">
+            <Mic className="h-3 w-3 text-[var(--retro-orange-bright)]" />
+            <span className="text-xs font-medium retro-heading">W KANALE GŁOSOWYM</span>
+            <Badge variant="secondary" className="retro-chip text-xs px-2 py-0.5">
               {voiceUsers.length}
             </Badge>
           </div>
@@ -358,10 +352,10 @@ export function UserList({
 
       {/* Online users */}
       <div className="mb-4 flex-1 min-h-0 flex flex-col">
-        <div className="flex items-center space-x-2 mb-2">
-          <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
-          <span className="text-xs font-medium matrix-title">ONLINE</span>
-          <Badge variant="secondary" className="bg-matrix-green/20 text-matrix-green border-matrix-green/30 text-xs">
+        <div className="mb-2 flex items-center space-x-2">
+          <div className="h-2 w-2 rounded-full bg-[var(--retro-teal)]"></div>
+          <span className="text-xs font-medium retro-heading">ONLINE</span>
+          <Badge variant="secondary" className="retro-chip text-xs px-2 py-0.5">
             {onlineUsers.length}
           </Badge>
         </div>
@@ -386,7 +380,7 @@ export function UserList({
                 />
               ))
           ) : (
-            <div className="text-xs text-muted-foreground matrix-text p-2 text-center">
+            <div className="text-xs text-muted-foreground retro-text p-2 text-center">
               Brak użytkowników online
             </div>
           )}
@@ -400,7 +394,7 @@ export function UserList({
             variant="ghost"
             size="sm"
             onClick={() => setShowOfflineUsers(!showOfflineUsers)}
-            className="flex items-center space-x-2 mb-2 h-6 p-0 matrix-text hover:bg-matrix-green/10"
+            className="mb-2 flex h-6 items-center space-x-2 p-0 retro-text hover:bg-[var(--retro-orange-soft)]/40"
           >
             {showOfflineUsers ? (
               <EyeOff className="h-3 w-3" />
@@ -439,7 +433,7 @@ export function UserList({
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
             <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-            <p className="text-xs text-muted-foreground matrix-text">
+            <p className="text-xs text-muted-foreground retro-text">
               Brak użytkowników w pokoju
             </p>
           </div>
@@ -448,9 +442,9 @@ export function UserList({
 
       {/* Admin info */}
       {(currentUserRole === 'owner' || currentUserRole === 'admin') && (
-        <div className="mt-6 p-3 matrix-form rounded-lg text-xs">
-          <p className="font-medium mb-2 matrix-title">UPRAWNIENIA ADMINISTRATORA:</p>
-          <ul className="text-muted-foreground matrix-text space-y-1">
+        <div className="mt-6 p-3 retro-card rounded-lg text-xs">
+          <p className="font-medium mb-2 retro-heading">UPRAWNIENIA ADMINISTRATORA:</p>
+          <ul className="text-muted-foreground retro-text space-y-1">
             <li>• ZARZĄDZANIE ROLAMI UŻYTKOWNIKÓW</li>
             <li>• KONTROLA KANAŁU GŁOSOWEGO</li>
             <li>• WYRZUCANIE UŻYTKOWNIKÓW</li>

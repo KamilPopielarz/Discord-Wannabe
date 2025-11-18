@@ -79,30 +79,30 @@ export function ResetPasswordForm({
 
   if (success) {
     return (
-      <Card className="w-full max-w-md mx-auto matrix-form">
+      <Card className="w-full max-w-md mx-auto retro-card">
         <CardHeader className="space-y-1 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
             <svg className="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </div>
-          <CardTitle className="text-2xl font-bold matrix-title">
+          <CardTitle className="text-2xl font-bold retro-heading">
             Hasło zmienione
           </CardTitle>
-          <CardDescription className="matrix-text">
+          <CardDescription className="retro-text">
             Twoje hasło zostało pomyślnie zaktualizowane
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center space-y-2">
-            <p className="text-sm matrix-text">
+            <p className="text-sm retro-text">
               Możesz teraz zalogować się używając nowego hasła.
             </p>
           </div>
 
           <Button 
             type="button" 
-            className="w-full matrix-button"
+            className="w-full retro-button"
             onClick={() => window.location.href = '/login'}
           >
             Przejdź do logowania
@@ -113,12 +113,12 @@ export function ResetPasswordForm({
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto matrix-form">
+    <Card className="w-full max-w-md mx-auto retro-card">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center matrix-title">
+        <CardTitle className="text-2xl font-bold text-center retro-heading">
           Nowe hasło
         </CardTitle>
-        <CardDescription className="text-center matrix-text">
+        <CardDescription className="text-center retro-text">
           Wprowadź nowe, bezpieczne hasło dla swojego konta
         </CardDescription>
       </CardHeader>
@@ -127,7 +127,7 @@ export function ResetPasswordForm({
           <ErrorBanner error={error} className="mb-4" />
 
           <div className="space-y-2">
-            <label htmlFor="new-password" className="text-sm font-medium matrix-text">
+            <label htmlFor="new-password" className="text-sm font-medium retro-text">
               Nowe hasło
             </label>
             <Input
@@ -139,7 +139,7 @@ export function ResetPasswordForm({
               onFocus={() => setShowPasswordHints(true)}
               disabled={loading}
               required
-              className="matrix-input"
+              className="retro-input"
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? "password-error" : showPasswordHints ? "password-hints" : undefined}
             />
@@ -163,7 +163,7 @@ export function ResetPasswordForm({
                     />
                   ))}
                 </div>
-                <p className="text-xs matrix-text">
+                <p className="text-xs retro-text">
                   Siła hasła: {
                     passwordStrength.score <= 2 ? 'Słabe' :
                     passwordStrength.score <= 3 ? 'Średnie' :
@@ -185,14 +185,14 @@ export function ResetPasswordForm({
             )}
             
             {errors.password && (
-              <p id="password-error" className="text-xs matrix-error">
+              <p id="password-error" className="text-xs retro-error">
                 {errors.password}
               </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="confirm-new-password" className="text-sm font-medium matrix-text">
+            <label htmlFor="confirm-new-password" className="text-sm font-medium retro-text">
               Potwierdź nowe hasło
             </label>
             <Input
@@ -203,12 +203,12 @@ export function ResetPasswordForm({
               onChange={(e) => handleConfirmPasswordChange(e.target.value)}
               disabled={loading}
               required
-              className="matrix-input"
+              className="retro-input"
               aria-invalid={!!errors.confirmPassword}
               aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
             />
             {errors.confirmPassword && (
-              <p id="confirm-password-error" className="text-xs matrix-error">
+              <p id="confirm-password-error" className="text-xs retro-error">
                 {errors.confirmPassword}
               </p>
             )}
@@ -216,12 +216,12 @@ export function ResetPasswordForm({
 
           <Button 
             type="submit" 
-            className="w-full matrix-button" 
+            className="w-full retro-button" 
             disabled={loading || !isFormValid}
           >
             {loading ? (
               <>
-                <LoadingSpinner size="sm" className="mr-2 matrix-spinner" />
+                <LoadingSpinner size="sm" className="mr-2 retro-spinner" />
                 Zmienianie hasła...
               </>
             ) : (
@@ -230,7 +230,7 @@ export function ResetPasswordForm({
           </Button>
 
           <div className="text-center">
-            <a href="/login" className="text-sm matrix-link">
+            <a href="/login" className="text-sm retro-link">
               Powrót do logowania
             </a>
           </div>

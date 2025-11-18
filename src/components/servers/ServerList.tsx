@@ -24,8 +24,8 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
   if (loading && servers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <LoadingSpinner size="lg" className="mb-4 matrix-spinner" />
-        <p className="text-muted-foreground matrix-text">SKANOWANIE SERWERÓW...</p>
+        <LoadingSpinner size="lg" className="mb-4 retro-spinner" />
+        <p className="text-muted-foreground retro-text">SKANOWANIE SERWERÓW...</p>
       </div>
     );
   }
@@ -33,7 +33,7 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold matrix-title">
+        <h2 className="text-xl font-semibold retro-heading">
           AKTYWNE SERWERY ({servers.length})
         </h2>
         <Button 
@@ -41,7 +41,7 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
           size="sm" 
           onClick={onRefresh} 
           disabled={loading}
-          className="matrix-button"
+          className="retro-button"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           ODŚWIEŻ
@@ -52,8 +52,8 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
 
       {servers.length === 0 ? (
         <div className="text-center py-12" data-testid="servers-empty-state">
-          <div className="mx-auto w-24 h-24 bg-matrix-green/10 border border-matrix-green/30 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-12 h-12 text-matrix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)]">
+            <svg className="h-12 w-12 text-[var(--retro-orange-bright)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -62,8 +62,8 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium mb-2 matrix-title">BRAK AKTYWNYCH SERWERÓW</h3>
-          <p className="text-muted-foreground mb-4 matrix-text">
+          <h3 className="text-lg font-medium mb-2 retro-heading">BRAK AKTYWNYCH SERWERÓW</h3>
+          <p className="text-muted-foreground mb-4 retro-text">
             System nie wykrył żadnych serwerów. Zainicjuj pierwszy serwer komunikacyjny.
           </p>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface TypingAnimationProps {
   text: string;
@@ -7,43 +7,34 @@ interface TypingAnimationProps {
   onComplete?: () => void;
 }
 
-export function TypingAnimation({ 
-  text, 
-  speed = 50, 
-  className = '', 
-  onComplete 
-}: TypingAnimationProps) {
-  const [displayText, setDisplayText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showCursor, setShowCursor] = useState(true);
+export function TypingAnimation({ text, speed = 50, className = "", onComplete }: TypingAnimationProps) {
+  const [displayText, setDisplayText] = useState("");
+  const [index, setIndex] = useState(0);
+  const [cursorVisible, setCursorVisible] = useState(true);
 
   useEffect(() => {
-    if (currentIndex < text.length) {
-      const timer = setTimeout(() => {
-        setDisplayText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, speed);
-
-      return () => clearTimeout(timer);
-    } else {
+    if (index >= text.length) {
       onComplete?.();
+      return;
     }
-  }, [currentIndex, text, speed, onComplete]);
+
+    const timer = setTimeout(() => {
+      setDisplayText((prev) => prev + text[index]);
+      setIndex((prev) => prev + 1);
+    }, speed);
+
+    return () => clearTimeout(timer);
+  }, [index, text, speed, onComplete]);
 
   useEffect(() => {
-    const cursorTimer = setInterval(() => {
-      setShowCursor(prev => !prev);
-    }, 500);
-
+    const cursorTimer = setInterval(() => setCursorVisible((prev) => !prev), 450);
     return () => clearInterval(cursorTimer);
   }, []);
 
   return (
-    <span className={`matrix-text ${className}`}>
+    <span className={`retro-text ${className}`}>
       {displayText}
-      {showCursor && (
-        <span className="inline-block w-0.5 h-5 bg-matrix-green ml-1 animate-pulse" />
-      )}
+      {cursorVisible && <span className="inline-block h-5 w-1 bg-[var(--retro-orange-bright)] ml-1 animate-pulse" />}
     </span>
   );
 }

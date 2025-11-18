@@ -33,7 +33,12 @@ export function ThemeToggle() {
   // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" aria-label="Przełącznik motywu">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="rounded-full border border-[var(--border)]"
+        aria-label="Przełącznik motywu"
+      >
         <div className="h-4 w-4" />
       </Button>
     );
@@ -45,6 +50,7 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       aria-label={`Przełącz na motyw ${theme === "light" ? "ciemny" : "jasny"}`}
+      className="rounded-full border border-[var(--border)] bg-[var(--retro-orange-soft)]/30 hover:bg-[var(--retro-orange-soft)]/60"
     >
       {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
     </Button>

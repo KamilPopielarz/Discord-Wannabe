@@ -288,7 +288,7 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-matrix-green/20 bg-background/95 backdrop-blur p-4">
+    <div className="border-t border-[var(--border)] bg-background/90 backdrop-blur p-4">
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="relative">
           <Textarea
@@ -299,16 +299,15 @@ export function MessageInput({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={`matrix-input resize-none pr-12 font-mono ${isOverLimit ? "border-destructive matrix-error" : ""}`}
+            className={`retro-input resize-none pr-12 font-mono ${isOverLimit ? "border-destructive retro-error" : ""}`}
             style={{ minHeight: "40px", maxHeight: "120px" }}
           />
 
-          {/* Emoji button */}
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-2 top-2 h-8 w-8 p-0 text-matrix-green/70 hover:text-matrix-green hover:bg-matrix-green/10 matrix-button"
+            className="absolute right-2 top-2 h-8 w-8 p-0 text-[var(--retro-orange)] hover:bg-[var(--retro-orange-soft)]/60"
             disabled={disabled}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             title="Dodaj emoji"
@@ -316,16 +315,15 @@ export function MessageInput({
             <Smile className="h-4 w-4" />
           </Button>
 
-          {/* Emoji picker */}
           {showEmojiPicker && (
-            <div className="absolute right-0 top-12 z-50 w-80 max-h-64 overflow-y-auto matrix-form border border-matrix-green/30 rounded-lg shadow-lg p-3">
+            <div className="absolute right-0 top-12 z-50 max-h-64 w-80 overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--sidebar)] p-3 shadow-retro">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium matrix-title">WYBIERZ EMOJI</span>
+                <span className="text-sm font-semibold text-[var(--retro-orange-bright)]">WYBIERZ EMOJI</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 matrix-button hover:bg-matrix-green/10"
+                  className="h-6 w-6 p-0 text-[var(--retro-orange)] hover:bg-[var(--retro-orange-soft)]/70"
                   onClick={() => setShowEmojiPicker(false)}
                 >
                   <X className="h-3 w-3" />
@@ -338,7 +336,7 @@ export function MessageInput({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-lg hover:bg-matrix-green/10 matrix-button"
+                    className="h-8 w-8 p-0 text-lg hover:bg-[var(--retro-orange-soft)]/60"
                     onClick={() => addEmoji(emoji)}
                     disabled={disabled}
                   >
@@ -352,12 +350,10 @@ export function MessageInput({
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 text-xs">
-            <span
-              className={`font-mono ${isNearLimit ? (isOverLimit ? "text-destructive matrix-error" : "text-amber-500") : "text-muted-foreground"}`}
-            >
+            <span className={`font-mono ${isNearLimit ? (isOverLimit ? "retro-error" : "text-amber-400") : "text-muted-foreground"}`}>
               [{characterCount}/{maxCharacters}]
             </span>
-            {isOverLimit && <span className="text-destructive matrix-error font-mono">PRZEKROCZONO LIMIT ZNAKÓW</span>}
+            {isOverLimit && <span className="retro-error font-mono">PRZEKROCZONO LIMIT ZNAKÓW</span>}
           </div>
 
           <div className="flex items-center space-x-3">
@@ -367,7 +363,7 @@ export function MessageInput({
               type="submit"
               size="sm"
               disabled={disabled || !value.trim() || isOverLimit}
-              className="min-w-[100px] matrix-button font-mono tracking-wide"
+              className="retro-button min-w-[100px] rounded-full font-mono tracking-wide"
             >
               {disabled ? (
                 <>
