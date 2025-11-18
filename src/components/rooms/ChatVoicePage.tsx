@@ -400,7 +400,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
         <div className="relative z-10 flex h-screen items-center justify-center bg-background">
           <div className="text-center">
             <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-[var(--retro-orange)]"></div>
-            <p className="retro-text text-muted-foreground">ŁĄCZENIE Z POKOJEM...</p>
+            <p className="retro-text text-muted-foreground">Łączenie z pokojem...</p>
           </div>
         </div>
       </>
@@ -424,7 +424,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold mb-2 retro-heading">BŁĄD DOSTĘPU</h1>
+            <h1 className="text-2xl font-bold mb-2 retro-heading">Błąd dostępu</h1>
             <p className="text-muted-foreground mb-4 retro-error">{roomError}</p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <Button
@@ -435,14 +435,14 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 variant="default"
                 className="retro-button"
               >
-                ZALOGUJ SIĘ
+                Zaloguj się
               </Button>
               <Button onClick={() => window.location.reload()} variant="outline" className="retro-button">
-                SPRÓBUJ PONOWNIE
+                Spróbuj ponownie
               </Button>
               <Button onClick={goBack} variant="ghost" className="retro-button">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                WSTECZ
+                Wstecz
               </Button>
             </div>
           </div>
@@ -461,13 +461,13 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm" onClick={goBack} className="retro-button">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                WSTECZ
+                Wstecz
               </Button>
 
               <div>
                 <h1 className="text-lg font-semibold flex items-center retro-heading">
                   <TypingAnimation 
-                    text={roomName || `POKÓJ-${roomId?.slice(-6).toUpperCase()}`}
+                    text={roomName || `Pokój ${roomId?.slice(-6).toUpperCase()}`}
                     speed={50}
                   />
                   <Badge
@@ -477,12 +477,12 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                     {view === "voice" ? (
                       <>
                         <Mic className="h-3 w-3 mr-1" />
-                        VOICE
+                        Voice
                       </>
                     ) : (
                       <>
                         <MessageCircle className="h-3 w-3 mr-1" />
-                        CHAT
+                        Chat
                         {unreadCount > 0 && (
                           <span className="ml-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
                             {unreadCount}
@@ -492,7 +492,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                     )}
                   </Badge>
                 </h1>
-                <p className="text-sm text-muted-foreground retro-text">LINK: {inviteLink}</p>
+                <p className="text-sm text-muted-foreground retro-text">Link: {inviteLink}</p>
               </div>
             </div>
 
@@ -505,7 +505,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                   className="retro-button text-xs"
                   title="Włącz powiadomienia o nowych wiadomościach"
                 >
-                  🔔 POWIADOMIENIA
+                  🔔 Powiadomienia
                 </Button>
               )}
 
@@ -518,7 +518,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 title={soundSettings.enabled ? "Wyłącz dźwięki" : "Włącz dźwięki"}
               >
                 {soundSettings.enabled ? <Volume2 className="h-3 w-3 mr-1" /> : <VolumeOff className="h-3 w-3 mr-1" />}
-                DŹWIĘKI
+                Dźwięki
               </Button>
 
               <Button 
@@ -528,19 +528,19 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 className="retro-button text-xs"
                 title="Testuj dźwięk powiadomienia"
               >
-                🔊 TEST
+                🔊 Test dźwięku
               </Button>
               
               <Button variant="outline" size="sm" onClick={toggleView} className="retro-button">
                 {view === "chat" ? (
                   <>
                     <Mic className="h-4 w-4 mr-2" />
-                    VOICE MODE
+                    Widok głosowy
                   </>
                 ) : (
                   <>
                     <MessageCircle className="h-4 w-4 mr-2" />
-                    CHAT MODE
+                    Widok czatu
                   </>
                 )}
               </Button>
@@ -598,29 +598,29 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 </div>
 
                 <h2 className="text-3xl font-bold mb-2 retro-heading">
-                    <TypingAnimation text="KANAŁ GŁOSOWY DISCORD-WANNABE" speed={60} />
+                    <TypingAnimation text="Kanał głosowy Discord-Wannabe (LiveKit in progress)" speed={60} />
                 </h2>
                 
                 <div className="mb-6">
                   {isVoiceConnected ? (
                     <div className="space-y-2">
                       <p className="retro-text font-medium text-[var(--retro-orange-bright)]">
-                        ● POŁĄCZENIE AKTYWNE - TRANSMISJA GŁOSOWA
+                        ● Połączenie aktywne — transmisja głosowa
                       </p>
                       <div className="flex items-center justify-center space-x-4 text-sm">
                         <span className={`flex items-center space-x-1 ${isMuted ? 'text-destructive' : 'text-[var(--retro-orange-bright)]'}`}>
                           {isMuted ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
-                          <span>{isMuted ? 'WYCISZONY' : 'MIKROFON AKTYWNY'}</span>
+                          <span>{isMuted ? 'Wyciszony' : 'Mikrofon aktywny'}</span>
                         </span>
                         <span className={`flex items-center space-x-1 ${isDeafened ? 'text-destructive' : 'text-[var(--retro-teal)]'}`}>
                           {isDeafened ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
-                          <span>{isDeafened ? 'SŁUCHAWKI WYŁĄCZONE' : 'SŁUCHAWKI AKTYWNE'}</span>
+                          <span>{isDeafened ? 'Słuchawki wyłączone' : 'Słuchawki aktywne'}</span>
                         </span>
                       </div>
                     </div>
                   ) : (
                     <p className="text-muted-foreground retro-text">
-                      KLIKNIJ ABY ZAINICJOWAĆ BEZPIECZNE POŁĄCZENIE GŁOSOWE
+                      Kliknij, aby rozpocząć połączenie głosowe.
                     </p>
                   )}
                 </div>
@@ -640,12 +640,12 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                     {isVoiceConnected ? (
                       <>
                         <UserX className="h-5 w-5 mr-2" />
-                        ROZŁĄCZ TRANSMISJĘ
+                        Rozłącz połączenie
                       </>
                     ) : (
                       <>
                         <Mic className="h-5 w-5 mr-2" />
-                        POŁĄCZ Z KANAŁEM
+                        Połącz z kanałem
                       </>
                     )}
                   </Button>
@@ -665,7 +665,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                       >
                         {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                         <span className="ml-2 hidden sm:inline">
-                          {isMuted ? 'ODCISZ' : 'WYCISZ'}
+                          {isMuted ? 'Odcisz' : 'Wycisz'}
                         </span>
                       </Button>
 
@@ -682,7 +682,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                       >
                         {isDeafened ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                         <span className="ml-2 hidden sm:inline">
-                          {isDeafened ? 'WŁĄCZ' : 'WYŁĄCZ'}
+                          {isDeafened ? 'Włącz' : 'Wyłącz'}
                         </span>
                       </Button>
                     </div>
@@ -693,24 +693,24 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null }: Chat
                 <div className="mt-8 p-6 retro-card rounded-lg text-sm">
                   <p className="font-medium mb-3 retro-heading flex items-center justify-center">
                     <Shield className="h-4 w-4 mr-2" />
-                    ZAPORY DISCORD-WANNABE:
+                    Ochrona połączenia
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground retro-text">
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
-                      <span>SZYFROWANIE END-TO-END</span>
+                      <span>Szyfrowanie end-to-end</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
-                      <span>KONTROLA MIKROFONU</span>
+                      <span>Kontrola mikrofonu</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
-                      <span>KONTROLA SŁUCHAWEK</span>
+                      <span>Kontrola słuchawek</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full bg-[var(--retro-orange-bright)]"></div>
-                      <span>WSKAŹNIKI AKTYWNOŚCI</span>
+                      <span>Wskaźniki aktywności</span>
                     </div>
                   </div>
                 </div>
