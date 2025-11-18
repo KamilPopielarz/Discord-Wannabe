@@ -65,7 +65,7 @@ export function LoginForm({
             <TypingAnimation text="Panel Discord-Wannabe" speed={80} />
           </CardTitle>
           <CardDescription className="text-center text-sm text-[var(--retro-cream)]/75">
-            <GlitchText text="Wpisz kod dostępu i wskocz do retro-huba" trigger={!!error} />
+            <GlitchText text="Wpisz poprawny login oraz hasło:" trigger={!!error} />
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -82,7 +82,7 @@ export function LoginForm({
 
             <div className="space-y-2">
               <label htmlFor="email" className="retro-text text-xs font-semibold uppercase tracking-[0.3em]">
-                KOD E-MAIL
+                E-MAIL:
               </label>
               <Input
                 id="email"
@@ -107,10 +107,10 @@ export function LoginForm({
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label htmlFor="password" className="retro-text text-xs font-semibold uppercase tracking-[0.3em]">
-                  HASŁO SESSION KEY
+                  HASŁO:
                 </label>
                 <a href="/reset-password" className="text-xs retro-link">
-                  Zapomniałeś hasła?
+                  Zresetuj hasło
                 </a>
               </div>
               <Input
@@ -140,7 +140,7 @@ export function LoginForm({
                   ŁĄCZENIE...
                 </>
               ) : (
-                "Uruchom seans"
+                "Zaloguj się"
               )}
             </Button>
 

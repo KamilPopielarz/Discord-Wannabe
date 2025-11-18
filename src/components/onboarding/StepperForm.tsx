@@ -4,7 +4,6 @@ import type {
   ConfirmEmailCommand,
   LoginCommand,
   PasswordResetRequestCommand,
-  PasswordResetConfirmCommand,
 } from "../../types";
 import RegisterForm from "./RegisterForm";
 import ConfirmEmailForm from "./ConfirmEmailForm";
@@ -23,23 +22,20 @@ const StepperForm: React.FC<StepperFormProps> = ({ initialStep, onComplete }) =>
   const auth = useAuth();
   const [step, setStep] = useState<Step>(initialStep);
 
-  const handleNext = (data: any) => {
-    switch (step) {
-      case "register":
-        auth.register.mutate(data, { onSuccess: () => setStep("confirm") });
-        return;
-      case "confirm":
-        auth.confirmEmail.mutate(data, { onSuccess: () => setStep("login") });
-        return;
-      case "login":
-        auth.login.mutate(data, { onSuccess: () => setStep("password-reset") });
-        return;
-      case "password-reset":
-        auth.requestPasswordReset.mutate(data, { onSuccess: onComplete });
-        return;
-      default:
-        return;
-    }
+  const handleRegisterSubmit = (payload: RegisterUserCommand) => {
+    auth.register.mutate(payload, { onSuccess: () => setStep("confirm") });
+  };
+
+  const handleConfirmSubmit = (payload: ConfirmEmailCommand) => {
+    auth.confirmEmail.mutate(payload, { onSuccess: () => setStep("login") });
+  };
+
+  const handleLoginSubmit = (payload: LoginCommand) => {
+    auth.login.mutate(payload, { onSuccess: () => setStep("password-reset") });
+  };
+
+  const handlePasswordResetSubmit = (payload: PasswordResetRequestCommand) => {
+    auth.requestPasswordReset.mutate(payload, { onSuccess: onComplete });
   };
 
   const handleBack = () => {
@@ -55,10 +51,10 @@ const StepperForm: React.FC<StepperFormProps> = ({ initialStep, onComplete }) =>
       {/* Step indicator */}
       <div className="mb-4 font-semibold">Step: {step}</div>
       {/* Render current form */}
-      {step === "register" && <RegisterForm onSubmit={handleNext} />}
-      {step === "confirm" && <ConfirmEmailForm onSubmit={handleNext} />}
-      {step === "login" && <LoginForm onSubmit={handleNext} />}
-      {step === "password-reset" && <PasswordResetForm onSubmit={handleNext} />}
+      {step === "register" && <RegisterForm onSubmit={handleRegisterSubmit} />}
+      {step === "confirm" && <ConfirmEmailForm onSubmit={handleConfirmSubmit} />}
+      {step === "login" && <LoginForm onSubmit={handleLoginSubmit} />}
+      {step === "password-reset" && <PasswordResetForm onSubmit={handlePasswordResetSubmit} />}
       <div className="mt-4 flex justify-between">
         <button onClick={handleBack} disabled={step === initialStep} className="btn">
           Back

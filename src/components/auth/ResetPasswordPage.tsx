@@ -10,12 +10,12 @@ interface ResetPasswordPageProps {
 
 export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (payload: PasswordResetConfirmCommand) => {
     setLoading(true);
-    setError(null);
+    setError(undefined);
 
     try {
       const response = await fetch(`/api/auth/reset-password?token=${encodeURIComponent(token)}`, {

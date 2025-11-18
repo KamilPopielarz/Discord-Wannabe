@@ -15,16 +15,41 @@ import type {
   GenerateVoiceTokenResponseDto,
   ListAuditLogsResponseDto,
   DataExportResponseDto,
+  RegisterUserCommand,
+  ConfirmEmailCommand,
+  LoginCommand,
+  PasswordResetRequestCommand,
 } from "../../types";
 // Temporarily disabled imports - types not available
 // import type { VoiceParticipantVM } from "../../types/viewModels";
 // import type { MemberVM } from "../../types/viewModels";
 import { useState } from "react";
 
+type MutationStub<T> = {
+  mutate: (payload: T, options?: { onSuccess?: () => void; onError?: (error: Error) => void }) => void;
+  isLoading: boolean;
+  error: Error | null;
+};
+
+function createMutationStub<T>(label: string): MutationStub<T> {
+  return {
+    mutate: (payload, options) => {
+      console.info(`[useAuth] Stub mutation executed: ${label}`, payload);
+      options?.onSuccess?.();
+    },
+    isLoading: false,
+    error: null,
+  };
+}
+
 // Shared hooks stubs - to be implemented
 export const useAuth = () => {
-  // TODO: implement authentication hooks (useRegister, useLogin, etc.)
-  return {} as Record<string, unknown>;
+  return {
+    register: createMutationStub<RegisterUserCommand>("register"),
+    confirmEmail: createMutationStub<ConfirmEmailCommand>("confirmEmail"),
+    login: createMutationStub<LoginCommand>("login"),
+    requestPasswordReset: createMutationStub<PasswordResetRequestCommand>("requestPasswordReset"),
+  };
 };
 
 // Invitation hook - temporarily disabled
