@@ -97,6 +97,7 @@ export interface MessageDto {
   metadata: Tables<"messages">["metadata"];
   createdAt: Tables<"messages">["created_at"];
   authorName?: string; // Display name for the author
+  avatarUrl?: string | null; // Avatar URL for the author
 }
 
 export interface ListMessagesResponseDto {
@@ -112,6 +113,7 @@ export interface RoomUserDto {
   role: 'Owner' | 'Admin' | 'Moderator' | 'Member' | 'Guest';
   isOnline: boolean;
   joinedAt: string;
+  avatarUrl?: string | null;
 }
 
 export interface ListRoomUsersResponseDto {

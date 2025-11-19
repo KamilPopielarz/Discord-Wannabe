@@ -122,13 +122,17 @@ function UserItem({
     >
       {/* Avatar */}
       <div
-        className={`relative flex h-8 w-8 items-center justify-center rounded-full border ${
+        className={`relative flex h-8 w-8 items-center justify-center rounded-full border overflow-hidden ${
           user.isOnline ? 'border-[var(--retro-orange)] bg-[var(--retro-orange-soft)]' : 'border-muted bg-muted'
         }`}
       >
-        <span className={`text-xs font-semibold ${user.isOnline ? 'text-[var(--retro-orange-bright)]' : 'text-muted-foreground'}`}>
-          {user.username.charAt(0).toUpperCase()}
-        </span>
+        {user.avatarUrl ? (
+          <img src={user.avatarUrl} alt={user.username} className="h-full w-full object-cover" />
+        ) : (
+          <span className={`text-xs font-semibold ${user.isOnline ? 'text-[var(--retro-orange-bright)]' : 'text-muted-foreground'}`}>
+            {user.username.charAt(0).toUpperCase()}
+          </span>
+        )}
         
         {/* Online indicator */}
         {user.isOnline && <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-[var(--retro-teal)]"></div>}

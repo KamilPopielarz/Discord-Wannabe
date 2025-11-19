@@ -25,11 +25,7 @@ export function ProfileSection({ profile, saving, onSubmit }: ProfileSectionProp
   const [formState, setFormState] = useState({
     username: profile?.username ?? "",
     displayName: profile?.displayName ?? "",
-    status: profile?.status ?? "",
-    bio: profile?.bio ?? "",
-    timezone: profile?.timezone ?? TIMEZONES[0],
   });
-  const [socialLinks, setSocialLinks] = useState<SocialLinkDto[]>(profile?.socialLinks ?? []);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile?.avatarUrl ?? null);
   const [avatarData, setAvatarData] = useState<string | undefined>(undefined);
 
@@ -50,22 +46,6 @@ export function ProfileSection({ profile, saving, onSubmit }: ProfileSectionProp
     setAvatarPreview(base64);
   };
 
-  const handleSocialChange = (index: number, field: keyof SocialLinkDto, value: string) => {
-    setSocialLinks((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
-  };
-
-  const addSocialLink = () => {
-    setSocialLinks((prev) => [...prev, { label: "", url: "" }]);
-  };
-
-  const removeSocialLink = (index: number) => {
-    setSocialLinks((prev) => prev.filter((_, idx) => idx !== index));
-  };
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!canSubmit) return;
@@ -74,7 +54,6 @@ export function ProfileSection({ profile, saving, onSubmit }: ProfileSectionProp
       ...formState,
       avatarData,
       avatarUrl: profile?.avatarUrl ?? null,
-      socialLinks: socialLinks.filter((link) => link.label.trim() && link.url.trim()),
     });
     setAvatarData(undefined);
   };
@@ -128,86 +107,13 @@ export function ProfileSection({ profile, saving, onSubmit }: ProfileSectionProp
               />
               <Field
                 name="displayName"
-                label="Wyświetlana nazwa"
+                label="Nick (Wyświetlana nazwa)"
                 value={formState.displayName ?? ""}
                 onChange={(value) => handleChange("displayName", value)}
-                helper="Opcjonalna nazwa pokazywana w nagłówkach"
-              />
-              <Field
-                name="status"
-                label="Status"
-                value={formState.status ?? ""}
-                onChange={(value) => handleChange("status", value)}
-                helper="Krótki opis widoczny przy profilu"
+                helper="Nazwa widoczna na czacie"
               />
             </div>
           </div>
-
-          <div className="space-y-4">
-            <Label htmlFor="bio" className="retro-text text-sm font-semibold">
-              Opis profilu
-            </Label>
-            <Textarea
-              id="bio"
-              placeholder="Opowiedz innym o sobie..."
-              value={formState.bio ?? ""}
-              onChange={(event) => handleChange("bio", event.target.value)}
-              className="retro-input min-h-[120px]"
-            />
-          </div>
-
-  <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="timezone" className="retro-text text-sm font-semibold">
-              Strefa czasowa
-            </Label>
-            <select
-              id="timezone"
-              value={formState.timezone}
-              onChange={(event) => handleChange("timezone", event.target.value)}
-              className="retro-input w-full rounded-md border px-3 py-2 text-sm text-foreground"
-            >
-              {TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label className="retro-text text-sm font-semibold">Linki społecznościowe</Label>
-            <div className="space-y-3">
-              {socialLinks.map((link, index) => (
-                <div key={`${link.label}-${index}`} className="flex items-center gap-2">
-                  <Input
-                    placeholder="Etykieta"
-                    value={link.label}
-                    onChange={(event) => handleSocialChange(index, "label", event.target.value)}
-                    className="retro-input"
-                  />
-                  <Input
-                    placeholder="https://example.com"
-                    value={link.url}
-                    onChange={(event) => handleSocialChange(index, "url", event.target.value)}
-                    className="retro-input flex-1"
-                  />
-                  <button
-                    type="button"
-                    className="text-xs text-destructive underline"
-                    onClick={() => removeSocialLink(index)}
-                  >
-                    Usuń
-                  </button>
-                </div>
-              ))}
-              {socialLinks.length < 5 && (
-                <Button type="button" variant="outline" onClick={addSocialLink} className="w-full">
-                  Dodaj link
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
 
           <CardFooter className="px-0">
             <Button className="retro-button" type="submit" disabled={!canSubmit || saving}>

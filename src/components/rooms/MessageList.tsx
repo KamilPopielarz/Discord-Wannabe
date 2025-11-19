@@ -38,10 +38,14 @@ const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: 
 
   return (
     <div className="group flex items-start space-x-3 rounded-xl border border-transparent p-3 transition-all duration-200 hover:border-[var(--retro-orange)]/50 hover:bg-[var(--retro-orange-soft)]/40">
-      <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)] font-semibold text-[var(--retro-orange-bright)]">
-        <span className="text-xs font-mono">
-          {authorName.charAt(0).toUpperCase()}
-        </span>
+      <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--retro-orange)] bg-[var(--retro-orange-soft)] font-semibold text-[var(--retro-orange-bright)] overflow-hidden">
+        {message.avatarUrl ? (
+          <img src={message.avatarUrl} alt={authorName} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-xs font-mono">
+            {authorName.charAt(0).toUpperCase()}
+          </span>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">

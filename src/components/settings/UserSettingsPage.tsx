@@ -4,11 +4,7 @@ import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { ErrorBanner } from "../ui/ErrorBanner";
 import { SettingsSidebar } from "./SettingsSidebar";
 import { ProfileSection } from "./ProfileSection";
-import { NotificationsSection } from "./NotificationsSection";
-import { AppearanceSection } from "./AppearanceSection";
-import { PrivacySection } from "./PrivacySection";
 import { SecuritySection } from "./SecuritySection";
-import { DangerZoneSection } from "./DangerZoneSection";
 import { useUserSettings } from "../../lib/hooks/useUserSettings";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 
@@ -19,11 +15,7 @@ interface UserSettingsPageProps {
 
 const SECTIONS = [
   { id: "profile", label: "Profil" },
-  { id: "notifications", label: "Powiadomienia" },
-  { id: "appearance", label: "Wygląd" },
-  { id: "privacy", label: "Prywatność" },
   { id: "security", label: "Bezpieczeństwo" },
-  { id: "danger", label: "Strefa zagrożenia" },
 ] as const;
 
 export function UserSettingsPage({ initialSettings, initialSection }: UserSettingsPageProps) {
@@ -35,12 +27,7 @@ export function UserSettingsPage({ initialSettings, initialSection }: UserSettin
     status,
     refresh,
     updateProfile,
-    updatePreferences,
     changePassword,
-    toggleTwoFactor,
-    revokeSession,
-    exportData,
-    deleteAccount,
   } = useUserSettings(initialSettings ?? undefined);
 
   const [activeSection, setActiveSection] = useState(
@@ -69,7 +56,7 @@ export function UserSettingsPage({ initialSettings, initialSection }: UserSettin
                   Ustawienia konta
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Zarządzaj swoim profilem, bezpieczeństwem i preferencjami aplikacji.
+                  Zarządzaj swoim profilem i bezpieczeństwem.
                 </p>
               </div>
               <button
@@ -114,49 +101,10 @@ export function UserSettingsPage({ initialSettings, initialSection }: UserSettin
                   />
                 )}
 
-                {activeSection === "notifications" && (
-                  <NotificationsSection
-                    preferences={settings.preferences}
-                    saving={status.preferences}
-                    onSubmit={updatePreferences}
-                  />
-                )}
-
-                {activeSection === "appearance" && (
-                  <AppearanceSection
-                    preferences={settings.preferences}
-                    saving={status.preferences}
-                    onSubmit={updatePreferences}
-                  />
-                )}
-
-                {activeSection === "privacy" && (
-                  <PrivacySection
-                    preferences={settings.preferences}
-                    saving={status.preferences}
-                    onSubmit={updatePreferences}
-                  />
-                )}
-
                 {activeSection === "security" && (
                   <SecuritySection
-                    preferences={settings.preferences}
-                    sessions={settings.sessions}
                     passwordBusy={status.password}
-                    twoFactorBusy={status.twoFactor}
-                    sessionsBusy={status.sessions}
                     onChangePassword={changePassword}
-                    onToggleTwoFactor={toggleTwoFactor}
-                    onRevokeSession={revokeSession}
-                  />
-                )}
-
-                {activeSection === "danger" && (
-                  <DangerZoneSection
-                    exporting={status.dataExport}
-                    deleting={status.deleteAccount}
-                    onExport={exportData}
-                    onDelete={deleteAccount}
                   />
                 )}
               </>

@@ -424,9 +424,15 @@ export class UserService {
     buffer: Buffer,
     contentType?: string,
   ): Promise<string> {
+    if (!this.adminClient) {
+      throw new Error("Admin client nie jest dostępny. Skontaktuj się z administratorem.");
+    }
+
     const extension = contentType?.split("/")[1] ?? "png";
     const path = `${userId}/avatar-${Date.now()}.${extension}`;
-    const { error } = await this.supabase.storage
+    
+    // Use admin client to bypass RLS - admin client has full access
+    const { error } = await this.adminClient.storage
       .from("avatars")
       .upload(path, buffer, {
         upsert: true,
@@ -434,7 +440,39 @@ export class UserService {
       });
 
     if (error) {
-      throw new Error(`Nie udało się przesłać avatara: ${error.message}`);
+      console.error("[UserService] Failed to upload avatar buffer", error);
+      const message = error.message ?? "";
+
+      if (message.toLowerCase().includes("row-level security")) {
+        throw new Error(
+          "Brak uprawnień do przesłania avatara. Skontaktuj się z administratorem.",
+        );
+      }
+
+      throw new Error(`Nie udało się przesłać avatara: ${message || "nieznany błąd"}`);
+    }
+
+    // Set owner after upload so RLS policies work correctly for read operations
+    // Admin client bypasses RLS, but we set owner so regular client can read the file
+    if (this.adminClient) {
+      try {
+        // Use PostgREST to update storage.objects directly
+        const { error: updateError } = await (this.adminClient as any)
+          .schema("storage")
+          .from("objects")
+          .update({ owner: userId })
+          .eq("bucket_id", "avatars")
+          .eq("name", path);
+
+        if (updateError) {
+          console.warn("[UserService] Failed to set avatar owner:", updateError);
+          // Don't throw - file was uploaded successfully, owner is optional
+          // Admin client can still access the file for read operations
+        }
+      } catch (error) {
+        console.warn("[UserService] Could not set avatar owner, but file uploaded successfully:", error);
+        // Don't throw - file was uploaded successfully, owner is optional
+      }
     }
 
     return path;
@@ -498,7 +536,10 @@ export class UserService {
     }
 
     try {
-      const { data, error } = await this.supabase.storage
+      // Use admin client if available to bypass RLS when signing URL
+      // This ensures we can display the avatar even if the user doesn't own the file record
+      const client = this.adminClient || this.supabase;
+      const { data, error } = await client.storage
         .from("avatars")
         .createSignedUrl(avatarPath, 60 * 60 * 24 * 7);
       if (error) {

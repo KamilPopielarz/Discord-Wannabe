@@ -3,6 +3,7 @@ import type { SendMessageCommand, MessageDto, ListMessagesResponseDto, SendMessa
 import type { ChatViewModel } from "../../types/viewModels";
 import { useNotifications } from "./useNotifications";
 import { useUserActivity } from "./useUserActivity";
+import { createSupabaseBrowserClient } from "../../db/supabase.client";
 
 export function useChat(roomId?: string, roomName?: string) {
 
@@ -98,11 +99,14 @@ export function useChat(roomId?: string, roomName?: string) {
 
       const data: ListMessagesResponseDto = await response.json();
 
+      // Messages come in DESC order (newest first), so we reverse them to show oldest first
+      const reversedMessages = [...data.messages].reverse();
+
       // When loading first page, replace messages completely
       // When loading more pages (pagination), prepend older messages
       setState((prev) => ({
         ...prev,
-        messages: page ? [...data.messages, ...prev.messages] : data.messages,
+        messages: page ? [...reversedMessages, ...prev.messages] : reversedMessages,
         nextPage: data.nextPage,
       }));
 
@@ -203,9 +207,14 @@ export function useChat(roomId?: string, roomName?: string) {
             }
           });
 
+          // Merge and sort messages to ensure correct order
+          const mergedMessages = [...prev.messages, ...newMessages];
+          // Sort by ID ascending (oldest first)
+          mergedMessages.sort((a, b) => a.id - b.id);
+
           return {
             ...prev,
-            messages: [...prev.messages, ...newMessages],
+            messages: mergedMessages,
           };
         });
       } else {
@@ -239,10 +248,8 @@ export function useChat(roomId?: string, roomName?: string) {
     }
   }, [roomId, loadMessages]);
 
-  // Set up aggressive polling for near real-time message updates
-  // Using polling instead of real-time subscriptions for reliability with httpOnly cookies
+  // Set up Realtime subscription and fallback polling
   useEffect(() => {
-    // Only set up polling on client side
     if (typeof window === "undefined" || !roomId) {
       return;
     }
@@ -265,44 +272,97 @@ export function useChat(roomId?: string, roomName?: string) {
     
     fetchCurrentUserId();
 
-    // Clear any existing interval
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    // Function to start polling with current settings
-    const startPolling = () => {
-      // Clear existing interval first
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+    // Initialize Supabase client for Realtime with auth token
+    const setupRealtime = async () => {
+      let accessToken = null;
+      try {
+        // Fetch access token from server (since cookies are httpOnly)
+        const response = await fetch('/api/auth/token');
+        if (response.ok) {
+          const data = await response.json();
+          accessToken = data.access_token;
+        } else {
+          console.warn('[Realtime] Failed to fetch auth token, status:', response.status);
+        }
+      } catch (e) {
+        console.error("[Realtime] Failed to get auth token:", e);
       }
 
-      // Set up aggressive polling - check every 1 second when active and focused
-      const getRefreshInterval = () => {
-        if (isActive && isWindowFocused) return 1000; // 1 second - near real-time
-        if (isActive && !isWindowFocused) return 2000; // 2 seconds if active but not focused
-        return 3000; // 3 seconds if inactive
-      };
+      const supabase = createSupabaseBrowserClient();
+      let channel: any = null;
 
-      const pollingInterval = getRefreshInterval();
-      console.log(`[Polling] Starting polling for room ${roomId}, interval: ${pollingInterval}ms (active: ${isActive}, focused: ${isWindowFocused})`);
+      if (supabase) {
+        if (accessToken) {
+          console.log('[Realtime] Setting auth token');
+          supabase.realtime.setAuth(accessToken);
+        } else {
+          console.warn('[Realtime] No access token available, subscriptions may fail due to RLS');
+        }
+
+        channel = supabase
+          .channel(`room:${roomId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'messages',
+              filter: `room_id=eq.${roomId}`,
+            },
+            (payload) => {
+              console.log('[Realtime] New message received:', payload);
+              // Trigger fetch of new messages (handles author info and ordering)
+              loadNewMessages();
+            }
+          )
+          .subscribe((status) => {
+            console.log(`[Realtime] Subscription status: ${status}`);
+            if (status === 'SUBSCRIBED') {
+                console.log('[Realtime] Connected to channel');
+            }
+            if (status === 'CHANNEL_ERROR') {
+                console.error('[Realtime] Channel error, subscription may have failed');
+            }
+            if (status === 'TIMED_OUT') {
+                console.error('[Realtime] Subscription timed out');
+            }
+          });
+      }
       
-      intervalRef.current = setInterval(() => {
-        console.log(`[Polling] Checking for new messages (lastMessageId: ${lastMessageIdRef.current})`);
-        loadNewMessages();
-      }, pollingInterval);
+      return { supabase, channel };
     };
 
-    // Start polling immediately
-    startPolling();
-
-    // Cleanup interval on unmount or roomId change
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+    let isMounted = true;
+    let cleanup: (() => void) | undefined;
+    
+    setupRealtime().then(({ supabase, channel }) => {
+      if (!isMounted) {
+        // If unmounted before setup finished, clean up immediately
+        if (channel && supabase) {
+          supabase.removeChannel(channel);
+        }
+        return;
       }
+
+      cleanup = () => {
+        if (channel && supabase) {
+          supabase.removeChannel(channel);
+        }
+      };
+    });
+
+    // Fallback polling (every 30 seconds) just in case Realtime disconnects
+    const pollingInterval = setInterval(() => {
+      if (isActive && isWindowFocused) {
+        console.log('[Polling] Fallback check for new messages');
+        loadNewMessages();
+      }
+    }, 30000);
+
+    return () => {
+      isMounted = false;
+      if (cleanup) cleanup();
+      clearInterval(pollingInterval);
     };
   }, [roomId, isActive, isWindowFocused, loadNewMessages]);
 

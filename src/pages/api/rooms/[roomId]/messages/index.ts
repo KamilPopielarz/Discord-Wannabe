@@ -177,7 +177,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
 
     // Collect unique user IDs to batch fetch usernames
     const uniqueUserIds = [...new Set((messages || []).filter(m => m.user_id).map(m => m.user_id))];
-    const usernameMap = new Map<string, string>();
+    const userMap = new Map<string, { username: string; avatarUrl: string | null }>();
 
     // Batch fetch usernames for all users
     // Priority: user_profiles > user_metadata > email > fallback
@@ -186,26 +186,57 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
       try {
         const { data: profiles, error: profilesError } = await supabase
           .from("user_profiles")
-          .select("user_id, username")
+          .select("user_id, username, avatar_url")
           .in("user_id", uniqueUserIds);
 
         if (profilesError) {
           // Table might not exist, log but continue
           console.warn(`[Messages] user_profiles table not available:`, profilesError.message);
-        } else if (profiles) {
+        } else         if (profiles) {
           // Map usernames from user_profiles
+          const profilesToSign: { userId: string; path: string }[] = [];
+
           profiles.forEach((profile) => {
             if (profile.username) {
-              usernameMap.set(profile.user_id, profile.username);
+              userMap.set(profile.user_id, { 
+                username: profile.username, 
+                avatarUrl: profile.avatar_url 
+              });
+
+              if (profile.avatar_url && !profile.avatar_url.includes('://')) {
+                profilesToSign.push({ userId: profile.user_id, path: profile.avatar_url });
+              }
             }
           });
+
+          // Sign URLs if needed
+          if (profilesToSign.length > 0 && supabaseAdminClient) {
+            try {
+              // Create signed URLs in parallel
+              await Promise.all(profilesToSign.map(async (item) => {
+                const { data } = await supabaseAdminClient.storage
+                  .from('avatars')
+                  .createSignedUrl(item.path, 60 * 60 * 24 * 7); // 7 days
+                  
+                if (data?.signedUrl) {
+                  const userData = userMap.get(item.userId);
+                  if (userData) {
+                    userData.avatarUrl = data.signedUrl;
+                    userMap.set(item.userId, userData);
+                  }
+                }
+              }));
+            } catch (signError) {
+              console.warn('[Messages] Failed to sign avatar URLs:', signError);
+            }
+          }
         }
       } catch (error) {
         console.warn(`[Messages] Error fetching from user_profiles:`, error);
       }
 
       // Then, fetch from auth admin API for users not found in user_profiles
-      const missingUserIds = uniqueUserIds.filter(uid => !usernameMap.has(uid));
+      const missingUserIds = uniqueUserIds.filter(uid => !userMap.has(uid));
       
       if (missingUserIds.length > 0 && supabaseAdminClient) {
         await Promise.all(
@@ -221,8 +252,11 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
                 const username = userData.user.user_metadata?.username || 
                                 userData.user.user_metadata?.name ||
                                 (userData.user.email ? userData.user.email.split("@")[0] : null);
+                
+                const avatarUrl = userData.user.user_metadata?.avatar_url || null;
+
                 if (username) {
-                  usernameMap.set(uid, username);
+                  userMap.set(uid, { username, avatarUrl });
                 } else {
                   console.warn(`[Messages] No username found for user ${uid}, metadata:`, userData.user.user_metadata);
                 }
@@ -238,7 +272,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
     }
 
     // Fetch emails for users without usernames (for better fallback)
-    const usersWithoutUsernames = uniqueUserIds.filter(uid => !usernameMap.has(uid));
+    const usersWithoutUsernames = uniqueUserIds.filter(uid => !userMap.has(uid));
     const emailMap = new Map<string, string>();
     
     if (usersWithoutUsernames.length > 0 && supabaseAdminClient) {
@@ -256,27 +290,28 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
       );
     }
 
-    // Process messages to add author names
+    // Process messages to add author names and avatars
     const processedMessages = (messages || []).map((message: any) => {
       let authorName = "Nieznany";
+      let avatarUrl: string | null = null;
 
       if (message.user_id) {
-        // If this is the current user's message, use username from locals first
-        if (message.user_id === userId && locals.username) {
+        // Use cached user info from batch fetch
+        const cachedUser = userMap.get(message.user_id);
+        
+        if (cachedUser) {
+          authorName = cachedUser.username;
+          avatarUrl = cachedUser.avatarUrl;
+        } else if (message.user_id === userId && locals.username) {
+          // If this is the current user's message and not in map, use username from locals
           authorName = locals.username;
         } else {
-          // Use cached username from batch fetch
-          const cachedUsername = usernameMap.get(message.user_id);
-          if (cachedUsername) {
-            authorName = cachedUsername;
+          // Fallback: try email first, then user ID suffix
+          const email = emailMap.get(message.user_id);
+          if (email) {
+            authorName = email.split("@")[0];
           } else {
-            // Fallback: try email first, then user ID suffix
-            const email = emailMap.get(message.user_id);
-            if (email) {
-              authorName = email.split("@")[0];
-            } else {
-              authorName = `Użytkownik ${message.user_id.slice(-6)}`;
-            }
+            authorName = `Użytkownik ${message.user_id.slice(-6)}`;
           }
         }
       } else if (message.session_id) {
@@ -298,6 +333,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
         metadata: message.metadata,
         createdAt: message.created_at,
         authorName: authorName,
+        avatarUrl: avatarUrl,
       };
     });
 
