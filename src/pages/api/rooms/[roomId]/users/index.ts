@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import type { RoomUserDto, ListRoomUsersResponseDto } from "../../../../../types";
 import { UUIDSchema } from "../../../../../lib/validators/auth.validators";
+import { supabaseAdminClient } from "../../../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -209,6 +210,14 @@ export const GET: APIRoute = async ({ params, locals }) => {
     const users: RoomUserDto[] = [];
     const sixtySecondsAgo = new Date(Date.now() - 60 * 1000).toISOString();
 
+    // Use admin client for fetching user data to bypass RLS policies on user_profiles
+    // and to allow access to auth.admin methods
+    const dataClient = supabaseAdminClient || supabase;
+    
+    if (!supabaseAdminClient) {
+      console.warn("[users/index] SUPABASE_SERVICE_ROLE_KEY not set, falling back to user client. Some user data may be missing due to RLS.");
+    }
+
     // Process users from user_room table
     // IMPORTANT: Always return all users from user_room, even if they don't have presence records
     for (const roomUser of roomUsers || []) {
@@ -217,7 +226,19 @@ export const GET: APIRoute = async ({ params, locals }) => {
         const isCurrentUser = userId && roomUser.user_id === userId;
         
         // Get user details from Supabase Auth
-        const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(roomUser.user_id);
+        // Note: auth.admin.getUserById requires service role key (supabaseAdminClient)
+        // If using regular client, this might fail or we need another way
+        let authUser = null;
+        let authError = null;
+        
+        if (supabaseAdminClient) {
+             const result = await supabaseAdminClient.auth.admin.getUserById(roomUser.user_id);
+             authUser = result.data;
+             authError = result.error;
+        } else {
+             // Fallback for when we don't have admin client - we can't get auth user details easily
+             // unless we rely purely on public profiles
+        }
         
         // Determine online status
         // Current user is always online
@@ -225,7 +246,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
         
         if (!isOnline) {
           // Check presence for other users - they are online if they have a recent presence record
-          const { data: presence } = await supabase
+          // Presence is usually public, so regular client is fine, but dataClient is safer
+          const { data: presence } = await dataClient
             .from("user_presence")
             .select("last_seen")
             .eq("user_id", roomUser.user_id)
@@ -239,32 +261,36 @@ export const GET: APIRoute = async ({ params, locals }) => {
         // Extract username - try multiple sources
         let username = `User-${roomUser.user_id.slice(-6)}`; // Fallback
         let email: string | undefined = undefined;
+        let avatarUrl: string | null = null;
         
+        // Try user_profiles first (most reliable)
+        // Use dataClient (admin) to ensure we can read any user's profile
+        let profile = null;
+        try {
+          const { data } = await dataClient
+            .from("user_profiles")
+            .select("username, display_name, avatar_url")
+            .eq("user_id", roomUser.user_id)
+            .maybeSingle();
+          profile = data;
+        } catch (e) {
+          console.warn(`[users/index] Profile lookup failed for ${roomUser.user_id}`, e);
+        }
+
+        if (profile?.username) {
+          // Prefer display_name if available, otherwise username
+          username = profile.display_name || profile.username;
+          avatarUrl = profile.avatar_url;
+        } else if (authUser?.user) {
+           // Fallback to user_metadata or email if profile not found
+           username = authUser.user.user_metadata?.username || 
+                     authUser.user.user_metadata?.name ||
+                     (authUser.user.email ? authUser.user.email.split("@")[0] : username);
+           avatarUrl = authUser.user.user_metadata?.avatar_url || null;
+        }
+
         if (authUser?.user) {
-          // Try user_profiles first (most reliable)
-          try {
-            const { data: profile } = await supabase
-              .from("user_profiles")
-              .select("username")
-              .eq("user_id", roomUser.user_id)
-              .maybeSingle();
-            
-            if (profile?.username) {
-              username = profile.username;
-            } else {
-              // Fallback to user_metadata or email
-              username = authUser.user.user_metadata?.username || 
-                        authUser.user.user_metadata?.name ||
-                        (authUser.user.email ? authUser.user.email.split("@")[0] : username);
-            }
-          } catch (profileError) {
-            // If user_profiles lookup fails, use metadata/email
-            username = authUser.user.user_metadata?.username || 
-                      authUser.user.user_metadata?.name ||
-                      (authUser.user.email ? authUser.user.email.split("@")[0] : username);
-          }
-          
-          email = authUser.user.email;
+           email = authUser.user.email;
         } else if (authError) {
           console.warn(`[users/index] Auth lookup failed for user ${roomUser.user_id}:`, authError.message);
         }
@@ -277,6 +303,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
           role: roomUser.role as RoomUserDto['role'],
           isOnline,
           joinedAt: roomUser.created_at,
+          avatarUrl,
         });
       } catch (error) {
         console.error(`[users/index] Failed to process user ${roomUser.user_id}:`, error);
@@ -308,12 +335,36 @@ export const GET: APIRoute = async ({ params, locals }) => {
         
         // Try to get user from admin API if available (for more complete data)
         try {
-          const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+          // Use admin client if available, otherwise fallback to user client (which will fail for admin calls)
+          const client = supabaseAdminClient || supabase;
+          let authUser = null;
+          
+          if (supabaseAdminClient) {
+             const res = await supabaseAdminClient.auth.admin.getUserById(userId);
+             authUser = res.data;
+          }
+
+          let finalUsername = username;
+          let avatarUrl = null;
+
           if (authUser?.user) {
-            const metadataUsername = authUser.user.user_metadata?.username;
-            const finalUsername = metadataUsername || 
-                                 (authUser.user.email ? authUser.user.email.split('@')[0] : undefined) ||
-                                 username;
+            // Try user_profiles for current user too
+             const { data: profile } = await client
+              .from("user_profiles")
+              .select("username, display_name, avatar_url")
+              .eq("user_id", userId)
+              .maybeSingle();
+
+            if (profile?.username) {
+               finalUsername = profile.display_name || profile.username;
+               avatarUrl = profile.avatar_url;
+            } else {
+              const metadataUsername = authUser.user.user_metadata?.username;
+              finalUsername = metadataUsername || 
+                                   (authUser.user.email ? authUser.user.email.split('@')[0] : undefined) ||
+                                   username;
+              avatarUrl = authUser.user.user_metadata?.avatar_url || null;
+            }
             
             users.push({
               id: userId,
@@ -322,6 +373,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
               role: (userRole || 'Member') as RoomUserDto['role'],
               isOnline: true, // Current user is always online
               joinedAt: new Date().toISOString(),
+              avatarUrl
             });
             console.log(`[users/index] Added current user: ${finalUsername}`);
           } else {
@@ -333,6 +385,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
               role: (userRole || 'Member') as RoomUserDto['role'],
               isOnline: true,
               joinedAt: new Date().toISOString(),
+              avatarUrl: null
             });
             console.log(`[users/index] Added current user (fallback): ${username}`);
           }
@@ -346,6 +399,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
             role: (userRole || 'Member') as RoomUserDto['role'],
             isOnline: true,
             joinedAt: new Date().toISOString(),
+            avatarUrl: null
           });
           console.log(`[users/index] Added current user (locals fallback): ${username}`);
         }

@@ -813,6 +813,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
             isMuted: user.id === currentUserData?.userId ? isMuted : false,
             isDeafened: user.id === currentUserData?.userId ? isDeafened : false,
             joinedAt: user.joinedAt,
+            avatarUrl: user.avatarUrl,
           }))}
           currentUserId={currentUserData?.userId || ""}
           currentUserRole={currentUserRole}

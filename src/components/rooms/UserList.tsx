@@ -32,6 +32,7 @@ export interface RoomUser {
   isMuted: boolean;
   isDeafened: boolean;
   joinedAt: string;
+  avatarUrl?: string | null;
 }
 
 interface UserListProps {
