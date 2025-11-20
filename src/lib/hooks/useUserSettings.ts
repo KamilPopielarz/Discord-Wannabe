@@ -1,6 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type {
   ChangePasswordCommand,
+  UpdateUserPreferencesCommand,
   UpdateUserProfileCommand,
   UserSettingsResponseDto,
 } from "../../types";
@@ -8,11 +9,13 @@ import type {
 type StatusMap = {
   profile: boolean;
   password: boolean;
+  preferences: boolean;
 };
 
 const DEFAULT_STATUS: StatusMap = {
   profile: false,
   password: false,
+  preferences: false,
 };
 
 export function useUserSettings(initial?: UserSettingsResponseDto) {
@@ -38,6 +41,12 @@ export function useUserSettings(initial?: UserSettingsResponseDto) {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (!initial) {
+      refresh();
+    }
+  }, [initial, refresh]);
 
   const withStatus = useCallback(
     async <T,>(key: keyof StatusMap, action: () => Promise<T>): Promise<T> => {
@@ -98,6 +107,32 @@ export function useUserSettings(initial?: UserSettingsResponseDto) {
     [withStatus],
   );
 
+  const updatePreferences = useCallback(
+    async (payload: UpdateUserPreferencesCommand) => {
+      return withStatus("preferences", async () => {
+        const response = await fetch("/api/settings/preferences", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error("Nie udało się zapisać ustawień");
+        }
+
+        const preferences = await response.json();
+        setSettings((prev) =>
+          prev
+            ? { ...prev, preferences }
+            : ({ preferences } as UserSettingsResponseDto),
+        );
+        setSuccessMessage("Ustawienia zostały zaktualizowane");
+        return preferences;
+      });
+    },
+    [withStatus],
+  );
+
   return {
     settings,
     loading,
@@ -107,6 +142,7 @@ export function useUserSettings(initial?: UserSettingsResponseDto) {
     refresh,
     updateProfile,
     changePassword,
+    updatePreferences,
   };
 }
 

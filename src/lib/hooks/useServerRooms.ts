@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { CreateRoomCommand, CreateRoomResponseDto, GetServerResponseDto } from "../../types";
 import type { RoomsViewModel } from "../../types/viewModels";
+import { useUserSettings } from "./useUserSettings";
 
 interface ServerRoomsState extends RoomsViewModel {
   serverInfo?: {
@@ -12,6 +13,7 @@ interface ServerRoomsState extends RoomsViewModel {
 }
 
 export function useServerRooms(inviteLink?: string) {
+  const { settings } = useUserSettings();
   const [state, setState] = useState<ServerRoomsState>({
     rooms: [],
     loading: false,
@@ -255,17 +257,25 @@ export function useServerRooms(inviteLink?: string) {
       setCreateModalOpen(false);
 
       // Show success message and copy invite link
+      const showSuccess = settings?.preferences.confirmations?.createRoom ?? true;
+      
       if (navigator.clipboard) {
         try {
           await navigator.clipboard.writeText(data.inviteLink);
-          alert(
-            `Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy skopiowany do schowka: ${data.inviteLink}`
-          );
+          if (showSuccess) {
+            alert(
+              `Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy skopiowany do schowka: ${data.inviteLink}`
+            );
+          }
         } catch {
-          alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
+          if (showSuccess) {
+            alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
+          }
         }
       } else {
-        alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
+        if (showSuccess) {
+          alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
+        }
       }
     } catch (error) {
       setState((prev) => ({

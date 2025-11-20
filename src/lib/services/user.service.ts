@@ -56,6 +56,11 @@ const DEFAULT_PREFERENCES: UserPreferencesDto = {
     typingSound: false,
     userJoinSound: true,
   },
+  confirmations: {
+    deleteMessage: true,
+    createRoom: true,
+    createServer: true,
+  },
 };
 
 const mergePreferences = (
@@ -66,6 +71,7 @@ const mergePreferences = (
   appearance: { ...base.appearance, ...(patch.appearance ?? {}) },
   privacy: { ...base.privacy, ...(patch.privacy ?? {}) },
   sound: { ...base.sound, ...(patch.sound ?? {}) },
+  confirmations: { ...base.confirmations, ...(patch.confirmations ?? {}) },
 });
 
 const serializeProfilePayload = (userId: string, payload: UpdateUserProfileCommand) => ({
@@ -257,6 +263,7 @@ export class UserService {
           appearance: merged.appearance,
           privacy: merged.privacy,
           sound: merged.sound,
+          confirmations: merged.confirmations,
         },
         { onConflict: "user_id" },
       );
@@ -510,6 +517,7 @@ export class UserService {
     appearance: UserPreferencesDto["appearance"];
     privacy: UserPreferencesDto["privacy"];
     sound: UserPreferencesDto["sound"];
+    confirmations?: UserPreferencesDto["confirmations"];
     updated_at: string;
   }): UserPreferencesDto {
     return {
@@ -517,6 +525,7 @@ export class UserService {
       appearance: { ...DEFAULT_PREFERENCES.appearance, ...row.appearance },
       privacy: { ...DEFAULT_PREFERENCES.privacy, ...row.privacy },
       sound: { ...DEFAULT_PREFERENCES.sound, ...row.sound },
+      confirmations: { ...DEFAULT_PREFERENCES.confirmations, ...(row.confirmations ?? {}) },
       updatedAt: row.updated_at,
     };
   }
@@ -601,6 +610,7 @@ export class UserService {
       appearance: { ...DEFAULT_PREFERENCES.appearance, ...stored.appearance },
       privacy: { ...DEFAULT_PREFERENCES.privacy, ...stored.privacy },
       sound: { ...DEFAULT_PREFERENCES.sound, ...stored.sound },
+      confirmations: { ...DEFAULT_PREFERENCES.confirmations, ...(stored.confirmations ?? {}) },
       updatedAt: stored.updatedAt ?? new Date().toISOString(),
     };
   }

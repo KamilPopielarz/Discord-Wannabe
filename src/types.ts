@@ -236,11 +236,18 @@ export interface UserSoundPreferences {
   userJoinSound: boolean;
 }
 
+export interface UserConfirmationPreferences {
+  deleteMessage: boolean;
+  createRoom: boolean;
+  createServer: boolean;
+}
+
 export interface UserPreferencesDto {
   notifications: UserNotificationPreferences;
   appearance: UserAppearancePreferences;
   privacy: UserPrivacyPreferences;
   sound: UserSoundPreferences;
+  confirmations: UserConfirmationPreferences;
   updatedAt?: string;
 }
 
@@ -249,6 +256,7 @@ export interface UpdateUserPreferencesCommand {
   appearance?: Partial<UserAppearancePreferences>;
   privacy?: Partial<UserPrivacyPreferences>;
   sound?: Partial<UserSoundPreferences>;
+  confirmations?: Partial<UserConfirmationPreferences>;
 }
 
 export interface UserSessionSummaryDto {

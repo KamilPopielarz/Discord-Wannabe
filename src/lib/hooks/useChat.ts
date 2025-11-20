@@ -2,9 +2,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { SendMessageCommand, MessageDto, ListMessagesResponseDto, SendMessageResponseDto } from "../../types";
 import type { ChatViewModel } from "../../types/viewModels";
 import { useNotifications } from "./useNotifications";
+import { useUserSettings } from "./useUserSettings";
 import { createSupabaseBrowserClient } from "../../db/supabase.client";
 
 export function useChat(roomId?: string, roomName?: string) {
+  const { settings } = useUserSettings();
 
   const [state, setState] = useState<ChatViewModel>({
     messages: [],
@@ -525,7 +527,10 @@ export function useChat(roomId?: string, roomName?: string) {
   };
 
   const deleteMessage = async (messageId: number) => {
-    if (!roomId || !confirm("Czy na pewno chcesz usunąć tę wiadomość?")) return;
+    if (!roomId) return;
+
+    const shouldConfirm = settings?.preferences.confirmations?.deleteMessage ?? true;
+    if (shouldConfirm && !confirm("Czy na pewno chcesz usunąć tę wiadomość?")) return;
 
     try {
       const response = await fetch(`/api/rooms/${roomId}/messages/${messageId}`, {
