@@ -120,10 +120,10 @@ export const MessageList = memo(function MessageList({
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       <ErrorBanner error={error} className="mx-4 mb-2" />
 
-      <ScrollArea className="flex-1 px-2">
+      <ScrollArea className="flex-1 px-2 h-full">
         <div className="space-y-1">
           {hasMore && (
             <div className="text-center py-4">
@@ -134,7 +134,7 @@ export const MessageList = memo(function MessageList({
                     Ładowanie...
                   </>
                 ) : (
-                  "Załaduj starsze wiadomości"
+                  "Wczytaj wcześniejsze wiadomości"
                 )}
               </Button>
             </div>

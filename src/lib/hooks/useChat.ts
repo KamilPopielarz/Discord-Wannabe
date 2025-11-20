@@ -374,25 +374,25 @@ export function useChat(roomId?: string, roomName?: string) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // Track previous message count to only scroll when new messages arrive
-  const prevMessageCountRef = useRef(0);
+  // Track last message ID to only scroll when new messages arrive
+  const prevLastMessageIdRef = useRef<number | null>(null);
 
   // Auto-scroll to bottom when new messages arrive and handle notifications
   useEffect(() => {
-    const currentMessageCount = state.messages.length;
-    const messagesCountIncreased = currentMessageCount > prevMessageCountRef.current;
+    const lastMessage = state.messages[state.messages.length - 1];
+    const lastMessageId = lastMessage?.id ?? null;
     
-    // Only scroll if we have new messages (count increased)
-    if (messagesCountIncreased && currentMessageCount > 0) {
+    // Only scroll if the newest message has changed (new message arrived or initial load)
+    if (lastMessageId && lastMessageId !== prevLastMessageIdRef.current) {
       scrollToBottom();
-      prevMessageCountRef.current = currentMessageCount;
+      prevLastMessageIdRef.current = lastMessageId;
     }
     
     // Clear notifications when window is focused and user sees messages
     if (isWindowFocused && hasNewMessages) {
       clearNotifications();
     }
-  }, [state.messages.length, isWindowFocused, hasNewMessages, clearNotifications, scrollToBottom]);
+  }, [state.messages, isWindowFocused, hasNewMessages, clearNotifications, scrollToBottom]);
 
   const loadMoreMessages = () => {
     if (state.nextPage && !loading) {
