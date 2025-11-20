@@ -215,8 +215,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
     typingUsers,
     handleTyping,
     stopTyping,
-    addTypingUser,
-  } = useTypingIndicator(roomId, currentUserData?.userId);
+  } = useTypingIndicator(roomId, currentUserData?.userId, currentUserData?.username);
 
   const [isVoiceConnected, setIsVoiceConnected] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -574,7 +573,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 variant="outline"
                 size="sm"
                 onClick={() => updateSoundSettings({ enabled: !soundSettings.enabled })}
-                className={`retro-button text-xs ${soundSettings.enabled ? 'text-[var(--retro-orange-bright)]' : 'text-muted-foreground'}`}
+                className={`retro-button text-xs ${soundSettings.enabled ? 'text-[var(--primary-foreground)]' : 'text-muted-foreground'}`}
                 title={soundSettings.enabled ? "Wyłącz dźwięki" : "Włącz dźwięki"}
               >
                 {soundSettings.enabled ? <Volume2 className="h-3 w-3 mr-1" /> : <VolumeOff className="h-3 w-3 mr-1" />}
