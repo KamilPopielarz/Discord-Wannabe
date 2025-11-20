@@ -318,6 +318,34 @@ export function useChat(roomId?: string, roomName?: string) {
               loadNewMessages();
             }
           )
+          .on(
+            'postgres_changes',
+            {
+              event: 'DELETE',
+              schema: 'public',
+              table: '*', // Listen to all tables to catch partitioned messages
+            },
+            (payload) => {
+              const deletedId = payload.old.id;
+              // Only process if it looks like a message table or if we have a matching ID in our list
+              // We can't filter by room_id on DELETE because it's not in the identity column usually
+              console.log('[Realtime] Delete event received:', payload);
+              
+              if (deletedId) {
+                setState((prev) => {
+                  // Check if we have this message
+                  const exists = prev.messages.some((m) => m.id == deletedId);
+                  if (!exists) return prev;
+                  
+                  console.log(`[Realtime] Removing deleted message: ${deletedId}`);
+                  return {
+                    ...prev,
+                    messages: prev.messages.filter((m) => m.id != deletedId),
+                  };
+                });
+              }
+            }
+          )
           .subscribe((status) => {
             console.log(`[Realtime] Subscription status: ${status}`);
             if (status === 'SUBSCRIBED') {
