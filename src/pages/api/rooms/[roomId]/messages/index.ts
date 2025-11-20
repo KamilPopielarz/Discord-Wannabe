@@ -186,7 +186,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
       try {
         const { data: profiles, error: profilesError } = await supabase
           .from("user_profiles")
-          .select("user_id, username, avatar_url")
+          .select("user_id, username, display_name, avatar_url")
           .in("user_id", uniqueUserIds);
 
         if (profilesError) {
@@ -199,7 +199,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
           profiles.forEach((profile) => {
             if (profile.username) {
               userMap.set(profile.user_id, { 
-                username: profile.username, 
+                username: profile.display_name || profile.username, 
                 avatarUrl: profile.avatar_url 
               });
 
@@ -302,9 +302,9 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
         if (cachedUser) {
           authorName = cachedUser.username;
           avatarUrl = cachedUser.avatarUrl;
-        } else if (message.user_id === userId && locals.username) {
-          // If this is the current user's message and not in map, use username from locals
-          authorName = locals.username;
+        } else if (message.user_id === userId) {
+          // If this is the current user's message and not in map, use profile from locals
+          authorName = locals.profile?.displayName || locals.profile?.username || locals.username || "Ty";
         } else {
           // Fallback: try email first, then user ID suffix
           const email = emailMap.get(message.user_id);
