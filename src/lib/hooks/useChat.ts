@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { SendMessageCommand, MessageDto, ListMessagesResponseDto, SendMessageResponseDto } from "../../types";
 import type { ChatViewModel } from "../../types/viewModels";
 import { useNotifications } from "./useNotifications";
-import { useUserActivity } from "./useUserActivity";
 import { createSupabaseBrowserClient } from "../../db/supabase.client";
 
 export function useChat(roomId?: string, roomName?: string) {
@@ -34,7 +33,11 @@ export function useChat(roomId?: string, roomName?: string) {
     testSound,
   } = useNotifications();
 
-  const { isActive } = useUserActivity();
+  // Use ref for addNewMessage to prevent re-creation of loadNewMessages when notifications state changes
+  const addNewMessageRef = useRef(addNewMessage);
+  useEffect(() => {
+    addNewMessageRef.current = addNewMessage;
+  }, [addNewMessage]);
 
   const loadMessages = useCallback(async (page?: string) => {
     if (!roomId) {
@@ -200,7 +203,7 @@ export function useChat(roomId?: string, roomName?: string) {
           newMessages.forEach(message => {
             // Don't notify for own messages  
             if (message.userId !== currentUserIdRef.current) {
-              addNewMessage({
+              addNewMessageRef.current({
                 authorName: message.authorName,
                 content: message.content,
               }, roomName);
@@ -232,7 +235,7 @@ export function useChat(roomId?: string, roomName?: string) {
       console.error("[Polling] Error loading new messages after retries:", error);
       // Silently fail for auto-refresh to avoid spamming errors
     }
-  }, [roomId, addNewMessage, roomName]);
+  }, [roomId, roomName]);
 
   // Load messages on mount and when roomId changes
   useEffect(() => {
@@ -306,7 +309,7 @@ export function useChat(roomId?: string, roomName?: string) {
             {
               event: 'INSERT',
               schema: 'public',
-              table: 'messages',
+              table: '*', // Listen to all tables to catch partitioned messages
               filter: `room_id=eq.${roomId}`,
             },
             (payload) => {
@@ -351,20 +354,21 @@ export function useChat(roomId?: string, roomName?: string) {
       };
     });
 
-    // Fallback polling (every 30 seconds) just in case Realtime disconnects
+    // Fallback polling (every 3 seconds) just in case Realtime disconnects
     const pollingInterval = setInterval(() => {
-      if (isActive && isWindowFocused) {
-        console.log('[Polling] Fallback check for new messages');
+      // Check always to ensure sync in multi-window tests and background tabs
+      // Using function reference from useRef to avoid stale closures
+      if (typeof loadNewMessages === 'function') {
         loadNewMessages();
       }
-    }, 30000);
+    }, 3000);
 
     return () => {
       isMounted = false;
       if (cleanup) cleanup();
       clearInterval(pollingInterval);
     };
-  }, [roomId, isActive, isWindowFocused, loadNewMessages]);
+  }, [roomId, loadNewMessages]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
