@@ -10,6 +10,8 @@ interface UserMenuProps {
   avatarUrl?: string | null;
   isAdmin?: boolean;
   onLogout: () => void;
+  roomId?: string;
+  onLeaveRoom?: () => void;
 }
 
 export function UserMenu({
@@ -18,6 +20,8 @@ export function UserMenu({
   avatarUrl,
   isAdmin = false,
   onLogout,
+  roomId,
+  onLeaveRoom,
 }: UserMenuProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -100,6 +104,18 @@ export function UserMenu({
           <Settings className="mr-2 h-4 w-4" />
           Ustawienia
         </DropdownMenuItem>
+
+        {roomId && onLeaveRoom && (
+          <DropdownMenuItem
+            className="retro-text hover:bg-[var(--retro-orange-soft)]/40"
+            onSelect={() => {
+              onLeaveRoom();
+            }}
+          >
+            <LogOut className="mr-2 h-4 w-4 rotate-180" />
+            Opóść pokój
+          </DropdownMenuItem>
+        )}
 
         {isAdmin && (
           <DropdownMenuItem

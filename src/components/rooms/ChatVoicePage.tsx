@@ -31,6 +31,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
 
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
   const [roomName, setRoomName] = useState<string | undefined>(undefined);
+  const [serverInviteLink, setServerInviteLink] = useState<string | undefined>(undefined);
   const [loadingRoomInfo, setLoadingRoomInfo] = useState(false);
   const [roomError, setRoomError] = useState<string | undefined>(undefined);
   const [hasAccess, setHasAccess] = useState<boolean>(true);
@@ -136,6 +137,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
       const data: GetRoomResponseDto = await response.json();
       setRoomId(data.roomId);
       setRoomName(data.name);
+      if (data.serverInviteLink) {
+        setServerInviteLink(data.serverInviteLink);
+      }
 
       // In simplified flow, if user has session and room exists, they have access
       // hasAccess is already true by default
@@ -362,6 +366,30 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
 
   const goBack = () => {
     window.history.back();
+  };
+
+  const handleLeaveRoom = async () => {
+    if (!roomId) return;
+
+    // Delete presence to mark user as offline immediately
+    try {
+      await fetch(`/api/rooms/${roomId}/presence`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.error("Failed to leave room presence", error);
+    }
+
+    // Navigate back to server page (room selection)
+    if (serverInviteLink) {
+      window.location.href = `/servers/${serverInviteLink}`;
+    } else {
+      // Fallback if no server link available
+      window.location.href = "/servers";
+    }
   };
 
   const handleLogout = () => {
@@ -618,6 +646,8 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 avatarUrl={currentUserData?.avatarUrl || null}
                 isAdmin={currentUserRole === 'admin' || currentUserRole === 'owner'} 
                 onLogout={handleLogout}
+                roomId={roomId}
+                onLeaveRoom={handleLeaveRoom}
               />
               <ThemeToggle />
             </div>
