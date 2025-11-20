@@ -59,10 +59,32 @@ export function MessageInput({
   };
 
   const handleChange = (newValue: string) => {
-    onChange(newValue);
+    let processedValue = newValue;
+
+    const emojiShortcuts: Record<string, string> = {
+      ":)": "🙂",
+      ":D": "😃",
+      ":(": "🙁",
+      ";)": "😉",
+      ":P": "😛",
+      ":p": "😛",
+      "<3": "❤️",
+      ":o": "😮",
+      ":O": "😮",
+      ":*": "😘",
+      "xD": "😆",
+      "XD": "😆",
+      ":|": "😐",
+    };
+
+    Object.entries(emojiShortcuts).forEach(([shortcut, emoji]) => {
+       processedValue = processedValue.replaceAll(shortcut, emoji);
+    });
+
+    onChange(processedValue);
 
     // Trigger typing indicator when user types
-    if (newValue.length > 0) {
+    if (processedValue.length > 0) {
       onTyping?.();
     } else {
       onStopTyping?.();
@@ -316,7 +338,7 @@ export function MessageInput({
           </Button>
 
           {showEmojiPicker && (
-            <div className="absolute right-0 top-12 z-50 max-h-64 w-80 overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--sidebar)] p-3 shadow-retro">
+            <div className="absolute right-0 bottom-full mb-2 z-50 max-h-64 w-80 overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--sidebar)] p-3 shadow-retro">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-[var(--retro-orange-bright)]">WYBIERZ EMOJI</span>
                 <Button
