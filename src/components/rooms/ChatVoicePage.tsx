@@ -14,6 +14,7 @@ import { useChat } from "../../lib/hooks/useChat";
 import { useRoomUsers } from "../../lib/hooks/useRoomUsers";
 import { useTypingIndicator } from "../../lib/hooks/useTypingIndicator";
 import type { GetRoomResponseDto, RoomUserDto } from "../../types";
+import { RoomSettingsDialog } from "./RoomSettingsDialog";
 
 interface ChatVoicePageProps {
   inviteLink?: string;
@@ -191,6 +192,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
     loadMoreMessages,
     sendMessage,
     deleteMessage,
+    clearChat,
     updateMessageText,
     setCurrentUserId,
     hasNewMessages,
@@ -603,16 +605,12 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 )}
               </Button>
 
-              {/* Room Settings (for admins) */}
-              {(currentUserRole === 'admin' || currentUserRole === 'owner') && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="retro-button"
-                  title="Ustawienia pokoju"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
+              {/* Room Settings (for owner only) */}
+              {currentUserRole === 'owner' && roomId && (
+                <RoomSettingsDialog 
+                  roomId={roomId}
+                  onClearChat={clearChat}
+                />
               )}
 
               <UserMenu 

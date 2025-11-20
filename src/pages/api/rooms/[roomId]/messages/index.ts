@@ -549,3 +549,72 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  try {
+    const { roomId } = params;
+    const { userId, supabase } = locals;
+
+    if (!userId || !supabase) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate room ID parameter
+    const roomIdValidation = UUIDSchema.safeParse(roomId);
+    if (!roomIdValidation.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid room ID format",
+          details: roomIdValidation.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check if user is owner of the room
+    const { data: membership, error: membershipError } = await supabase
+      .from("user_room")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("room_id", roomId)
+      .single();
+
+    if (membershipError || !membership || (membership.role !== 'owner' && membership.role !== 'Owner')) {
+      return new Response(
+        JSON.stringify({ error: "Only the room owner can clear the chat" }), 
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Delete all messages in the room
+    const { error: deleteError } = await supabase
+      .from("messages")
+      .delete()
+      .eq("room_id", roomId);
+
+    if (deleteError) {
+      console.error("Failed to delete messages:", deleteError);
+      return new Response(
+        JSON.stringify({ error: "Failed to clear chat" }), 
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Update room activity
+    await supabase.from("rooms").update({ last_activity: new Date().toISOString() }).eq("id", roomId);
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Clear chat error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};

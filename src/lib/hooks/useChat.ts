@@ -549,8 +549,46 @@ export function useChat(roomId?: string, roomName?: string) {
     }
   };
 
+  const clearChat = async () => {
+    if (!roomId) return;
+
+    try {
+      const response = await fetch(`/api/rooms/${roomId}/messages`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to clear chat");
+      }
+
+      // Clear local messages
+      setState((prev) => ({
+        ...prev,
+        messages: [],
+        error: undefined,
+      }));
+      
+      // Reset pagination references
+      lastMessageIdRef.current = null;
+      
+    } catch (error: any) {
+      console.error("Error clearing chat:", error);
+      setState((prev) => ({
+        ...prev,
+        error: error.message || "Błąd połączenia",
+      }));
+      throw error;
+    }
+  };
+
   const updateMessageText = (text: string) => {
     setMessageText(text);
+
     // Clear error when user starts typing
     if (state.error) {
       setState((prev) => ({
@@ -573,6 +611,7 @@ export function useChat(roomId?: string, roomName?: string) {
     loadMoreMessages,
     sendMessage,
     deleteMessage,
+    clearChat,
     updateMessageText,
     scrollToBottom,
     setCurrentUserId,
