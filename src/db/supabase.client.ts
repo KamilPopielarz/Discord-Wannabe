@@ -65,6 +65,9 @@ function getCookies(): { name: string; value: string }[] {
   }).filter(cookie => cookie.name);
 }
 
+// Singleton instance
+let browserClientInstance: DatabaseSupabaseClient | null = null;
+
 // Create browser client for client-side real-time subscriptions
 // This client handles cookies properly for authentication
 export const createSupabaseBrowserClient = () => {
@@ -81,7 +84,12 @@ export const createSupabaseBrowserClient = () => {
     return null;
   }
 
-  return createBrowserClient<Database>(url, key, {
+  // Return existing instance if available
+  if (browserClientInstance) {
+    return browserClientInstance;
+  }
+
+  browserClientInstance = createBrowserClient<Database>(url, key, {
     cookies: {
       getAll() {
         return getCookies();
@@ -117,6 +125,8 @@ export const createSupabaseBrowserClient = () => {
       },
     },
   });
+
+  return browserClientInstance;
 };
 
 // Log configuration status (only in development)

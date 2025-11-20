@@ -34,40 +34,74 @@ export function useTypingIndicator(roomId?: string, currentUserId?: string, curr
     const supabase = createSupabaseBrowserClient();
     if (!supabase) return;
 
-    // Use a separate channel for typing indicators to avoid conflicts
-    const channel = supabase.channel(`room:${roomId}-typing`);
+    // Create channel immediately so it's available for send() synchronously
+    // This prevents race conditions where user types before async setup finishes
+    const channel = supabase.channel(`room:${roomId}-typing`, {
+      config: {
+        broadcast: {
+          self: false,
+        },
+      },
+    });
+    
     channelRef.current = channel;
 
-    channel
-      .on('broadcast', { event: 'typing' }, (payload) => {
-        // console.log('[Typing] Received typing event:', payload);
-        const { userId, username } = payload.payload;
-        if (userId === currentUserId) return; // Ignore own events
+    channel.on('broadcast', { event: 'typing' }, (payload) => {
+      // console.log('[Typing] Received typing event:', payload);
+      const { userId, username } = payload.payload;
+      if (userId === currentUserId) return; // Ignore own events
 
-        setTypingUsers(prev => {
-          const existing = prev.find(user => user.userId === userId);
-          const now = Date.now();
-          
-          if (existing) {
-            // Update existing user's typing time
-            return prev.map(user => 
-              user.userId === userId 
-                ? { ...user, lastTyping: now }
-                : user
-            );
-          } else {
-            // Add new typing user
-            return [...prev, { userId, username, lastTyping: now }];
-          }
-        });
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-            // console.log('[Typing] Subscribed to typing channel');
+      setTypingUsers(prev => {
+        const existing = prev.find(user => user.userId === userId);
+        const now = Date.now();
+        
+        if (existing) {
+          // Update existing user's typing time
+          return prev.map(user => 
+            user.userId === userId 
+              ? { ...user, lastTyping: now }
+              : user
+          );
+        } else {
+          // Add new typing user
+          return [...prev, { userId, username, lastTyping: now }];
         }
       });
+    });
+
+    let isMounted = true;
+
+    const connect = async () => {
+      // Fetch auth token to ensure we can broadcast/receive if RLS is enabled
+      try {
+        const response = await fetch('/api/auth/token');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.access_token) {
+            // console.log('[Typing] Setting auth token');
+            supabase.realtime.setAuth(data.access_token);
+          }
+        }
+      } catch (e) {
+        console.error('[Typing] Failed to get auth token:', e);
+      }
+
+      if (!isMounted) return;
+
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+            // console.log('[Typing] Subscribed to typing channel');
+        } else if (status === 'CHANNEL_ERROR') {
+            console.error('[Typing] Channel error, retrying...');
+            // Retry logic could go here, but for now we just log
+        }
+      });
+    };
+
+    connect();
 
     return () => {
+      isMounted = false;
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;

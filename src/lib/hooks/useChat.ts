@@ -307,6 +307,19 @@ export function useChat(roomId?: string, roomName?: string) {
         channel = supabase
           .channel(`room:${roomId}`)
           .on(
+            'broadcast',
+            { event: 'CLEAR_CHAT' },
+            () => {
+              console.log('[Realtime] CLEAR_CHAT event received');
+              setState((prev) => ({
+                ...prev,
+                messages: [],
+                error: undefined,
+              }));
+              lastMessageIdRef.current = null;
+            }
+          )
+          .on(
             'postgres_changes',
             {
               event: 'INSERT',
@@ -608,6 +621,17 @@ export function useChat(roomId?: string, roomName?: string) {
       
       // Reset pagination references
       lastMessageIdRef.current = null;
+
+      // Broadcast CLEAR_CHAT event to other users
+      const supabase = createSupabaseBrowserClient();
+      if (supabase) {
+        const channel = supabase.channel(`room:${roomId}`);
+        channel.send({
+          type: 'broadcast',
+          event: 'CLEAR_CHAT',
+          payload: {},
+        }).catch(err => console.error('Failed to broadcast CLEAR_CHAT:', err));
+      }
       
     } catch (error: any) {
       console.error("Error clearing chat:", error);
