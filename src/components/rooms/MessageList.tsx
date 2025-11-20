@@ -6,6 +6,46 @@ import { ErrorBanner } from "../ui/ErrorBanner";
 import { Trash2, MoreVertical } from "lucide-react";
 import type { MessageDto } from "../../types";
 
+const extractYoutubeId = (url: string) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
+
+const processMessageContent = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  const elements: React.ReactNode[] = [];
+  let detectedYoutubeId: string | null = null;
+
+  parts.forEach((part, index) => {
+    if (part.match(urlRegex)) {
+      const ytId = extractYoutubeId(part);
+      if (ytId && !detectedYoutubeId) {
+        detectedYoutubeId = ytId;
+      }
+
+      elements.push(
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[var(--retro-orange-bright)] hover:underline break-all font-bold transition-colors"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    } else {
+      if (part) elements.push(<span key={index}>{part}</span>);
+    }
+  });
+
+  return { content: elements, youtubeId: detectedYoutubeId };
+};
+
 interface MessageListProps {
   messages: MessageDto[];
   loading: boolean;
@@ -35,6 +75,11 @@ const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: 
       });
 
   const authorName = message.authorName || "NIEZNANY_UŻYTKOWNIK";
+  
+  const { content, youtubeId } = React.useMemo(
+    () => processMessageContent(message.content), 
+    [message.content]
+  );
 
   return (
     <div className="group flex items-start space-x-3 rounded-xl border border-transparent p-3 transition-all duration-200 hover:border-[var(--retro-orange)]/50 hover:bg-[var(--retro-orange-soft)]/40">
@@ -59,7 +104,22 @@ const MessageItem = memo(function MessageItem({ message, onDelete, canDelete }: 
         </div>
 
         <div className="retro-panel text-sm retro-text break-words rounded-lg border border-[var(--border)] px-3 py-2 font-mono leading-relaxed">
-          {message.content}
+          <div className="whitespace-pre-wrap">{content}</div>
+          
+          {youtubeId && (
+            <div className="mt-3 block overflow-hidden rounded-lg border border-[var(--border)] bg-black/20 shadow-sm">
+              <iframe
+                width="100%"
+                height="225"
+                src={`https://www.youtube.com/embed/${youtubeId}`}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="aspect-video w-full max-w-[400px]"
+                style={{ border: 0 }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
