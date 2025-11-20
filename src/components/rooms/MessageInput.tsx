@@ -40,6 +40,18 @@ export function MessageInput({
     }
   }, [value]);
 
+  // Focus textarea when disabled state changes from true to false (sending completed)
+  const prevDisabled = useRef(disabled);
+  useEffect(() => {
+    if (prevDisabled.current && !disabled && textareaRef.current) {
+      // Small timeout to ensure the disabled attribute is removed from DOM
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 10);
+    }
+    prevDisabled.current = disabled;
+  }, [disabled]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (value.trim() && !disabled) {
