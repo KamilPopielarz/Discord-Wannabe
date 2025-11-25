@@ -23,9 +23,16 @@ export const createSupabaseServerInstance = (context: {
   headers: Headers;
   cookies: AstroCookies;
 }) => {
+  const supabaseUrl = import.meta.env.SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = import.meta.env.SUPABASE_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("Supabase URL or key not configured in createSupabaseServerInstance");
+  }
+
   const supabase = createServerClient<Database>(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_KEY,
+    supabaseUrl,
+    supabaseKey,
     {
       cookieOptions,
       cookies: {
