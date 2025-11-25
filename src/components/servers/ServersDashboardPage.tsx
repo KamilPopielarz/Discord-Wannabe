@@ -165,9 +165,6 @@ export function ServersDashboardPage({ initialUsername = null, initialProfile = 
                 <a href="/register" className="retro-link text-xs">
                   REJESTRACJA
                 </a>
-                <a href="/guest" className="retro-link text-xs">
-                  TRYB GOŚCINNY
-                </a>
               </div>
             </div>
           </div>

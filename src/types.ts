@@ -33,14 +33,6 @@ export interface PasswordResetConfirmCommand {
   newPassword: string;
 }
 
-// 2. Guest Session
-export interface CreateGuestSessionCommand {
-  serverInviteLink: string;
-}
-export interface GuestSessionResponseDto {
-  sessionId: string;
-  guestNick: string;
-}
 
 // 3. Servers
 export interface GetServerResponseDto {

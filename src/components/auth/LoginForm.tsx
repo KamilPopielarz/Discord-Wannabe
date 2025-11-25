@@ -151,12 +151,6 @@ export function LoginForm({
                   Utwórz konto
                 </a>
               </div>
-
-              <div className="text-center text-sm">
-                <a href="/guest" className="retro-link text-xs">
-                  Tryb gościa Discord-Wannabe
-                </a>
-              </div>
             </div>
           </form>
         </CardContent>

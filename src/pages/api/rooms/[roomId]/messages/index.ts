@@ -60,7 +60,7 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
       );
     }
 
-    // Check if user/guest has access to this room
+    // Check if user has access to this room
     let hasAccess = false;
 
 
@@ -98,10 +98,6 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
           hasAccess = true;
         }
       }
-    } else if (sessionId) {
-      // For guests, check if they have a valid session
-      // Guests can access rooms through server invites
-      hasAccess = true; // Middleware already validated guest session
     }
 
 
@@ -314,15 +310,6 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
             authorName = `Użytkownik ${message.user_id.slice(-6)}`;
           }
         }
-      } else if (message.session_id) {
-        // If this is the current guest's message, use guestNick from locals
-        if (message.session_id === sessionId && locals.guestNick) {
-          authorName = locals.guestNick;
-        } else {
-          // For guests, we'll fetch from sessions table if needed
-          // For now, use session ID suffix as fallback
-          authorName = `Gość ${message.session_id.slice(-6)}`;
-        }
       }
 
       return {
@@ -336,29 +323,6 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
         avatarUrl: avatarUrl,
       };
     });
-
-    // Fetch guest nicks for session-based messages
-    const uniqueSessionIds = [...new Set((messages || []).filter(m => m.session_id && !m.user_id).map(m => m.session_id))];
-    if (uniqueSessionIds.length > 0) {
-      const { data: sessionData } = await supabase
-        .from("sessions")
-        .select("session_id, guest_nick")
-        .in("session_id", uniqueSessionIds);
-
-      if (sessionData) {
-        const sessionNickMap = new Map(sessionData.map(s => [s.session_id, s.guest_nick]));
-        processedMessages.forEach(msg => {
-          if (msg.sessionId && !msg.userId) {
-            const guestNick = sessionNickMap.get(msg.sessionId);
-            if (guestNick) {
-              msg.authorName = guestNick;
-            } else if (msg.sessionId === sessionId && locals.guestNick) {
-              msg.authorName = locals.guestNick;
-            }
-          }
-        });
-      }
-    }
 
     const response: ListMessagesResponseDto = {
       messages: processedMessages,
@@ -442,7 +406,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       );
     }
 
-    // Check if user/guest has access to this room
+    // Check if user has access to this room
     let hasAccess = false;
 
 
@@ -480,9 +444,6 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
           hasAccess = true;
         }
       }
-    } else if (sessionId) {
-      // For guests, check if they have a valid session
-      hasAccess = true; // Middleware already validated guest session
     }
 
 

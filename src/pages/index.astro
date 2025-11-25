@@ -27,15 +27,12 @@ import { TypingAnimation } from "../components/ui/TypingAnimation";
           </p>
         </header>
 
-        <div class="mt-8 grid gap-4 md:grid-cols-3">
+        <div class="mt-8 grid gap-4 md:grid-cols-2">
           <a href="/login" class="retro-button flex w-full items-center justify-center rounded-xl py-4 text-center text-sm" aria-label="Przejdź do logowania">
             Zaloguj się
           </a>
           <a href="/register" class="retro-button flex w-full items-center justify-center rounded-xl bg-[var(--retro-teal)] text-center text-sm text-[var(--sidebar-primary-foreground)]" aria-label="Przejdź do rejestracji">
             Zarejestruj się
-          </a>
-          <a href="/guest" class="retro-button flex w-full items-center justify-center rounded-xl bg-[var(--retro-plum)] text-center text-sm text-[var(--sidebar-primary-foreground)]" aria-label="Dołącz jako gość">
-            Dołącz jako gość
           </a>
         </div>
 
@@ -45,10 +42,6 @@ import { TypingAnimation } from "../components/ui/TypingAnimation";
               <TypingAnimation client:load text="• Tekst + głos w jednej aplikacji" speed={25} />
             </p>
             <p class="text-xs text-[var(--retro-cream)]/70">Serwery Discord-Wannabe aktualizują się w czasie rzeczywistym.</p>
-          </div>
-          <div class="retro-panel rounded-xl p-4">
-            <p class="text-sm font-semibold text-[var(--retro-orange-bright)]">• Sesje gościa 24h</p>
-            <p class="text-xs text-[var(--retro-cream)]/70">Wejdź do chatu bez konta i ciesz się rozmową ze znajomymi.</p>
           </div>
           <div class="retro-panel rounded-xl p-4">
             <p class="text-sm font-semibold text-[var(--retro-orange-bright)]">• Pokoje głosowe LiveKit</p>

@@ -39,10 +39,6 @@ export const PasswordResetConfirmSchema = z.object({
     ),
 });
 
-// Guest session validation
-export const CreateGuestSessionSchema = z.object({
-  serverInviteLink: z.string().min(1, "Server invite link is required").max(255, "Invite link is too long"),
-});
 
 // Server validation schemas
 export const CreateServerSchema = z.object({

@@ -16,13 +16,6 @@ export interface RegisterViewModel extends AuthViewModel {
   captchaToken: string;
 }
 
-// Guest ViewModels
-export interface GuestJoinViewModel {
-  inviteLink: string;
-  loading: boolean;
-  error?: string;
-  guestNick?: string;
-}
 
 // Servers ViewModels
 export interface ServersViewModel {

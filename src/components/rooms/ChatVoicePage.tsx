@@ -34,83 +34,13 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
   const [serverInviteLink, setServerInviteLink] = useState<string | undefined>(undefined);
   const [loadingRoomInfo, setLoadingRoomInfo] = useState(false);
   const [roomError, setRoomError] = useState<string | undefined>(undefined);
-  const [hasAccess, setHasAccess] = useState<boolean>(true);
 
   // Load room info from invite link
   useEffect(() => {
     if (inviteLink) {
-      handleRoomAccess();
+      loadRoomInfo();
     }
   }, [inviteLink]);
-
-  const handleRoomAccess = async () => {
-    // Check what type of session user has (only on client side)
-    const hasUserSession = typeof document !== "undefined" && document.cookie.includes("session_id=");
-    const hasGuestSession = typeof document !== "undefined" && document.cookie.includes("guest_session_id=");
-
-
-    if (hasUserSession) {
-      // Logged in user - direct access to room
-      loadRoomInfo();
-    } else if (hasGuestSession) {
-      // Already has guest session - direct access to room
-      loadRoomInfo();
-    } else {
-      // No session - create guest session automatically
-      await createGuestSession();
-    }
-  };
-
-  const createGuestSession = async () => {
-    try {
-
-      // First, get room info to find the server
-      const roomResponse = await fetch(`/api/rooms/${inviteLink}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!roomResponse.ok) {
-        console.error("Failed to get room info");
-        setRoomError("Nie można znaleźć pokoju. Sprawdź link.");
-        return;
-      }
-
-      const roomData = await roomResponse.json();
-
-      // Get server invite link from room data
-      const serverInviteLink = roomData.serverInviteLink;
-      if (!serverInviteLink) {
-        console.error("No server invite link in room data");
-        setRoomError("Nie można dołączyć jako gość. Spróbuj się zalogować.");
-        return;
-      }
-
-      // Now create guest session with server invite link
-      const guestResponse = await fetch("/api/guest", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ serverInviteLink }),
-      });
-
-      if (guestResponse.ok) {
-        // Instead of reloading, just load room info directly
-        loadRoomInfo();
-      } else {
-        console.error("Failed to create guest session");
-        const errorData = await guestResponse.text();
-        console.error("Guest session error:", errorData);
-        setRoomError("Nie można dołączyć jako gość. Spróbuj się zalogować.");
-      }
-    } catch (error) {
-      console.error("Error creating guest session:", error);
-      setRoomError("Błąd połączenia. Sprawdź połączenie internetowe.");
-    }
-  };
 
   const loadRoomInfo = async () => {
     if (!inviteLink) return;
@@ -126,6 +56,12 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
         },
       });
 
+      // Redirect to login on 401/403
+      if (response.status === 401 || response.status === 403) {
+        const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/login?returnTo=${returnTo}`;
+        return;
+      }
 
       if (!response.ok) {
         const errorData = await response.text();

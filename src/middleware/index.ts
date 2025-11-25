@@ -8,13 +8,11 @@ const PUBLIC_PATHS = [
   "/login",
   "/register", 
   "/reset-password",
-  "/guest",
   // Auth API endpoints
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/logout",
   "/api/auth/reset-password",
-  "/api/guest",
   // Additional public endpoints for invites
   "/api/servers/invite/",
   "/api/invites/",

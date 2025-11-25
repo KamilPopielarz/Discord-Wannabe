@@ -173,10 +173,6 @@ export const GET: APIRoute = async ({ params, locals }) => {
           }
         }
       }
-    } else {
-      // For guests, allow access if they have a valid session
-      // Middleware already validated guest session
-      hasAccess = true;
     }
 
     if (!hasAccess) {
