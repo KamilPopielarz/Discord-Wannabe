@@ -20,6 +20,58 @@ const PUBLIC_PATHS = [
 
 export const onRequest = defineMiddleware(
   async ({ locals, cookies, url, request, redirect }, next) => {
+    // ---------------------------------------------------------
+    // OPTYMALIZACJA: Ignoruj pliki statyczne i assets
+    // Zapobiega zbędnym zapytaniom do bazy dla obrazków, CSS, JS itp.
+    // ---------------------------------------------------------
+    const isStaticAsset = 
+      url.pathname.startsWith("/_astro/") ||
+      url.pathname.startsWith("/assets/") ||
+      url.pathname.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$/);
+
+    if (isStaticAsset) {
+      return next();
+    }
+
+    // ---------------------------------------------------------
+    // TRYB KONSERWACJI (MAINTENANCE MODE)
+    // ---------------------------------------------------------
+    const runtimeEnv = (locals as any).runtime?.env || {};
+    const isMaintenanceMode = 
+      runtimeEnv.MAINTENANCE_MODE === "true" || 
+      import.meta.env.MAINTENANCE_MODE === "true";
+
+    if (isMaintenanceMode) {
+      return new Response(
+        `<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Przerwa techniczna | Discord-Wannabe</title>
+          <style>
+            body { font-family: system-ui, -apple-system, sans-serif; background: #09090b; color: #e4e4e7; display: flex; height: 100vh; align-items: center; justify-content: center; text-align: center; margin: 0; padding: 20px; }
+            .container { max-width: 500px; padding: 2rem; border: 1px solid #27272a; border-radius: 1rem; background: #18181b; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+            h1 { color: #f97316; margin-top: 0; font-size: 1.5rem; letter-spacing: -0.025em; }
+            p { line-height: 1.6; color: #a1a1aa; margin-bottom: 0; }
+            .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <span class="icon">🚧</span>
+            <h1>Aplikacja tymczasowo niedostępna</h1>
+            <p>Przeprowadzamy planowane prace konserwacyjne. <br>Discord-Wannabe wróci do działania już wkrótce.</p>
+          </div>
+        </body>
+        </html>`,
+        {
+          status: 503,
+          headers: { "Content-Type": "text/html" }
+        }
+      );
+    }
+
     // Always attach Supabase client to locals so public API routes can use it
     const supabase = createSupabaseServerInstance({
       cookies,
