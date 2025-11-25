@@ -24,8 +24,8 @@ export const createSupabaseServerInstance = (context: {
   cookies: AstroCookies;
 }) => {
   const supabase = createServerClient<Database>(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_KEY,
+    import.meta.env.SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.SUPABASE_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
     {
       cookieOptions,
       cookies: {
