@@ -179,7 +179,7 @@ export function RegisterForm({
               <Input
                 id="register-username"
                 type="text"
-                placeholder="retro_user"
+                placeholder="user"
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
                 disabled={loading}
