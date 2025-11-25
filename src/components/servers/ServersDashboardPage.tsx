@@ -35,71 +35,40 @@ export function ServersDashboardPage({ initialUsername = null, initialProfile = 
         : null,
   );
   
-  // Get current user data from server (only if initialUsername is not provided)
+  // Get current user data from server (only once on mount)
   useEffect(() => {
-    // If we already have initialUsername, skip fetch or use it as fallback
-    if (initialUsername) {
-      // Still fetch to get latest data, but don't override if it's the same
-      const fetchUserData = async () => {
-        try {
-          const response = await fetch('/api/me', {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          });
-          if (response.ok) {
-            const userData = await response.json();
-            console.log('[ServersDashboardPage] User data from /api/me:', userData);
-            // Only update if we got a different/better username
-            setCurrentUserData({
-              username: userData.username || userData.email?.split('@')[0] || initialUsername,
-              displayName: userData.displayName || userData.username,
-              avatarUrl: userData.avatarUrl || null,
-              isAdmin: false
-            });
+    // If we have initial data from props, we start with it (useState logic above handles this).
+    // We fetch only to ensure we have the absolute latest data, but we do it only ONCE.
+    
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/me', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
           }
-        } catch (error) {
-          console.error('[ServersDashboardPage] Failed to fetch user data:', error);
-          // Keep initialUsername if fetch fails
-        }
-      };
-      fetchUserData();
-    } else {
-      // No initialUsername, so we must fetch
-      const fetchUserData = async () => {
-        try {
-          const response = await fetch('/api/me', {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          });
-          if (response.ok) {
-            const userData = await response.json();
-            console.log('[ServersDashboardPage] User data from /api/me:', userData);
-            setCurrentUserData({
-              username: userData.username || userData.email?.split('@')[0] || 'Użytkownik',
-              displayName: userData.displayName || userData.username,
-              avatarUrl: userData.avatarUrl || null,
-              isAdmin: false
-            });
-          } else {
-            console.error('[ServersDashboardPage] /api/me failed:', response.status, response.statusText);
-          }
-        } catch (error) {
-          console.error('[ServersDashboardPage] Failed to fetch user data:', error);
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          console.log('[ServersDashboardPage] User data from /api/me:', userData);
+          
+          // Update state with fresh data
           setCurrentUserData({
-            username: 'Użytkownik',
-            displayName: 'Użytkownik',
-            avatarUrl: null,
+            username: userData.username || userData.email?.split('@')[0] || initialUsername || 'Użytkownik',
+            displayName: userData.displayName || userData.username,
+            avatarUrl: userData.avatarUrl || null,
             isAdmin: false
           });
         }
-      };
-      fetchUserData();
-    }
-  }, [initialUsername, initialProfile?.username]);
+      } catch (error) {
+        console.error('[ServersDashboardPage] Failed to fetch user data:', error);
+        // On error, we keep whatever initial state we had
+      }
+    };
+
+    fetchUserData();
+  }, []); // Empty dependency array = run once on mount
 
   const handleLogout = () => {
     // This will be handled by the UserMenu component

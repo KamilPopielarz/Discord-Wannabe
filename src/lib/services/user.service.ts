@@ -431,15 +431,16 @@ export class UserService {
     buffer: Buffer,
     contentType?: string,
   ): Promise<string> {
-    if (!this.adminClient) {
-      throw new Error("Admin client nie jest dostępny. Skontaktuj się z administratorem.");
-    }
-
     const extension = contentType?.split("/")[1] ?? "png";
     const path = `${userId}/avatar-${Date.now()}.${extension}`;
     
-    // Use admin client to bypass RLS - admin client has full access
-    const { error } = await this.adminClient.storage
+    // Try to use admin client first (bypasses RLS)
+    const client = this.adminClient || this.supabase;
+    
+    // Jeśli używamy zwykłego klienta, upewnijmy się, że użytkownik jest zalogowany
+    // (w kontekście tej klasy this.supabase jest zazwyczaj klientem serwerowym z cookies)
+
+    const { error } = await client.storage
       .from("avatars")
       .upload(path, buffer, {
         upsert: true,
@@ -452,7 +453,7 @@ export class UserService {
 
       if (message.toLowerCase().includes("row-level security")) {
         throw new Error(
-          "Brak uprawnień do przesłania avatara. Skontaktuj się z administratorem.",
+          "Brak uprawnień do przesłania avatara. Sprawdź czy jesteś zalogowany.",
         );
       }
 
@@ -460,7 +461,7 @@ export class UserService {
     }
 
     // Set owner after upload so RLS policies work correctly for read operations
-    // Admin client bypasses RLS, but we set owner so regular client can read the file
+    // Only needed/possible if we have admin client
     if (this.adminClient) {
       try {
         // Use PostgREST to update storage.objects directly
@@ -473,12 +474,9 @@ export class UserService {
 
         if (updateError) {
           console.warn("[UserService] Failed to set avatar owner:", updateError);
-          // Don't throw - file was uploaded successfully, owner is optional
-          // Admin client can still access the file for read operations
         }
       } catch (error) {
         console.warn("[UserService] Could not set avatar owner, but file uploaded successfully:", error);
-        // Don't throw - file was uploaded successfully, owner is optional
       }
     }
 

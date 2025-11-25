@@ -190,7 +190,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
     };
     
     fetchUserData();
-  }, [initialUsername, initialProfile?.username]);
+  }, []); // Empty dependency array - run once
 
   // Find current user in room users list
   const currentUser = roomUsers.find(user => user.id === currentUserData?.userId);
