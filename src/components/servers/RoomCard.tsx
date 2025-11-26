@@ -86,12 +86,12 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Button 
             variant="default" 
             size="sm" 
             onClick={() => joinRoom("chat")} 
-            className="flex items-center retro-button"
+            className="flex items-center retro-button justify-center"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
             CHAT
@@ -101,19 +101,19 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={() => joinRoom("voice")} 
-            className="flex items-center retro-button"
+            className="flex items-center retro-button justify-center"
           >
             <Mic className="h-4 w-4 mr-2" />
             VOICE
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={openRoomJoin} 
-            className="flex-1 min-w-0 retro-button"
+            className="w-full sm:w-auto flex-1 min-w-0 retro-button"
           >
             JOIN VIA LINK
           </Button>
@@ -122,7 +122,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="outline" 
             size="sm" 
             onClick={copyInviteLink}
-            className="retro-button"
+            className="w-full sm:w-auto retro-button"
           >
             <Copy className="h-4 w-4 mr-2" />
             COPY
@@ -132,7 +132,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
             variant="destructive" 
             size="sm" 
             onClick={() => onDelete(room.roomId)}
-            className="hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
+            className="w-full sm:w-auto hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             DELETE

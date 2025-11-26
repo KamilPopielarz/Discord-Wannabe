@@ -90,13 +90,13 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
           <p>EXPIRES: {expiresAt.toLocaleString("pl-PL")}</p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button 
             variant="default" 
             size="sm" 
             onClick={openServer} 
             disabled={isExpired} 
-            className="flex-1 min-w-0 retro-button"
+            className="w-full sm:w-auto flex-1 min-w-0 retro-button"
             data-testid="server-connect-button"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
@@ -108,7 +108,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             size="sm" 
             onClick={copyInviteLink} 
             disabled={isExpired}
-            className="retro-button"
+            className="w-full sm:w-auto retro-button"
           >
             <Copy className="h-4 w-4 mr-2" />
             COPY
@@ -118,7 +118,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             variant="destructive" 
             size="sm" 
             onClick={() => onDelete(server.serverId)}
-            className="hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
+            className="w-full sm:w-auto hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             DELETE

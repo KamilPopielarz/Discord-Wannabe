@@ -84,12 +84,12 @@ export function ServersDashboardPage({ initialUsername = null, initialProfile = 
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold retro-heading">
+                <h1 className="text-xl md:text-2xl font-bold retro-heading">
                   <TypingAnimation text="DISCORD WANNABE - SERWERY" speed={80} />
                 </h1>
-                <p className="text-muted-foreground retro-text">Twoje serwery komunikacyjne</p>
+                <p className="text-sm md:text-base text-muted-foreground retro-text">Twoje serwery komunikacyjne</p>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 md:space-x-4">
                 <CreateServerModal
                   open={createModalOpen}
                   onOpenChange={setCreateModalOpen}
@@ -110,7 +110,7 @@ export function ServersDashboardPage({ initialUsername = null, initialProfile = 
         </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4 md:py-8">
         <ServerList
           servers={state.servers}
           loading={state.loading}

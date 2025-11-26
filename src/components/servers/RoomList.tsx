@@ -67,7 +67,7 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
           </p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="rooms-list">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3" data-testid="rooms-list">
           {rooms.map((room) => (
             <RoomCard key={room.roomId} room={room} onDelete={onDeleteRoom} />
           ))}

@@ -68,7 +68,7 @@ export function ServerList({ servers, loading, error, onRefresh, onDeleteServer 
           </p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="servers-list">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3" data-testid="servers-list">
           {servers.map((server) => (
             <ServerCard key={server.serverId} server={server} onDelete={onDeleteServer} />
           ))}

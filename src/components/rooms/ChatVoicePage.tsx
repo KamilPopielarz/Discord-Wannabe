@@ -9,7 +9,7 @@ import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { TypingAnimation } from "../ui/TypingAnimation";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { ArrowLeft, MessageCircle, Mic, MicOff, Volume2, VolumeX, Users, Settings, UserX, Shield, VolumeOff } from "lucide-react";
+import { ArrowLeft, MessageCircle, Mic, MicOff, Volume2, VolumeX, Users, Settings, UserX, Shield, VolumeOff, X, Menu } from "lucide-react";
 import { useChat } from "../../lib/hooks/useChat";
 import { useRoomUsers } from "../../lib/hooks/useRoomUsers";
 import { useTypingIndicator } from "../../lib/hooks/useTypingIndicator";
@@ -34,6 +34,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
   const [serverInviteLink, setServerInviteLink] = useState<string | undefined>(undefined);
   const [loadingRoomInfo, setLoadingRoomInfo] = useState(false);
   const [roomError, setRoomError] = useState<string | undefined>(undefined);
+  const [showMobileUsers, setShowMobileUsers] = useState(false);
 
   // Load room info from invite link
   useEffect(() => {
@@ -520,15 +521,26 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
             </div>
 
             <div className="flex items-center space-x-2">
+              {/* Mobile User Toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowMobileUsers(!showMobileUsers)}
+                className="md:hidden retro-button text-[var(--retro-orange-bright)]"
+              >
+                <Users className="h-5 w-5" />
+              </Button>
+
               {!notificationsEnabled && (
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={requestNotificationPermission}
-                  className="retro-button text-xs"
+                  className="retro-button text-xs px-2 sm:px-3"
                   title="Włącz powiadomienia o nowych wiadomościach"
                 >
-                  🔔 Powiadomienia
+                  <span className="sm:hidden">🔔</span>
+                  <span className="hidden sm:inline">🔔 Powiadomienia</span>
                 </Button>
               )}
 
@@ -537,33 +549,33 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 variant="outline"
                 size="sm"
                 onClick={() => updateSoundSettings({ enabled: !soundSettings.enabled })}
-                className={`retro-button text-xs ${soundSettings.enabled ? 'text-[var(--primary-foreground)]' : 'text-muted-foreground'}`}
+                className={`retro-button text-xs px-2 sm:px-3 ${soundSettings.enabled ? 'text-[var(--primary-foreground)]' : 'text-muted-foreground'}`}
                 title={soundSettings.enabled ? "Wyłącz dźwięki" : "Włącz dźwięki"}
               >
-                {soundSettings.enabled ? <Volume2 className="h-3 w-3 mr-1" /> : <VolumeOff className="h-3 w-3 mr-1" />}
-                Dźwięki
+                {soundSettings.enabled ? <Volume2 className="h-3 w-3 sm:mr-1" /> : <VolumeOff className="h-3 w-3 sm:mr-1" />}
+                <span className="hidden sm:inline">Dźwięki</span>
               </Button>
 
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={testSound}
-                className="retro-button text-xs"
+                className="retro-button text-xs hidden sm:flex"
                 title="Testuj dźwięk powiadomienia"
               >
-                🔊 Test dźwięku
+                🔊 <span className="hidden lg:inline ml-1">Test</span>
               </Button>
               
-              <Button variant="outline" size="sm" onClick={toggleView} className="retro-button">
+              <Button variant="outline" size="sm" onClick={toggleView} className="retro-button px-2 sm:px-3">
                 {view === "chat" ? (
                   <>
-                    <Mic className="h-4 w-4 mr-2" />
-                    Widok głosowy
+                    <Mic className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Voice</span>
                   </>
                 ) : (
                   <>
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Widok czatu
+                    <MessageCircle className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Chat</span>
                   </>
                 )}
               </Button>
@@ -767,27 +779,76 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
           )}
         </div>
 
-        {/* Enhanced User List */}
-        <UserList
-          users={roomUsers.map(user => ({
-            id: user.id,
-            username: user.username,
-            role: user.role.toLowerCase() as 'owner' | 'admin' | 'moderator' | 'member',
-            isOnline: user.isOnline,
-            isInVoice: user.id === currentUserData?.userId ? isVoiceConnected : false, // Only current user's voice state is tracked locally
-            isMuted: user.id === currentUserData?.userId ? isMuted : false,
-            isDeafened: user.id === currentUserData?.userId ? isDeafened : false,
-            joinedAt: user.joinedAt,
-            avatarUrl: user.avatarUrl,
-          }))}
-          currentUserId={currentUserData?.userId || ""}
-          currentUserRole={currentUserRole}
-          isVoiceMode={view === "voice"}
-          onKickUser={handleKickUser}
-          onChangeRole={handleChangeRole}
-          onMuteUser={handleMuteUser}
-          onDeafenUser={handleDeafenUser}
-        />
+        {/* Desktop User List */}
+        <div className="hidden md:flex h-full">
+          <UserList
+            users={roomUsers.map(user => ({
+              id: user.id,
+              username: user.username,
+              role: user.role.toLowerCase() as 'owner' | 'admin' | 'moderator' | 'member',
+              isOnline: user.isOnline,
+              isInVoice: user.id === currentUserData?.userId ? isVoiceConnected : false,
+              isMuted: user.id === currentUserData?.userId ? isMuted : false,
+              isDeafened: user.id === currentUserData?.userId ? isDeafened : false,
+              joinedAt: user.joinedAt,
+              avatarUrl: user.avatarUrl,
+            }))}
+            currentUserId={currentUserData?.userId || ""}
+            currentUserRole={currentUserRole}
+            isVoiceMode={view === "voice"}
+            onKickUser={handleKickUser}
+            onChangeRole={handleChangeRole}
+            onMuteUser={handleMuteUser}
+            onDeafenUser={handleDeafenUser}
+          />
+        </div>
+
+        {/* Mobile User List Overlay */}
+        {showMobileUsers && (
+          <div className="fixed inset-0 z-50 flex justify-end md:hidden">
+            {/* Backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowMobileUsers(false)}
+            />
+            
+            {/* Drawer */}
+            <div className="relative w-4/5 max-w-xs h-full bg-background border-l border-[var(--border)] shadow-2xl animate-in slide-in-from-right duration-200">
+              <div className="absolute top-2 right-2 z-50">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setShowMobileUsers(false)}
+                  className="h-8 w-8 rounded-full hover:bg-[var(--retro-orange-soft)]/40"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="h-full overflow-hidden">
+                <UserList
+                  users={roomUsers.map(user => ({
+                    id: user.id,
+                    username: user.username,
+                    role: user.role.toLowerCase() as 'owner' | 'admin' | 'moderator' | 'member',
+                    isOnline: user.isOnline,
+                    isInVoice: user.id === currentUserData?.userId ? isVoiceConnected : false,
+                    isMuted: user.id === currentUserData?.userId ? isMuted : false,
+                    isDeafened: user.id === currentUserData?.userId ? isDeafened : false,
+                    joinedAt: user.joinedAt,
+                    avatarUrl: user.avatarUrl,
+                  }))}
+                  currentUserId={currentUserData?.userId || ""}
+                  currentUserRole={currentUserRole}
+                  isVoiceMode={view === "voice"}
+                  onKickUser={handleKickUser}
+                  onChangeRole={handleChangeRole}
+                  onMuteUser={handleMuteUser}
+                  onDeafenUser={handleDeafenUser}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       </div>
     </>

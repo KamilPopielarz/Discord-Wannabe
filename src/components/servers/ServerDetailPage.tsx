@@ -144,10 +144,10 @@ export function ServerDetailPage({ inviteLink, initialUsername = null, initialPr
               <div className="flex items-center space-x-4">
                 <Button variant="ghost" size="sm" onClick={goBack} className="retro-button">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  SERWERY
+                  <span className="hidden sm:inline">SERWERY</span>
                 </Button>
                 <div>
-                  <h1 className="text-2xl font-bold flex items-center retro-heading" data-testid="server-detail-title">
+                  <h1 className="text-xl md:text-2xl font-bold flex items-center retro-heading" data-testid="server-detail-title">
                     <TypingAnimation 
                       text={state.serverInfo?.name || `SERWER-${state.serverInfo?.serverId?.slice(-6).toUpperCase()}`}
                       speed={60}
@@ -163,12 +163,12 @@ export function ServerDetailPage({ inviteLink, initialUsername = null, initialPr
                       </Badge>
                     )}
                   </h1>
-                  <p className="text-muted-foreground retro-text">
+                  <p className="text-xs md:text-base text-muted-foreground retro-text">
                     LINK: {inviteLink} • NODE: {state.serverInfo?.serverId?.slice(0, 8).toUpperCase()}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 md:space-x-4">
                 {!isServerExpired && (
                   <CreateRoomModal
                     open={createModalOpen}
@@ -192,7 +192,7 @@ export function ServerDetailPage({ inviteLink, initialUsername = null, initialPr
         </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4 md:py-8">
         {isServerExpired ? (
           <div className="text-center py-12">
             <div className="mx-auto w-24 h-24 bg-destructive/10 border border-destructive/30 rounded-full flex items-center justify-center mb-4">
