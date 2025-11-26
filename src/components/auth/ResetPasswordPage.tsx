@@ -5,7 +5,7 @@ import { RetroGridBackground } from '../ui/RetroGridBackground';
 import type { PasswordResetConfirmCommand } from '../../types';
 
 interface ResetPasswordPageProps {
-  token: string;
+  token?: string;
 }
 
 export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
@@ -18,7 +18,11 @@ export function ResetPasswordPage({ token }: ResetPasswordPageProps) {
     setError(undefined);
 
     try {
-      const response = await fetch(`/api/auth/reset-password?token=${encodeURIComponent(token)}`, {
+      const url = token 
+        ? `/api/auth/reset-password?token=${encodeURIComponent(token)}`
+        : '/api/auth/reset-password';
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

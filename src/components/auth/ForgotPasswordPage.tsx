@@ -14,9 +14,15 @@ export function ForgotPasswordPage() {
     const supabase = createSupabaseBrowserClient();
     if (!supabase) return;
 
+    // Check for error query param
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('error') === 'invalid_code') {
+      setError('Link resetujący jest nieprawidłowy lub wygasł. Wyślij nowy link.');
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
-        window.location.href = '/reset-password/recovery';
+        window.location.href = '/reset-password/change';
       }
     });
 

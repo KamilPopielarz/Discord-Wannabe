@@ -6,7 +6,7 @@ export const prerender = false;
 
 // Schema for password reset confirmation
 const ResetConfirmSchema = z.object({
-  token: z.string().min(1, "Reset token is required"),
+  token: z.string().optional(),
   newPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -27,13 +27,6 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     const tokenFromQuery = url.searchParams.get('token');
     const tokenFromBody = body.token;
     const token = tokenFromQuery || tokenFromBody;
-
-    if (!token) {
-      return new Response(JSON.stringify({ error: "Reset token is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
 
     // Validate input
     const validationResult = ResetConfirmSchema.safeParse({

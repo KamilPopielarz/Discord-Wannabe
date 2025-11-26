@@ -1,0 +1,27 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ResetPasswordPage } from '../../components/auth/ResetPasswordPage';
+import { createSupabaseServerInstance } from '../../db/supabase.client';
+
+export const prerender = false;
+
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
+
+// Ensure user is authenticated (via the session cookie set by exchangeCodeForSession)
+const { data: { user } } = await supabase.auth.getUser();
+
+if (!user) {
+  // If not authenticated, redirect to login or forgot password
+  return Astro.redirect('/login');
+}
+---
+
+<Layout title="Ustaw nowe hasło - Discord Wannabe">
+  <main class="min-h-screen flex items-center justify-center p-4">
+    <ResetPasswordPage client:load />
+  </main>
+</Layout>
+
