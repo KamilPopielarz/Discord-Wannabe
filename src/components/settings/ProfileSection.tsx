@@ -46,8 +46,7 @@ export function ProfileSection({ profile, saving, onSubmit }: ProfileSectionProp
     setAvatarPreview(base64);
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const submitProfile = async () => {
     if (!canSubmit) return;
 
     await onSubmit({
@@ -56,6 +55,16 @@ export function ProfileSection({ profile, saving, onSubmit }: ProfileSectionProp
       avatarUrl: profile?.avatarUrl ?? null,
     });
     setAvatarData(undefined);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    await submitProfile();
+  };
+
+  const handleSaveAndExit = async () => {
+    await submitProfile();
+    window.history.back();
   };
 
   return (
@@ -115,9 +124,18 @@ export function ProfileSection({ profile, saving, onSubmit }: ProfileSectionProp
             </div>
           </div>
 
-          <CardFooter className="px-0">
+          <CardFooter className="px-0 flex gap-4">
             <Button className="retro-button" type="submit" disabled={!canSubmit || saving}>
               {saving ? "Zapisywanie..." : "Zapisz profil"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!canSubmit || saving}
+              onClick={handleSaveAndExit}
+              className="border-[var(--retro-orange)] text-[var(--retro-orange)] hover:bg-[var(--retro-orange)] hover:text-white uppercase font-bold tracking-[0.08em]"
+            >
+              Zapisz i wyjdź
             </Button>
           </CardFooter>
         </form>
