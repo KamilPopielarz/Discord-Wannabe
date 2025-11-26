@@ -254,7 +254,15 @@ export function useChat(roomId?: string, roomName?: string) {
     }
   }, [roomId, loadMessages]);
 
-  // Set up Realtime subscription and fallback polling
+  // Use ref for loadNewMessages to allow using it in Realtime callback without adding it to dependencies
+  // This prevents Realtime reconnection when loadNewMessages changes (e.g. due to roomName change)
+  const loadNewMessagesRef = useRef(loadNewMessages);
+  useEffect(() => {
+    loadNewMessagesRef.current = loadNewMessages;
+  }, [loadNewMessages]);
+
+  // Set up Realtime subscription
+  // Separated from polling logic to avoid circular dependencies and reconnection loops
   useEffect(() => {
     if (typeof window === "undefined" || !roomId) {
       return;
@@ -331,7 +339,10 @@ export function useChat(roomId?: string, roomName?: string) {
             (payload) => {
               console.log('[Realtime] New message received:', payload);
               // Trigger fetch of new messages (handles author info and ordering)
-              loadNewMessages();
+              // Use ref to avoid stale closure or dependency cycle
+              if (loadNewMessagesRef.current) {
+                loadNewMessagesRef.current();
+              }
             }
           )
           .on(
@@ -401,6 +412,20 @@ export function useChat(roomId?: string, roomName?: string) {
       };
     });
 
+    return () => {
+      isMounted = false;
+      if (cleanup) cleanup();
+      // Reset connection status on unmount/cleanup
+      setIsRealtimeConnected(false);
+    };
+  }, [roomId]); // Removed loadNewMessages and isRealtimeConnected from dependencies
+
+  // Fallback polling logic - separated to depend on isRealtimeConnected without triggering re-connection
+  useEffect(() => {
+    if (typeof window === "undefined" || !roomId) {
+      return;
+    }
+
     // Fallback polling just in case Realtime disconnects or is not available
     // If Realtime is connected, we poll very infrequently (every 60s) as a sanity check
     // If Realtime is NOT connected, we poll more frequently (every 10s) to maintain functionality
@@ -410,18 +435,15 @@ export function useChat(roomId?: string, roomName?: string) {
 
     const pollingInterval = setInterval(() => {
       // Check always to ensure sync in multi-window tests and background tabs
-      // Using function reference from useRef to avoid stale closures
-      if (typeof loadNewMessages === 'function') {
-        loadNewMessages();
+      if (loadNewMessagesRef.current) {
+        loadNewMessagesRef.current();
       }
     }, pollingIntervalTime);
 
     return () => {
-      isMounted = false;
-      if (cleanup) cleanup();
       clearInterval(pollingInterval);
     };
-  }, [roomId, loadNewMessages, isRealtimeConnected]);
+  }, [roomId, isRealtimeConnected]); // This effect updates when connection status changes
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
