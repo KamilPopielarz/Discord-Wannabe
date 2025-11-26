@@ -543,17 +543,9 @@ export class UserService {
     }
 
     try {
-      // Use admin client if available to bypass RLS when signing URL
-      // This ensures we can display the avatar even if the user doesn't own the file record
-      const client = this.adminClient || this.supabase;
-      const { data, error } = await client.storage
-        .from("avatars")
-        .createSignedUrl(avatarPath, 60 * 60 * 24 * 7);
-      if (error) {
-        console.warn("[UserService] Failed to sign avatar url:", error);
-        return null;
-      }
-      return data?.signedUrl ?? null;
+      const client = this.supabase;
+      const { data } = client.storage.from("avatars").getPublicUrl(avatarPath);
+      return data.publicUrl;
     } catch (storageError) {
       console.error("[UserService] Storage error:", storageError);
       return null;

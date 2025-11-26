@@ -205,25 +205,24 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
             }
           });
 
-          // Sign URLs if needed
-          if (profilesToSign.length > 0 && supabaseAdminClient) {
+          // Resolve public URLs
+          if (profilesToSign.length > 0 && supabase) {
             try {
-              // Create signed URLs in parallel
-              await Promise.all(profilesToSign.map(async (item) => {
-                const { data } = await supabaseAdminClient.storage
+              profilesToSign.forEach((item) => {
+                const { data } = supabase.storage
                   .from('avatars')
-                  .createSignedUrl(item.path, 60 * 60 * 24 * 7); // 7 days
+                  .getPublicUrl(item.path);
                   
-                if (data?.signedUrl) {
+                if (data?.publicUrl) {
                   const userData = userMap.get(item.userId);
                   if (userData) {
-                    userData.avatarUrl = data.signedUrl;
+                    userData.avatarUrl = data.publicUrl;
                     userMap.set(item.userId, userData);
                   }
                 }
-              }));
+              });
             } catch (signError) {
-              console.warn('[Messages] Failed to sign avatar URLs:', signError);
+              console.warn('[Messages] Failed to resolve avatar URLs:', signError);
             }
           }
         }

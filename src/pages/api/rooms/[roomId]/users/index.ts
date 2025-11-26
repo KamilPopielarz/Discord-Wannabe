@@ -5,21 +5,17 @@ import { supabaseAdminClient } from "../../../../../db/supabase.client";
 
 export const prerender = false;
 
-// Helper to resolve avatar URL (path -> signed URL)
+// Helper to resolve avatar URL (path -> public URL)
 async function resolveAvatarUrl(client: any, avatarPath: string | null): Promise<string | null> {
   if (!avatarPath) return null;
   if (avatarPath.includes("://")) return avatarPath;
 
   try {
-    const { data, error } = await client.storage
+    const { data } = client.storage
       .from("avatars")
-      .createSignedUrl(avatarPath, 60 * 60 * 24 * 7); // 7 days
+      .getPublicUrl(avatarPath);
     
-    if (error) {
-      // console.warn("[resolveAvatarUrl] Failed to sign avatar url:", error);
-      return null;
-    }
-    return data?.signedUrl ?? null;
+    return data.publicUrl;
   } catch (error) {
     console.error("[resolveAvatarUrl] Storage error:", error);
     return null;
