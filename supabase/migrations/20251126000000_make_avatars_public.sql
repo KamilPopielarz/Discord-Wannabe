@@ -11,3 +11,4 @@ create policy "Public can read avatars" on storage.objects
 for select
 using ( bucket_id = 'avatars' );
 
+

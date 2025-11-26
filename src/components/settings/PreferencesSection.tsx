@@ -25,12 +25,21 @@ export function PreferencesSection({ preferences, saving, onSubmit }: Preference
     setIsDirty(true);
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const submitPreferences = async () => {
     await onSubmit({
       confirmations: confirmations,
     });
     setIsDirty(false);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    await submitPreferences();
+  };
+
+  const handleSaveAndExit = async () => {
+    await submitPreferences();
+    window.history.back();
   };
 
   return (
@@ -81,9 +90,18 @@ export function PreferencesSection({ preferences, saving, onSubmit }: Preference
             </div>
           </div>
 
-          <CardFooter className="px-0 pt-4">
+          <CardFooter className="px-0 pt-4 flex gap-4">
             <Button className="retro-button" type="submit" disabled={!isDirty || saving}>
               {saving ? "Zapisywanie..." : "Zapisz ustawienia"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!isDirty || saving}
+              onClick={handleSaveAndExit}
+              className="border-[var(--retro-orange)] text-[var(--retro-orange)] hover:bg-[var(--retro-orange)] hover:text-white uppercase font-bold tracking-[0.08em]"
+            >
+              Zapisz i wyjdź
             </Button>
           </CardFooter>
         </form>
