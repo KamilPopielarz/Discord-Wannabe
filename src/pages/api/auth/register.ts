@@ -62,9 +62,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       headers: request.headers,
     });
 
-    const siteUrl = import.meta.env.PROD
-      ? "https://discord-wannabe.pages.dev"
-      : new URL(request.url).origin;
+    const siteUrl = import.meta.env.DEV
+      ? new URL(request.url).origin
+      : "https://discord-wannabe.pages.dev";
 
     const { data, error } = await supabase.auth.signUp({
       email,
