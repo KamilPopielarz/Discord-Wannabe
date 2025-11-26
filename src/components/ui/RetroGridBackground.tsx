@@ -49,20 +49,38 @@ export function RetroGridBackground({ className = "", speed = 0.06 }: RetroGridB
     let animationFrame: number;
     let offset = 0;
 
+    const getWithOpacity = (color: string, opacityHex: string) => {
+      // Handle hex colors (e.g. #ff0000 -> #ff000020)
+      if (color.startsWith('#')) {
+        return `${color}${opacityHex}`;
+      }
+      // Handle functional colors like oklch(82% .22 55) -> oklch(82% .22 55 / 0.12)
+      // Convert hex opacity (00-FF) to decimal (0-1)
+      const opacity = parseInt(opacityHex, 16) / 255;
+      if (color.includes(')')) {
+        // Check if there's already an alpha slash
+        if (color.includes('/')) {
+            return color; // Already has opacity, ignore or replace
+        }
+        return color.replace(')', ` / ${opacity.toFixed(2)})`);
+      }
+      return color;
+    };
+
     const render = () => {
       if (!ctx) return;
       const { width, height } = canvas;
       ctx.clearRect(0, 0, width, height);
 
       const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, `${colors.orangeBright}20`);
-      gradient.addColorStop(0.4, `${colors.teal}10`);
-      gradient.addColorStop(1, `${colors.midnight}`);
+      gradient.addColorStop(0, getWithOpacity(colors.orangeBright, '20'));
+      gradient.addColorStop(0.4, getWithOpacity(colors.teal, '10'));
+      gradient.addColorStop(1, colors.midnight);
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
       const gridSize = 120;
-      ctx.strokeStyle = `${colors.teal}40`;
+      ctx.strokeStyle = getWithOpacity(colors.teal, '40');
       ctx.lineWidth = 1;
       ctx.shadowBlur = 0;
       offset += speed;
@@ -86,8 +104,8 @@ export function RetroGridBackground({ className = "", speed = 0.06 }: RetroGridB
         if (shape.y > 1.2) shape.y = -0.2;
 
         ctx.beginPath();
-        ctx.fillStyle = `${shape.hue}50`;
-        ctx.shadowColor = `${shape.hue}80`;
+        ctx.fillStyle = getWithOpacity(shape.hue, '50');
+        ctx.shadowColor = getWithOpacity(shape.hue, '80');
         ctx.shadowBlur = 20;
         ctx.arc(shape.x * width, shape.y * height, shape.size, 0, Math.PI * 2);
         ctx.fill();
