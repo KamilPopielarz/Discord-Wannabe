@@ -68,6 +68,7 @@ export function CreateServerModal({ open, onOpenChange, onCreate, creating }: Cr
               onChange={(e) => setServerName(e.target.value)}
               disabled={creating}
               required
+              maxLength={32}
               data-testid="create-server-name-input"
             />
           </div>

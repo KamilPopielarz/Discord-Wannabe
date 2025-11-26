@@ -45,7 +45,7 @@ export const CreateServerSchema = z.object({
   name: z
     .string()
     .min(1, "Server name is required")
-    .max(100, "Server name must be less than 100 characters")
+    .max(32, "Server name must be less than 32 characters")
     .regex(/^[a-zA-Z0-9\s\-_]+$/, "Server name can only contain letters, numbers, spaces, hyphens, and underscores"),
 });
 
@@ -56,7 +56,7 @@ export const CreateRoomSchema = z.object({
   name: z
     .string()
     .min(1, "Room name is required")
-    .max(100, "Room name must be less than 100 characters")
+    .max(32, "Room name must be less than 32 characters")
     .regex(/^[a-zA-Z0-9\s\-_]+$/, "Room name can only contain letters, numbers, spaces, hyphens, and underscores"),
   password: z
     .string()

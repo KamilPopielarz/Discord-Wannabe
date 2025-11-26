@@ -113,7 +113,7 @@ export function UserMenu({
             }}
           >
             <LogOut className="mr-2 h-4 w-4 rotate-180" />
-            Opóść pokój
+            Opuść pokój
           </DropdownMenuItem>
         )}
 

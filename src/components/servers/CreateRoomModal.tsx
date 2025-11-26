@@ -77,6 +77,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
               onChange={(e) => setRoomName(e.target.value)}
               disabled={creating}
               required
+              maxLength={32}
               data-testid="create-room-name-input"
             />
           </div>
