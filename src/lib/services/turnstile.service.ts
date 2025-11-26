@@ -6,6 +6,12 @@ interface TurnstileVerificationResponse {
 }
 
 export async function verifyTurnstileToken(token: string, remoteIp?: string): Promise<boolean> {
+  // Bypass in development or if keys are missing
+  if (import.meta.env.DEV || !import.meta.env.TURNSTILE_SECRET_KEY) {
+    console.log('Bypassing Turnstile verification in development/missing keys');
+    return true;
+  }
+
   try {
     const formData = new FormData();
     formData.append('secret', import.meta.env.TURNSTILE_SECRET_KEY);

@@ -25,6 +25,13 @@ export function ForgotPasswordForm({
   const [captchaToken, setCaptchaToken] = useState('');
   const { validateEmail, errors, setFieldError } = useFormValidation();
 
+  React.useEffect(() => {
+    if (!import.meta.env.PUBLIC_TURNSTILE_SITE_KEY) {
+      console.warn('Turnstile site key missing, bypassing captcha');
+      setCaptchaToken('bypass-token');
+    }
+  }, []);
+
   const handleEmailChange = useCallback((value: string) => {
     setEmail(value);
     if (value) {
@@ -145,12 +152,18 @@ export function ForgotPasswordForm({
             )}
           </div>
 
-          <TurnstileCaptcha
-            onVerify={handleCaptchaVerify}
-            onError={handleCaptchaError}
-            onExpire={handleCaptchaError}
-            disabled={loading}
-          />
+          {import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ? (
+            <TurnstileCaptcha
+              onVerify={handleCaptchaVerify}
+              onError={handleCaptchaError}
+              onExpire={handleCaptchaError}
+              disabled={loading}
+            />
+          ) : (
+            <div className="text-xs text-muted-foreground italic text-center">
+              Captcha disabled (dev mode)
+            </div>
+          )}
 
           <Button 
             type="submit" 
