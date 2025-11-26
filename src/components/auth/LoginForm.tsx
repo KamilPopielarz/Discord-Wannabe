@@ -9,6 +9,7 @@ import { TypingAnimation } from "../ui/TypingAnimation";
 import { GlitchText } from "../ui/GlitchText";
 import { useFormValidation } from "../../lib/hooks/useFormValidation";
 import type { LoginCommand } from "../../types";
+import { Eye, EyeOff, AlertTriangle } from "lucide-react";
 
 interface LoginFormProps {
   onSubmit: (payload: LoginCommand) => void;
@@ -31,6 +32,12 @@ export function LoginForm({
 }: LoginFormProps) {
   const { validateEmail, errors, setFieldError } = useFormValidation();
   const [attemptCount, setAttemptCount] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+
+  const checkCapsLock = (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
+    setIsCapsLockOn(e.getModifierState("CapsLock"));
+  };
 
   const handleEmailChange = useCallback((value: string) => {
     onEmailChange(value);
@@ -113,22 +120,48 @@ export function LoginForm({
                   Zresetuj hasło
                 </a>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => onPasswordChange(e.target.value)}
-                disabled={loading || showRateLimit}
-                required
-                className="retro-input"
-                aria-invalid={!!error}
-                aria-describedby={error ? "error-message" : undefined}
-                data-testid="login-password-input"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => onPasswordChange(e.target.value)}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
+                  onClick={checkCapsLock}
+                  onBlur={() => setIsCapsLockOn(false)}
+                  disabled={loading || showRateLimit}
+                  required
+                  className="retro-input pr-10"
+                  aria-invalid={!!error}
+                  aria-describedby={error ? "error-message" : undefined}
+                  data-testid="login-password-input"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-700 dark:text-gray-300"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              {isCapsLockOn && (
+                <div className="flex items-center gap-2 text-yellow-500 text-xs mt-1 animate-pulse">
+                  <AlertTriangle className="h-3 w-3" />
+                  <span>Caps Lock jest włączony</span>
+                </div>
+              )}
             </div>
 
-            <Button 
+            <Button  
               type="submit" 
               className="retro-button w-full rounded-xl" 
               disabled={loading || !isFormValid || showRateLimit}

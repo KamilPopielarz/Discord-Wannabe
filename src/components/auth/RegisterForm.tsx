@@ -8,6 +8,7 @@ import { RetroGridBackground } from "../ui/RetroGridBackground";
 import { TurnstileCaptcha } from "../ui/TurnstileCaptcha";
 import { useFormValidation } from "../../lib/hooks/useFormValidation";
 import type { RegisterUserCommand } from "../../types";
+import { Eye, EyeOff, AlertTriangle } from "lucide-react";
 
 interface RegisterFormProps {
   onSubmit: (payload: RegisterUserCommand & { confirmPassword: string; captchaToken: string }) => void;
@@ -40,6 +41,13 @@ export function RegisterForm({
 }: RegisterFormProps) {
   const [captchaToken, setCaptchaToken] = useState("");
   const [showPasswordHints, setShowPasswordHints] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+
+  const checkCapsLock = (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
+    setIsCapsLockOn(e.getModifierState("CapsLock"));
+  };
   
   const { 
     validateEmail, 
@@ -199,19 +207,48 @@ export function RegisterForm({
               <label htmlFor="register-password" className="text-sm font-medium retro-text">
                 HASŁO DOSTĘPU
               </label>
-              <Input
-                id="register-password"
-                type="password"
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => handlePasswordChange(e.target.value)}
-                onFocus={() => setShowPasswordHints(true)}
-                disabled={loading}
-                required
-                className="retro-input"
-                aria-invalid={!!errors.password}
-                aria-describedby={errors.password ? "password-error" : showPasswordHints ? "password-hints" : undefined}
-              />
+              <div className="relative">
+                <Input
+                  id="register-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
+                  onFocus={() => setShowPasswordHints(true)}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
+                  onClick={checkCapsLock}
+                  onBlur={() => {
+                    setIsCapsLockOn(false);
+                  }}
+                  disabled={loading}
+                  required
+                  className="retro-input pr-10"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password-error" : showPasswordHints ? "password-hints" : undefined}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-700 dark:text-gray-300"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+
+              {isCapsLockOn && (
+                <div className="flex items-center gap-2 text-yellow-500 text-xs mt-1 animate-pulse">
+                  <AlertTriangle className="h-3 w-3" />
+                  <span>Caps Lock jest włączony</span>
+                </div>
+              )}
               
               {/* Password strength indicator */}
               {password && (
@@ -264,18 +301,38 @@ export function RegisterForm({
               <label htmlFor="confirm-password" className="text-sm font-medium retro-text">
                 POTWIERDŹ HASŁO
               </label>
-              <Input
-                id="confirm-password"
-                type="password"
-                placeholder="••••••••••••"
-                value={confirmPassword}
-                onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-                disabled={loading}
-                required
-                className="retro-input"
-                aria-invalid={!!errors.confirmPassword}
-                aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
-              />
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="••••••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
+                  onClick={checkCapsLock}
+                  onBlur={() => setIsCapsLockOn(false)}
+                  disabled={loading}
+                  required
+                  className="retro-input pr-10"
+                  aria-invalid={!!errors.confirmPassword}
+                  aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-700 dark:text-gray-300"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? "Ukryj hasło" : "Pokaż hasło"}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
               {errors.confirmPassword && (
                 <p id="confirm-password-error" className="text-xs retro-error">
                   {errors.confirmPassword}
