@@ -17,6 +17,7 @@ export function useChat(roomId?: string, roomName?: string) {
 
   const [loading, setLoading] = useState(false);
   const [messageText, setMessageText] = useState("");
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null!);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastMessageIdRef = useRef<number | null>(null);
@@ -365,6 +366,9 @@ export function useChat(roomId?: string, roomName?: string) {
             console.log(`[Realtime] Subscription status: ${status}`);
             if (status === 'SUBSCRIBED') {
                 console.log('[Realtime] Connected to channel');
+                setIsRealtimeConnected(true);
+            } else {
+                setIsRealtimeConnected(false);
             }
             if (status === 'CHANNEL_ERROR') {
                 console.error('[Realtime] Channel error, subscription may have failed');
@@ -397,21 +401,27 @@ export function useChat(roomId?: string, roomName?: string) {
       };
     });
 
-    // Fallback polling (every 3 seconds) just in case Realtime disconnects
+    // Fallback polling just in case Realtime disconnects or is not available
+    // If Realtime is connected, we poll very infrequently (every 60s) as a sanity check
+    // If Realtime is NOT connected, we poll more frequently (every 10s) to maintain functionality
+    const pollingIntervalTime = isRealtimeConnected ? 60000 : 10000;
+    
+    console.log(`[Polling] Setting interval to ${pollingIntervalTime}ms (Realtime: ${isRealtimeConnected ? 'CONNECTED' : 'DISCONNECTED'})`);
+
     const pollingInterval = setInterval(() => {
       // Check always to ensure sync in multi-window tests and background tabs
       // Using function reference from useRef to avoid stale closures
       if (typeof loadNewMessages === 'function') {
         loadNewMessages();
       }
-    }, 3000);
+    }, pollingIntervalTime);
 
     return () => {
       isMounted = false;
       if (cleanup) cleanup();
       clearInterval(pollingInterval);
     };
-  }, [roomId, loadNewMessages]);
+  }, [roomId, loadNewMessages, isRealtimeConnected]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

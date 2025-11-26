@@ -145,9 +145,9 @@ export function useRoomUsers(roomId?: string) {
     }
 
     // Adaptive refresh interval for users:
-    // - Active user: 5 seconds (reduced from 10s for better real-time updates)
-    // - Inactive user: 30 seconds
-    const interval = isActive ? 5000 : 30000;
+    // - Active user: 15 seconds (reduced load from 5s)
+    // - Inactive user: 60 seconds (reduced load from 30s)
+    const interval = isActive ? 15000 : 60000;
 
     console.log(`[useRoomUsers] Starting polling for room ${roomId}, interval: ${interval}ms (active: ${isActive})`);
 
