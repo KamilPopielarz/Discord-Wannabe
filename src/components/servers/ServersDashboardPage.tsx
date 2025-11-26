@@ -85,7 +85,8 @@ export function ServersDashboardPage({ initialUsername = null, initialProfile = 
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold retro-heading">
-                  <TypingAnimation text="DISCORD WANNABE - SERWERY" speed={80} />
+                  <span className="md:hidden">DISCORD WANNABE - SERWERY</span>
+                  <TypingAnimation text="DISCORD WANNABE - SERWERY" speed={80} className="hidden md:inline" />
                 </h1>
                 <p className="text-sm md:text-base text-muted-foreground retro-text">Twoje serwery komunikacyjne</p>
               </div>

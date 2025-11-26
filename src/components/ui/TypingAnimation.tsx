@@ -34,7 +34,7 @@ export function TypingAnimation({ text, speed = 50, className = "", onComplete }
   return (
     <span className={`retro-text ${className}`}>
       {displayText}
-      {cursorVisible && <span className="inline-block h-5 w-1 bg-[var(--retro-orange-bright)] ml-1 animate-pulse" />}
+      <span className={`inline-block h-5 w-1 bg-[var(--retro-orange-bright)] ml-1 transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'}`} />
     </span>
   );
 }

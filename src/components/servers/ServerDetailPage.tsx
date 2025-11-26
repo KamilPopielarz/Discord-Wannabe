@@ -148,9 +148,13 @@ export function ServerDetailPage({ inviteLink, initialUsername = null, initialPr
                 </Button>
                 <div>
                   <h1 className="text-xl md:text-2xl font-bold flex items-center retro-heading" data-testid="server-detail-title">
+                    <span className="md:hidden mr-2">
+                      {state.serverInfo?.name || `SERWER-${state.serverInfo?.serverId?.slice(-6).toUpperCase()}`}
+                    </span>
                     <TypingAnimation 
                       text={state.serverInfo?.name || `SERWER-${state.serverInfo?.serverId?.slice(-6).toUpperCase()}`}
                       speed={60}
+                      className="hidden md:inline"
                     />
                     {isServerExpired ? (
                       <Badge variant="destructive" className="ml-2 retro-error">

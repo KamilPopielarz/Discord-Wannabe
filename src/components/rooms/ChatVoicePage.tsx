@@ -478,7 +478,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
   return (
     <>
       <RetroGridBackground />
-      <div className="relative z-10 flex h-screen flex-col bg-background">
+      <div className="relative z-10 flex h-screen flex-col bg-background/80 md:bg-background">
         {/* Header */}
         <header className="border-b border-[var(--border)] bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between">
@@ -490,9 +490,13 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
 
               <div>
                 <h1 className="text-lg font-semibold flex items-center retro-heading">
+                  <span className="md:hidden">
+                    {roomName || `Pokój ${roomId?.slice(-6).toUpperCase()}`}
+                  </span>
                   <TypingAnimation 
                     text={roomName || `Pokój ${roomId?.slice(-6).toUpperCase()}`}
                     speed={50}
+                    className="hidden md:inline"
                   />
                   <Badge
                     variant="outline"
@@ -597,7 +601,9 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 roomId={roomId}
                 onLeaveRoom={handleLeaveRoom}
               />
-              <ThemeToggle />
+              <div className="hidden md:block">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </header>
