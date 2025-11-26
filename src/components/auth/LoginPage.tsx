@@ -7,23 +7,37 @@ import { createSupabaseBrowserClient } from "../../db/supabase.browser";
 export function LoginPage() {
   const { state, updateField, login } = useLogin();
   const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const handleAuth = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get("code");
-      const confirmed = urlParams.get("confirmed");
-      const error = urlParams.get("error");
-      const errorDescription = urlParams.get("error_description");
+      // Handle hash params too if they exist (Supabase implicit flow sometimes uses hash)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-      if (confirmed === "true") {
-        setSuccessMessage("Email został potwierdzony. Możesz się teraz zalogować.");
-      }
+      const code = urlParams.get("code") || hashParams.get("code");
+      const confirmed = urlParams.get("confirmed");
+      const error = urlParams.get("error") || hashParams.get("error");
+      const errorCode = urlParams.get("error_code") || hashParams.get("error_code");
+      const errorDescription = urlParams.get("error_description") || hashParams.get("error_description");
 
       if (error) {
-        console.error("Auth error:", error, errorDescription);
-        // We leave the error handling to the user trying to login manually if needed,
-        // or we could set state.error via a new method in useLogin, but local state is easier here.
+        console.error("Auth error:", error, errorCode, errorDescription);
+        
+        let msg = "Wystąpił błąd autoryzacji.";
+        if (errorCode === "otp_expired") {
+          msg = "Link potwierdzający wygasł. Zaloguj się, aby wysłać nowy.";
+        } else if (errorDescription) {
+          if (errorDescription.includes("expired")) {
+            msg = "Link potwierdzający wygasł.";
+          } else {
+            msg = `Błąd: ${errorDescription}`;
+          }
+        }
+        setErrorMessage(msg);
+        // Do NOT set successMessage if there is an error, even if confirmed=true is present
+      } else if (confirmed === "true") {
+        setSuccessMessage("Email został potwierdzony. Możesz się teraz zalogować.");
       }
 
       if (code) {
@@ -63,7 +77,7 @@ export function LoginPage() {
         <LoginForm
           onSubmit={login}
           loading={state.loading}
-          error={state.error}
+          error={errorMessage || state.error}
           email={state.email}
           password={state.password}
           onEmailChange={(email) => updateField("email", email)}

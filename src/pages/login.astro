@@ -5,6 +5,12 @@ import { LoginPage } from "../components/auth/LoginPage";
 
 <Layout title="Logowanie - Discord Wannabe">
   <main class="min-h-screen flex items-center justify-center bg-background">
+    <noscript>
+      <div class="p-6 bg-destructive/10 text-destructive border border-destructive rounded-lg max-w-md text-center">
+        <h1 class="text-xl font-bold mb-2">JavaScript jest wymagany</h1>
+        <p>Ta aplikacja wymaga włączonej obsługi JavaScript do działania. Proszę włączyć JavaScript w ustawieniach przeglądarki lub otworzyć link w pełnej przeglądarce (nie w podglądzie).</p>
+      </div>
+    </noscript>
     <div class="w-full max-w-md p-6">
       <LoginPage client:only="react" />
     </div>
