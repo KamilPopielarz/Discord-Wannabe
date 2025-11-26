@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     // Find server by invite link
     const { data: server, error: serverError } = await supabase
       .from("servers")
-      .select("id, invite_link, last_activity")
+      .select("id, invite_link, name, last_activity")
       .eq("invite_link", inviteLink)
       .single();
 
@@ -125,7 +125,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
     const response: GetServerResponseDto = {
       serverId: server.id,
-      name: undefined, // Servers don't have names in this implementation
+      name: server.name,
       ttlExpiresAt: ttlExpiresAt.toISOString(),
     };
 
