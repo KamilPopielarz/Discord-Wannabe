@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { LoginForm } from "./LoginForm";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { useLogin } from "../../lib/hooks/useLogin";
-import { createSupabaseBrowserClient } from "../../db/supabase.client";
+import { createSupabaseBrowserClient } from "../../db/supabase.browser";
 
 export function LoginPage() {
   const { state, updateField, login } = useLogin();
