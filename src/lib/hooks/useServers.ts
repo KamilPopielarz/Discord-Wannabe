@@ -150,15 +150,6 @@ export function useServers() {
       setCreating(false);
       setCreateModalOpen(false);
 
-      // Copy invite link silently (non-blocking)
-      if (navigator.clipboard) {
-        try {
-          await navigator.clipboard.writeText(data.inviteLink);
-        } catch (error) {
-          console.warn("Failed to copy invite link to clipboard:", error);
-        }
-      }
-
       // Reload servers list in the background to ensure UI is synced with server state
       // Use setTimeout to avoid blocking the UI update
       setTimeout(() => {

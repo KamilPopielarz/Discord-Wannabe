@@ -77,15 +77,6 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-sm text-muted-foreground retro-text">
-          <p className="flex items-center space-x-2">
-            <span>LINK:</span>
-            <code className="rounded border border-[var(--retro-orange)]/40 bg-[var(--retro-orange-soft)] px-2 py-1 text-xs font-mono text-[var(--retro-orange-bright)]">
-              {room.inviteLink}
-            </code>
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Button 
             variant="default" 

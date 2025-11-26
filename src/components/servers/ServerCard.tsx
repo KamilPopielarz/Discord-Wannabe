@@ -49,9 +49,6 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             <CardTitle className="text-lg retro-heading">
               {server.name || `SERWER-${server.serverId.slice(-6).toUpperCase()}`}
             </CardTitle>
-            <CardDescription className="retro-text">
-              NODE: {server.serverId.slice(0, 8).toUpperCase()}
-            </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
             {isExpired ? (
@@ -81,12 +78,6 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground retro-text">
-          <p className="flex items-center space-x-2">
-            <span>LINK:</span>
-            <code className="rounded border border-[var(--retro-orange)]/40 bg-[var(--retro-orange-soft)] px-2 py-1 text-xs font-mono text-[var(--retro-orange-bright)]">
-              {server.inviteLink}
-            </code>
-          </p>
           <p>EXPIRES: {expiresAt.toLocaleString("pl-PL")}</p>
         </div>
 

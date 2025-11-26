@@ -256,26 +256,11 @@ export function useServerRooms(inviteLink?: string) {
       setCreating(false);
       setCreateModalOpen(false);
 
-      // Show success message and copy invite link
+      // Show success message
       const showSuccess = settings?.preferences.confirmations?.createRoom ?? true;
       
-      if (navigator.clipboard) {
-        try {
-          await navigator.clipboard.writeText(data.inviteLink);
-          if (showSuccess) {
-            alert(
-              `Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy skopiowany do schowka: ${data.inviteLink}`
-            );
-          }
-        } catch {
-          if (showSuccess) {
-            alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
-          }
-        }
-      } else {
-        if (showSuccess) {
-          alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
-        }
+      if (showSuccess) {
+        alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
       }
     } catch (error) {
       setState((prev) => ({

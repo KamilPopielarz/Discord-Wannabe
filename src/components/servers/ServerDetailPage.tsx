@@ -167,9 +167,6 @@ export function ServerDetailPage({ inviteLink, initialUsername = null, initialPr
                       </Badge>
                     )}
                   </h1>
-                  <p className="text-xs md:text-base text-muted-foreground retro-text">
-                    LINK: {inviteLink} • NODE: {state.serverInfo?.serverId?.slice(0, 8).toUpperCase()}
-                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-2 md:space-x-4">

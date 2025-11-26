@@ -520,7 +520,6 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                     )}
                   </Badge>
                 </h1>
-                <p className="text-sm text-muted-foreground retro-text">Link: {inviteLink}</p>
               </div>
             </div>
 
