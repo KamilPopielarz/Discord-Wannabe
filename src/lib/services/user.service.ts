@@ -159,6 +159,19 @@ export class UserService {
   }
 
   async updateProfile(userId: string, payload: UpdateUserProfileCommand): Promise<UserProfileDto> {
+    // Check for uniqueness of displayName if provided (case-insensitive)
+    if (payload.displayName) {
+      const { count, error } = await this.supabase
+        .from("user_profiles")
+        .select("user_id", { count: "exact", head: true })
+        .neq("user_id", userId)
+        .ilike("display_name", payload.displayName);
+
+      if (!error && count && count > 0) {
+        throw new Error("Ten nick jest już zajęty.");
+      }
+    }
+
     const upsertPayload = serializeProfilePayload(userId, payload);
     try {
       const { data, error } = await this.supabase
@@ -184,6 +197,12 @@ export class UserService {
           await this.saveProfileToMetadata(userId, fallbackProfile);
           return fallbackProfile;
         }
+
+        // Handle unique constraint violation (e.g. username)
+        if (error.code === "23505") {
+          throw new Error("Ta nazwa użytkownika jest już zajęta.");
+        }
+
         throw new Error(`Failed to update profile: ${error.message}`);
       }
 
