@@ -30,5 +30,5 @@ CI/CD i Hosting:
 -Sekrety/konfiguracja: zmienne środowiskowe w CI/DO, rotacja kluczy, oddzielne środowiska (staging/prod).
 Monitoring i logowanie (zalecane):
 -Sentry (FE/BE): błędy i performance.
--LiveKit webhooks: ingest metryk QoS i alerty kosztowe/obciążeniowe.
 -Logi/audyt w Supabase: przechowywanie zgodnie z retencją (np. 90 dni).
+-Cloudflare Pages jako hosting aplikacji Astro

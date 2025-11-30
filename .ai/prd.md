@@ -256,6 +256,20 @@ Kryteria akceptacji:
 - Zadanie okresowe usuwa wiadomości >24h; nie usuwa logów moderacji.
 - UI komunikuje politykę retencji.
 
+US-021
+Tytuł: Bezpieczny dostęp 
+Opis: Jako użytkownik, chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo i prywatność.
+- Kryteria akceptacji:
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+  - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym @Layout.astro.
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+  - Odzyskiwanie hasła powinno być możliwe.
+  - Captcha wymagane na stronie rejestracji i resetowania hasła.
+
+
 ## 6. Metryki sukcesu
 
 - North Star: tygodniowe minuty voice na użytkownika.
