@@ -10,7 +10,7 @@
 - **Tailwind CSS 4** - Nowoczesny silnik stylów.
 - **Shadcn/ui** - Komponenty UI oparte na Radix UI i Tailwind.
 - **Supabase** - Backend jako usługa: baza danych PostgreSQL, Uwierzytelnianie, Realtime.
-- **Cloudflare Turnstile** - Ochrona przed botami (CAPTCHA).
+- **Cloudflare Turnstile** - Ochrona przed botami (CAPTCHA). //jeszcze nie zaimplementowane.
 
 ## Funkcjonalności
 
@@ -18,7 +18,7 @@
 - **Rejestracja i Logowanie:** Pełna obsługa kont użytkowników przez Supabase Auth.
 - **Resetowanie hasła:** Bezpieczny proces odzyskiwania dostępu do konta (email flow).
 - **Weryfikacja Email:** Potwierdzanie tożsamości użytkownika.
-- **Ochrona:** Formularze zabezpieczone przez Cloudflare Turnstile.
+
 
 ### Serwery i Pokoje
 - **Tworzenie Serwerów:** Użytkownicy mogą zakładać własne, prywatne serwery.
@@ -34,7 +34,7 @@
 - **YouTube i emoji:** Możliwość wysłania filmów, które zostaną wyświetlone w podglądzie, oraz emoji.
 
 ### Administracja i Ustawienia
-- **Panel Użytkownika:** Zarządzanie profilem, zmiana ustawień bezpieczeństwa.
+- **Panel Użytkownika:** Zarządzanie profilem, możliwośc ustawienia nicku, avataru oraz zmiana hasła
 
 
 
@@ -79,6 +79,10 @@ TURNSTILE_SECRET_KEY=twoj_klucz_sekretny_turnstile
    ```
 
 Aplikacja będzie dostępna pod adresem `http://localhost:3000`.
+
+### Aplikacja w środowisku produkcyjnym
+1. Apklikacja hostowana jest na Cloudflare Pages.
+2. Aplikacja jest dostępna pod adresem `https://discord-wannabe.pages.dev`.
 
 ## Dostępne Skrypty
 
