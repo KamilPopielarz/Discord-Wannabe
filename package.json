@@ -70,6 +70,7 @@
     "lint-staged": "15.5.0",
     "msw": "^2.12.0",
     "prettier-plugin-astro": "0.14.1",
+    "typescript": "^5.9.3",
     "typescript-eslint": "8.28.0",
     "vitest": "^4.0.8",
     "whatwg-fetch": "^3.6.20"

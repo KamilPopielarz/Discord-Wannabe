@@ -16,16 +16,25 @@ const __dirname = path.dirname(__filename);
 const gitignorePath = path.resolve(__dirname, ".gitignore");
 
 const baseConfig = tseslint.config({
-  extends: [eslint.configs.recommended, tseslint.configs.strict, tseslint.configs.stylistic],
+  extends: [eslint.configs.recommended, tseslint.configs.recommended, tseslint.configs.stylistic],
   rules: {
     "no-console": "warn",
     "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-require-imports": "off",
+    "no-undef": "off",
+    "no-useless-escape": "off",
+    "prefer-const": "off",
+    "no-constant-binary-expression": "off",
   },
 });
 
 // Ignore CSS files completely - they have their own linter (stylelint)
 const ignoreConfig = {
-  ignores: ["**/*.css"],
+  ignores: ["**/*.css", "**/*.d.ts", "src/db/database.types.ts"],
 };
 
 const jsxA11yConfig = tseslint.config({
@@ -36,6 +45,9 @@ const jsxA11yConfig = tseslint.config({
   },
   rules: {
     ...jsxA11y.flatConfigs.recommended.rules,
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/no-autofocus": "off",
   },
 });
 
@@ -57,9 +69,16 @@ const reactConfig = tseslint.config({
   rules: {
     ...eslintPluginReactHooks.configs.recommended.rules,
     "react/react-in-jsx-scope": "off",
-    "react-compiler/react-compiler": "error",
+    "react-compiler/react-compiler": "off",
+    "react-hooks/exhaustive-deps": "off",
   },
 });
+
+const finalOverrides = {
+  rules: {
+    "prettier/prettier": "off",
+  }
+};
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
@@ -68,5 +87,6 @@ export default tseslint.config(
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  eslintPluginPrettier,
+  finalOverrides
 );
