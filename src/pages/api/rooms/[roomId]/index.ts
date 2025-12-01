@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import type { GetRoomResponseDto } from "../../../types";
-import { InviteLinkSchema } from "../../../lib/validators/auth.validators";
+import type { GetRoomResponseDto } from "../../../../types";
+import { UUIDSchema, InviteLinkSchema } from "../../../../lib/validators/auth.validators";
 import { z } from "zod";
 
 export const prerender = false;
@@ -10,9 +10,13 @@ const VerifyPasswordSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+// Helper to check if string is UUID
+const isUUID = (str: string) => UUIDSchema.safeParse(str).success;
+
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
-    const { inviteLink } = params;
+    const { roomId: param } = params;
+    const inviteLink = param;
 
     // Validate invite link parameter
     const validationResult = InviteLinkSchema.safeParse(inviteLink);
@@ -33,7 +37,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       console.log("Mock mode: Returning mock room info for invite:", inviteLink);
       const response: GetRoomResponseDto = {
         roomId: `mock-room-${inviteLink}`,
-        name: `Mock Room ${inviteLink.slice(-6)}`,
+        name: `Mock Room ${inviteLink?.slice(-6)}`,
         requiresPassword: false,
         serverInviteLink: `mock-server-${inviteLink}`,
       };
@@ -184,13 +188,125 @@ export const GET: APIRoute = async ({ params, locals }) => {
   }
 };
 
-/**
- * POST /api/rooms/[inviteLink]
- * Verify password for password-protected rooms
- */
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  try {
+    const { roomId } = params;
+
+    // Validate room ID parameter
+    const roomIdValidation = UUIDSchema.safeParse(roomId);
+    if (!roomIdValidation.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid room ID format",
+          details: roomIdValidation.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get Supabase client and user info from locals
+    const supabase = locals.supabase;
+    const userId = locals.userId;
+
+    if (!supabase) {
+      return new Response(JSON.stringify({ error: "Database connection not available" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Get room info to check permissions
+    const { data: room, error: roomError } = await supabase
+      .from("rooms")
+      .select("server_id")
+      .eq("id", roomId)
+      .single();
+
+    if (roomError || !room) {
+      return new Response(JSON.stringify({ error: "Room not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Check permissions
+    // 1. Check if user is the owner of the room (if user_room has Owner role)
+    // 2. Check if user is Owner/Admin of the server
+
+    // Check room membership for ownership
+    const { data: roomMembership } = await supabase
+      .from("user_room")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("room_id", roomId)
+      .single();
+
+    const isRoomOwner = roomMembership?.role === "Owner";
+
+    // Check server membership for admin rights
+    const { data: serverMembership } = await supabase
+        .from("user_server")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("server_id", room.server_id)
+        .single();
+
+    const isServerAdmin = ["Owner", "Admin"].includes(serverMembership?.role || "");
+
+    if (!isRoomOwner && !isServerAdmin) {
+       return new Response(JSON.stringify({ error: "Insufficient permissions to delete room" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Delete room
+    const { error: deleteError } = await supabase
+      .from("rooms")
+      .delete()
+      .eq("id", roomId);
+
+    if (deleteError) {
+      console.error("Failed to delete room:", deleteError);
+      return new Response(JSON.stringify({ error: "Failed to delete room" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  } catch (error) {
+    console.error("Room deletion error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
 export const POST: APIRoute = async ({ params, request, locals }) => {
   try {
-    const { inviteLink } = params;
+    const { roomId: param } = params;
+    const inviteLink = param;
+
+    // If it's a UUID, we don't support POST for now (or implement UpdateRoom?)
+    if (isUUID(param!)) {
+         return new Response(JSON.stringify({ error: "Method not allowed for Room ID" }), { 
+             status: 405,
+             headers: { "Content-Type": "application/json" }
+         });
+    }
 
     // Validate invite link parameter
     const validationResult = InviteLinkSchema.safeParse(inviteLink);
@@ -261,7 +377,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Verify password
-    const { verifyPassword } = await import("../../../lib/utils/crypto");
+    const { verifyPassword } = await import("../../../../lib/utils/crypto");
     const isValid = await verifyPassword(password, room.password_hash);
 
     if (!isValid) {

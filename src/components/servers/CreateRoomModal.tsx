@@ -49,7 +49,9 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
     }
   };
 
-  const isFormValid = roomName.trim() !== "" && (!hasPassword || password.trim() !== "");
+  const isFormValid = 
+    roomName.trim() !== "" && 
+    (!hasPassword || (password.trim() !== "" && password.length >= 4));
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -114,6 +116,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
                   disabled={creating}
                   className="pr-10"
                   data-testid="create-room-password-input"
+                  minLength={4}
                 />
                 <Button
                   type="button"
@@ -126,7 +129,9 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">Hasło będzie wymagane do dołączenia do pokoju</p>
+              <p className="text-xs text-muted-foreground">
+                Hasło musi mieć co najmniej 4 znaki i będzie wymagane do dołączenia do pokoju
+              </p>
             </div>
           )}
 
