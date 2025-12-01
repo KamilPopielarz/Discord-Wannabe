@@ -80,21 +80,14 @@ export const onRequest = defineMiddleware(
     });
     locals.supabase = supabase;
 
-    // Skip auth check for public paths
-    if (PUBLIC_PATHS.some(path => url.pathname.startsWith(path))) {
-      return next();
-    }
-
-    // Special handling for room endpoints (GET by invite link)
-    const isRoomByInviteLink = url.pathname.match(/^\/api\/rooms\/[^/]+$/) && request.method === "GET";
-    if (isRoomByInviteLink) {
-      return next();
-    }
-
     // IMPORTANT: Always get user session first before any other operations
     const {
       data: { user },
     } = await supabase.auth.getUser();
+
+    // Check for protected/guest paths
+    const isPublicPath = PUBLIC_PATHS.some(path => url.pathname.startsWith(path)) || url.pathname === "/";
+    const isRoomByInviteLink = url.pathname.match(/^\/api\/rooms\/[^/]+$/) && request.method === "GET";
 
     if (user) {
       locals.user = {
@@ -126,7 +119,21 @@ export const onRequest = defineMiddleware(
       } catch (profileError) {
         console.error('[middleware] Failed to hydrate profile', profileError);
       }
+
+      // REDIRECT: If user is logged in and tries to access guest pages (login, register, root), 
+      // redirect them to the app dashboard
+      const guestOnlyPaths = ["/", "/login", "/register"];
+      if (guestOnlyPaths.includes(url.pathname)) {
+        return redirect("/servers");
+      }
     } else {
+      // User is NOT logged in
+      
+      // Allow public paths and invite links
+      if (isPublicPath || isRoomByInviteLink) {
+        return next();
+      }
+
       // For API routes, return 401
       if (url.pathname.startsWith('/api/')) {
         return new Response(JSON.stringify({ error: "Authentication required" }), {
