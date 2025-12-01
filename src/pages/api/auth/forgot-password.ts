@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
+import { createSupabaseServerInstance, supabaseAdminClient } from "../../../db/supabase.client.ts";
 import { verifyTurnstileToken } from "../../../lib/services/turnstile.service.ts";
 
 export const prerender = false;
@@ -52,6 +52,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
+    // Check if user exists (security vs usability trade-off requested by user)
+    if (supabaseAdminClient) {
+      const { data: listResult } = await supabaseAdminClient.auth.admin.listUsers();
+      const found = listResult.users.find((u) => u.email === email);
+      
+      if (!found) {
+        return new Response(JSON.stringify({ 
+          message: "Nie znaleziono użytkownika z tym adresem e-mail" 
+        }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      console.warn("supabaseAdminClient is not available - skipping user existence check");
+    }
+
     const supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
@@ -67,11 +84,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
-      // Don't reveal if email exists or not for security
       console.error("Password reset error:", error);
+      // If we verified user exists, this error is likely a system error
+      return new Response(JSON.stringify({ 
+        message: "Wystąpił błąd podczas wysyłania e-maila. Spróbuj ponownie później." 
+      }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    // Always return success to prevent email enumeration
     return new Response(JSON.stringify({ 
       message: "Password reset email sent. Please check your inbox." 
     }), {
