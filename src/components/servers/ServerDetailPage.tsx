@@ -10,6 +10,8 @@ import { Button } from "../ui/button";
 import { ArrowLeft, Clock } from "lucide-react";
 import { useServerRooms } from "../../lib/hooks/useServerRooms";
 
+import { RoomPasswordModal } from "./RoomPasswordModal";
+
 interface CurrentUserProfile {
   username: string;
   displayName?: string | null;
@@ -30,6 +32,49 @@ interface ServerDetailPageProps {
 export function ServerDetailPage({ inviteLink, initialUsername = null, initialProfile = null }: ServerDetailPageProps) {
   const { state, createModalOpen, setCreateModalOpen, creating, loadRooms, createRoom, deleteRoom } =
     useServerRooms(inviteLink);
+
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  const [selectedView, setSelectedView] = useState<"chat" | "voice">("chat");
+
+  const handleJoinRoom = (room: any, view: "chat" | "voice") => {
+    if (room.requiresPassword && !room.isMember) {
+      setSelectedRoom(room);
+      setSelectedView(view);
+      setPasswordModalOpen(true);
+    } else {
+      // Direct join
+      window.location.href = `/rooms/${room.inviteLink}?view=${view}`;
+    }
+  };
+
+  const handleVerifyPassword = async (password: string): Promise<boolean> => {
+    if (!selectedRoom) return false;
+
+    try {
+      const response = await fetch(`/api/rooms/${selectedRoom.inviteLink}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        // Password correct and user joined (handled by backend)
+        const data = await response.json();
+        if (data.success) {
+           // Redirect
+           window.location.href = `/rooms/${selectedRoom.inviteLink}?view=${selectedView}`;
+           return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("Error verifying password:", error);
+      return false;
+    }
+  };
 
   const [currentUserData, setCurrentUserData] = useState<CurrentUserProfile | null>(
     initialProfile
@@ -179,6 +224,14 @@ export function ServerDetailPage({ inviteLink, initialUsername = null, initialPr
                     error={state.error}
                   />
                 )}
+                
+                <RoomPasswordModal
+                  open={passwordModalOpen}
+                  onOpenChange={setPasswordModalOpen}
+                  onVerify={handleVerifyPassword}
+                  roomName={selectedRoom?.name || ""}
+                />
+
                 <UserMenu 
                   username={currentUserData?.username || "Użytkownik"} 
                   displayName={currentUserData?.displayName}
@@ -216,6 +269,7 @@ export function ServerDetailPage({ inviteLink, initialUsername = null, initialPr
               error={state.error}
               onRefresh={loadRooms}
               onDeleteRoom={deleteRoom}
+              onJoinRoom={handleJoinRoom}
             />
           </div>
         )}

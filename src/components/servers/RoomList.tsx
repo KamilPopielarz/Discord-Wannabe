@@ -11,6 +11,7 @@ interface RoomListProps {
     name: string;
     inviteLink: string;
     requiresPassword: boolean;
+    isMember?: boolean;
     isPermanent?: boolean;
     createdAt?: string;
     lastActivity?: string;
@@ -19,9 +20,10 @@ interface RoomListProps {
   error?: string;
   onRefresh: () => void;
   onDeleteRoom: (roomId: string) => void;
+  onJoinRoom?: (room: any, view: "chat" | "voice") => void;
 }
 
-export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: RoomListProps) {
+export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom, onJoinRoom }: RoomListProps) {
   if (loading && rooms.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -69,7 +71,12 @@ export function RoomList({ rooms, loading, error, onRefresh, onDeleteRoom }: Roo
       ) : (
         <div className="grid gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3" data-testid="rooms-list">
           {rooms.map((room) => (
-            <RoomCard key={room.roomId} room={room} onDelete={onDeleteRoom} />
+            <RoomCard 
+              key={room.roomId} 
+              room={room} 
+              onDelete={onDeleteRoom} 
+              onJoin={(r, v) => onJoinRoom?.(r, v)}
+            />
           ))}
         </div>
       )}

@@ -177,6 +177,7 @@ export function useServerRooms(inviteLink?: string) {
         inviteLink: room.inviteLink,
         name: room.name,
         requiresPassword: room.requiresPassword,
+        isMember: room.isMember,
         isPermanent: room.isPermanent,
         createdAt: room.createdAt,
         lastActivity: room.lastActivity,

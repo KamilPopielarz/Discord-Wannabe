@@ -91,12 +91,23 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
+    // Get user memberships for these rooms
+    const roomIds = (rooms || []).map(r => r.id);
+    const { data: userMemberships } = await supabase
+      .from("user_room")
+      .select("room_id")
+      .eq("user_id", userId)
+      .in("room_id", roomIds);
+
+    const memberRoomIds = new Set((userMemberships || []).map(m => m.room_id));
+
     // Transform rooms to match expected format
     const roomsResponse = (rooms || []).map((room) => ({
       roomId: room.id,
       name: room.name,
       inviteLink: room.invite_link,
       requiresPassword: !!room.password_hash,
+      isMember: memberRoomIds.has(room.id),
       isPermanent: room.is_permanent,
       createdAt: room.created_at,
       lastActivity: room.last_activity,

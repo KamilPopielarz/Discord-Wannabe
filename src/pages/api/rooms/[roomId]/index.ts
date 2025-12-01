@@ -135,7 +135,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
         }
       }
 
-      // Check if user is already a member of the room
+    // Check if user is already a member of the room
       const { data: roomMembership } = await supabase
         .from("user_room")
         .select("role")
@@ -143,28 +143,33 @@ export const GET: APIRoute = async ({ params, locals }) => {
         .eq("room_id", room.id)
         .single();
 
-      // Add user to room if not already a member
-      if (!roomMembership) {
-        const { error: roomJoinError } = await supabase
-          .from("user_room")
-          .insert({
-            user_id: userId,
-            room_id: room.id,
-            role: "Member",
-          });
+      // If room requires password and user is NOT a member, do NOT auto-join
+      if (room.password_hash && !roomMembership) {
+          // Just return the info, let frontend handle the password prompt
+      } else {
+          // Add user to room if not already a member (and no password required OR already member)
+          if (!roomMembership) {
+            const { error: roomJoinError } = await supabase
+              .from("user_room")
+              .insert({
+                user_id: userId,
+                room_id: room.id,
+                role: "Member",
+              });
 
-        if (roomJoinError) {
-          console.error("Failed to join user to room:", roomJoinError);
-        } else {
-          console.log("User successfully joined room");
-          
-          // Increment invitation uses
-          await supabase
-            .from("invitation_links")
-            .update({ uses: invitation.uses + 1 })
-            .eq("link", inviteLink)
-            .eq("room_id", room.id);
-        }
+            if (roomJoinError) {
+              console.error("Failed to join user to room:", roomJoinError);
+            } else {
+              console.log("User successfully joined room");
+              
+              // Increment invitation uses
+              await supabase
+                .from("invitation_links")
+                .update({ uses: invitation.uses + 1 })
+                .eq("link", inviteLink)
+                .eq("room_id", room.id);
+            }
+          }
       }
     }
 
@@ -388,6 +393,39 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Password is valid
+
+    // Add user to room as Member
+    const userId = locals.userId;
+    if (userId) {
+        // Check if already member
+        const { data: membership } = await supabase
+            .from("user_room")
+            .select("role")
+            .eq("user_id", userId)
+            .eq("room_id", room.id)
+            .single();
+
+        if (!membership) {
+             const { error: joinError } = await supabase
+              .from("user_room")
+              .insert({
+                user_id: userId,
+                room_id: room.id,
+                role: "Member",
+              });
+            
+            if (joinError) {
+                console.error("Failed to join room after password verification:", joinError);
+                // Even if join fails, return success so client can try to navigate? 
+                // Or fail? Better to fail if we can't persist access.
+                return new Response(JSON.stringify({ error: "Failed to join room" }), {
+                    status: 500,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+        }
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

@@ -10,14 +10,16 @@ interface RoomCardProps {
     name: string;
     inviteLink: string;
     requiresPassword: boolean;
+    isMember?: boolean;
     isPermanent?: boolean;
     createdAt?: string;
     lastActivity?: string;
   };
   onDelete: (roomId: string) => void;
+  onJoin: (room: any, view: "chat" | "voice") => void;
 }
 
-export function RoomCard({ room, onDelete }: RoomCardProps) {
+export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
   const copyInviteLink = async () => {
     if (navigator.clipboard) {
       try {
@@ -31,8 +33,8 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
     }
   };
 
-  const joinRoom = (view: "chat" | "voice") => {
-    window.location.href = `/rooms/${room.inviteLink}?view=${view}`;
+  const handleJoin = (view: "chat" | "voice") => {
+      onJoin(room, view);
   };
 
   const openRoomJoin = () => {
@@ -62,9 +64,15 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
           </div>
           <div className="flex items-center space-x-2">
             {room.requiresPassword ? (
-              <Badge variant="secondary" className="rounded-full border border-yellow-500/40 bg-yellow-500/15 px-3 py-1 text-yellow-300">
-                SECURED
-              </Badge>
+               room.isMember ? (
+                <Badge variant="secondary" className="rounded-full border border-green-500/40 bg-green-500/15 px-3 py-1 text-green-300">
+                  UNLOCKED
+                </Badge>
+               ) : (
+                <Badge variant="secondary" className="rounded-full border border-yellow-500/40 bg-yellow-500/15 px-3 py-1 text-yellow-300">
+                  SECURED
+                </Badge>
+               )
             ) : (
               <Badge
                 variant="outline"
@@ -81,7 +89,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
           <Button 
             variant="default" 
             size="sm" 
-            onClick={() => joinRoom("chat")} 
+            onClick={() => handleJoin("chat")} 
             className="flex items-center retro-button justify-center"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
@@ -91,7 +99,7 @@ export function RoomCard({ room, onDelete }: RoomCardProps) {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => joinRoom("voice")} 
+            onClick={() => handleJoin("voice")} 
             className="flex items-center retro-button justify-center"
           >
             <Mic className="h-4 w-4 mr-2" />
