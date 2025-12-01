@@ -54,8 +54,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Check if user exists (security vs usability trade-off requested by user)
     if (supabaseAdminClient) {
-      const { data: listResult } = await supabaseAdminClient.auth.admin.listUsers();
-      const found = listResult.users.find((u) => u.email === email);
+      const { data: listResult, error: listError } = await supabaseAdminClient.auth.admin.listUsers({
+        page: 1,
+        perPage: 1000
+      });
+      
+      if (listError) {
+        console.error("Error listing users:", listError);
+        // Fallback to generic error or proceed (proceeding might be safer but we want explicit feedback)
+        return new Response(JSON.stringify({ error: "Internal server error checking user" }), { status: 500 });
+      }
+
+      const found = listResult.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
       
       if (!found) {
         return new Response(JSON.stringify({ 
@@ -66,7 +76,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         });
       }
     } else {
-      console.warn("supabaseAdminClient is not available - skipping user existence check");
+      console.error("supabaseAdminClient is not available - cannot check user existence. Missing SUPABASE_SERVICE_ROLE_KEY?");
+      return new Response(JSON.stringify({ 
+        message: "Błąd konfiguracji serwera: Brak klucza Service Role Key. Skontaktuj się z administratorem." 
+      }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createSupabaseServerInstance({
