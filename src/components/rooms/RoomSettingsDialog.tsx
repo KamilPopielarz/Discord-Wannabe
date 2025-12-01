@@ -50,9 +50,9 @@ export function RoomSettingsDialog({ roomId, onClearChat }: RoomSettingsDialogPr
           <Settings className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-[var(--retro-bg)] border-[var(--retro-border)] retro-shadow">
+      <DialogContent className="sm:max-w-md bg-background border-border retro-shadow">
         <DialogHeader>
-          <DialogTitle className="retro-heading text-xl text-[var(--retro-text)]">Ustawienia pokoju</DialogTitle>
+          <DialogTitle className="retro-heading text-xl">Ustawienia pokoju</DialogTitle>
         </DialogHeader>
         
         <div className="py-6">

@@ -49,7 +49,7 @@ export function CreateServerModal({ open, onOpenChange, onCreate, creating }: Cr
           Utwórz nowy serwer
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-background border-border">
         <DialogHeader>
           <DialogTitle>Utwórz nowy serwer</DialogTitle>
           <DialogDescription>
@@ -87,7 +87,7 @@ export function CreateServerModal({ open, onOpenChange, onCreate, creating }: Cr
             <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={creating} data-testid="create-server-cancel-button">
               Anuluj
             </Button>
-            <Button onClick={handleCreate} disabled={creating || !isFormValid} data-testid="create-server-submit-button">
+            <Button onClick={handleCreate} disabled={creating || !isFormValid} className="border border-input" data-testid="create-server-submit-button">
               {creating ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />

@@ -244,7 +244,11 @@ export function useServerRooms(inviteLink?: string) {
       const newRoom = {
         roomId: data.roomId,
         inviteLink: data.inviteLink,
+        name: roomData.name,
         requiresPassword: !!roomData.password,
+        isPermanent: false, // Default for user created rooms
+        createdAt: new Date().toISOString(),
+        lastActivity: new Date().toISOString(),
       };
 
       setState((prev) => ({

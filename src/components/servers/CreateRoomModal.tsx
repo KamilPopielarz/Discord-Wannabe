@@ -59,7 +59,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
           Utwórz pokój
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-background border-border">
         <DialogHeader>
           <DialogTitle>Utwórz nowy pokój</DialogTitle>
           <DialogDescription>Utwórz pokój do czatu tekstowego i rozmów głosowych.</DialogDescription>
@@ -96,7 +96,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
               disabled={creating}
               data-testid="create-room-password-checkbox"
             />
-            <Label htmlFor="has-password" className="text-sm font-normal">
+            <Label htmlFor="has-password" className="text-sm font-normal cursor-pointer">
               Chroń pokój hasłem
             </Label>
           </div>
@@ -144,7 +144,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
             <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={creating} data-testid="create-room-cancel-button">
               Anuluj
             </Button>
-            <Button onClick={handleCreate} disabled={creating || !isFormValid} data-testid="create-room-submit-button">
+            <Button onClick={handleCreate} disabled={creating || !isFormValid} className="border border-input" data-testid="create-room-submit-button">
               {creating ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />
