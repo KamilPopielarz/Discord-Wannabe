@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createSupabaseServerInstance, supabaseAdminClient } from "../../../db/supabase.client.ts";
 import { verifyTurnstileToken } from "../../../lib/services/turnstile.service.ts";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../../../db/database.types.ts";
 
 export const prerender = false;
 
@@ -11,7 +13,7 @@ const ForgotPasswordSchema = z.object({
   captchaToken: z.string().min(1, "CAPTCHA token is required"),
 });
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
   try {
     // Parse request body
     let body;
@@ -52,16 +54,40 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
+    // Attempt to get Supabase Service Role Key from various sources
+    let serviceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    // Try getting from Cloudflare runtime context if not available in import.meta.env
+    // This is crucial for Cloudflare Pages where secrets are in the request context
+    if (!serviceRoleKey && (locals as any).runtime?.env?.SUPABASE_SERVICE_ROLE_KEY) {
+      serviceRoleKey = (locals as any).runtime.env.SUPABASE_SERVICE_ROLE_KEY;
+    }
+
+    // Construct admin client dynamically if needed
+    let adminClient = supabaseAdminClient;
+    
+    if (!adminClient && serviceRoleKey) {
+      const supabaseUrl = import.meta.env.SUPABASE_URL || 
+                          import.meta.env.PUBLIC_SUPABASE_URL || 
+                          (locals as any).runtime?.env?.PUBLIC_SUPABASE_URL;
+                          
+      if (supabaseUrl) {
+        adminClient = createClient<Database>(supabaseUrl, serviceRoleKey);
+      }
+    }
+
     // Check if user exists (security vs usability trade-off requested by user)
-    if (supabaseAdminClient) {
-      const { data: listResult, error: listError } = await supabaseAdminClient.auth.admin.listUsers({
+    if (adminClient) {
+      // NOTE: fetching all users is not scalable for large user bases.
+      // However, Supabase Admin API currently doesn't support filtering listUsers by email directly.
+      // A better approach in the future would be a dedicated RPC function or a public profile table check.
+      const { data: listResult, error: listError } = await adminClient.auth.admin.listUsers({
         page: 1,
         perPage: 1000
       });
       
       if (listError) {
         console.error("Error listing users:", listError);
-        // Fallback to generic error or proceed (proceeding might be safer but we want explicit feedback)
         return new Response(JSON.stringify({ error: "Internal server error checking user" }), { status: 500 });
       }
 
