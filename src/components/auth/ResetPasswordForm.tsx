@@ -6,6 +6,7 @@ import { ErrorBanner } from '../ui/ErrorBanner';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useFormValidation } from '../../lib/hooks/useFormValidation';
 import type { PasswordResetConfirmCommand } from '../../types';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface ResetPasswordFormProps {
   onSubmit: (payload: PasswordResetConfirmCommand) => void;
@@ -25,6 +26,8 @@ export function ResetPasswordForm({
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswordHints, setShowPasswordHints] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const { 
     validatePassword, 
@@ -130,19 +133,33 @@ export function ResetPasswordForm({
             <label htmlFor="new-password" className="text-sm font-medium retro-text">
               Nowe hasło
             </label>
-            <Input
-              id="new-password"
-              type="password"
-              placeholder="Wprowadź nowe hasło"
-              value={newPassword}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              onFocus={() => setShowPasswordHints(true)}
-              disabled={loading}
-              required
-              className="retro-input"
-              aria-invalid={!!errors.password}
-              aria-describedby={errors.password ? "password-error" : showPasswordHints ? "password-hints" : undefined}
-            />
+            <div className="relative">
+              <Input
+                id="new-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Wprowadź nowe hasło"
+                value={newPassword}
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                onFocus={() => setShowPasswordHints(true)}
+                disabled={loading}
+                required
+                className="retro-input pr-10"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : showPasswordHints ? "password-hints" : undefined}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-sm"
+                aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             
             {/* Password strength indicator */}
             {newPassword && (
@@ -195,18 +212,32 @@ export function ResetPasswordForm({
             <label htmlFor="confirm-new-password" className="text-sm font-medium retro-text">
               Potwierdź nowe hasło
             </label>
-            <Input
-              id="confirm-new-password"
-              type="password"
-              placeholder="Potwierdź nowe hasło"
-              value={confirmPassword}
-              onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-              disabled={loading}
-              required
-              className="retro-input"
-              aria-invalid={!!errors.confirmPassword}
-              aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
-            />
+            <div className="relative">
+              <Input
+                id="confirm-new-password"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Potwierdź nowe hasło"
+                value={confirmPassword}
+                onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+                disabled={loading}
+                required
+                className="retro-input pr-10"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-sm"
+                aria-label={showConfirmPassword ? "Ukryj hasło" : "Pokaż hasło"}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.confirmPassword && (
               <p id="confirm-password-error" className="text-xs retro-error">
                 {errors.confirmPassword}

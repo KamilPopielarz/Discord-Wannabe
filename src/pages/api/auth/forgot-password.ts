@@ -117,9 +117,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     });
 
     // Send password reset email
-    const siteUrl = import.meta.env.DEV
-      ? new URL(request.url).origin
-      : "https://discord-wannabe.pages.dev";
+    const siteUrl = new URL(request.url).origin;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${siteUrl}/reset-password`,
