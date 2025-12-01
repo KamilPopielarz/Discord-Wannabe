@@ -126,7 +126,7 @@ export function ServersDashboardPage({ initialUsername = null, initialProfile = 
           <div className="container mx-auto px-4 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
               <p className="text-sm text-muted-foreground retro-text">
-                © 2024 Discord-Wannabe. Wszystkie fale zastrzeżone.
+                © 2025 Discord-Wannabe.
               </p>
               <div className="flex space-x-4 text-sm">
                 <a href="/login" className="retro-link text-xs">
