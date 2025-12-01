@@ -554,12 +554,12 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                     {view === "voice" ? (
                       <>
                         <Mic className="h-3 w-3 mr-1" />
-                        Voice
+                        Głos
                       </>
                     ) : (
                       <>
                         <MessageCircle className="h-3 w-3 mr-1" />
-                        Chat
+                        Czat
                         {unreadCount > 0 && (
                           <span className="ml-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
                             {unreadCount}
@@ -622,12 +622,12 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 {view === "chat" ? (
                   <>
                     <Mic className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Voice</span>
+                    <span className="hidden sm:inline">Głos</span>
                   </>
                 ) : (
                   <>
                     <MessageCircle className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Chat</span>
+                    <span className="hidden sm:inline">Czat</span>
                   </>
                 )}
               </Button>
@@ -702,7 +702,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 </div>
 
                 <h2 className="text-3xl font-bold mb-2 retro-heading">
-                    <TypingAnimation text="Kanał głosowy Discord-Wannabe (LiveKit in progress)" speed={60} />
+                    <TypingAnimation text="Kanał głosowy Discord-Wannabe (LiveKit w budowie)" speed={60} />
                 </h2>
                 
                 <div className="mb-6">

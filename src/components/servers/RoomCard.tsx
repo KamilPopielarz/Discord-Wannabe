@@ -42,18 +42,18 @@ export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
               )}
             </CardTitle>
             <CardDescription className="retro-text">
-              ROOM: {room.roomId.slice(-8).toUpperCase()}
+              POKÓJ: {room.roomId.slice(-8).toUpperCase()}
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
             {room.requiresPassword ? (
                room.isMember ? (
                 <Badge variant="secondary" className="rounded-full border border-green-500/40 bg-green-500/15 px-3 py-1 text-green-300">
-                  UNLOCKED
+                  OTWARTY
                 </Badge>
                ) : (
                 <Badge variant="secondary" className="rounded-full border border-yellow-500/40 bg-yellow-500/15 px-3 py-1 text-yellow-300">
-                  SECURED
+                  ZABEZPIECZONY
                 </Badge>
                )
             ) : (
@@ -61,7 +61,7 @@ export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
                 variant="outline"
                 className="rounded-full border border-[var(--retro-orange)]/40 bg-[var(--retro-orange-soft)] px-3 py-1 text-[var(--retro-orange-bright)]"
               >
-                PUBLIC
+                PUBLICZNY
               </Badge>
             )}
           </div>
@@ -76,7 +76,7 @@ export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
             className="flex items-center retro-button justify-center"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
-            CHAT
+            CZAT
           </Button>
 
           <Button 
@@ -86,7 +86,7 @@ export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
             className="flex items-center retro-button justify-center"
           >
             <Mic className="h-4 w-4 mr-2" />
-            VOICE
+            GŁOS
           </Button>
         </div>
 
@@ -98,7 +98,7 @@ export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
             className="w-full hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            DELETE
+            USUŃ
           </Button>
         </div>
       </CardContent>

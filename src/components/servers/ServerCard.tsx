@@ -24,6 +24,13 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
   const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
   const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
+  const roleTranslations: Record<string, string> = {
+    "Owner": "WŁAŚCICIEL",
+    "Admin": "ADMINISTRATOR",
+    "Moderator": "MODERATOR",
+    "Member": "CZŁONEK",
+    "Guest": "GOŚĆ"
+  };
 
   const openServer = () => {
     window.location.href = `/servers/${server.inviteLink}`;
@@ -54,12 +61,12 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             )}
             {server.isMember && server.role && (
               <Badge variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                {server.role}
+                {roleTranslations[server.role] || server.role.toUpperCase()}
               </Badge>
             )}
             {!server.isMember && (
               <Badge variant="outline" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                JOIN
+                DOŁĄCZ
               </Badge>
             )}
           </div>
@@ -67,7 +74,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground retro-text">
-          <p>EXPIRES: {expiresAt.toLocaleString("pl-PL")}</p>
+          <p>WYGASA: {expiresAt.toLocaleString("pl-PL")}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
@@ -80,7 +87,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             data-testid="server-connect-button"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            CONNECT
+            POŁĄCZ
           </Button>
 
           <Button 
@@ -90,7 +97,7 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
             className="w-full sm:w-auto hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            DELETE
+            USUŃ
           </Button>
         </div>
       </CardContent>

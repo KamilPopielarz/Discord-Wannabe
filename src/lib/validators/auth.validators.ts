@@ -2,40 +2,40 @@ import { z } from "zod";
 
 // Authentication validation schemas
 export const RegisterUserSchema = z.object({
-  email: z.string().email("Invalid email format").max(255, "Email must be less than 255 characters"),
+  email: z.string().email("Nieprawidłowy format adresu e-mail").max(255, "Adres e-mail musi mieć mniej niż 255 znaków"),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
-    .max(128, "Password must be less than 128 characters")
+    .min(8, "Hasło musi mieć co najmniej 8 znaków")
+    .max(128, "Hasło musi mieć mniej niż 128 znaków")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one lowercase letter, one uppercase letter, and one number"
+      "Hasło musi zawierać co najmniej jedną małą literę, jedną dużą literę i jedną cyfrę"
     ),
 });
 
 export const ConfirmEmailSchema = z.object({
-  token: z.string().min(1, "Token is required").max(255, "Token is too long"),
+  token: z.string().min(1, "Token jest wymagany").max(255, "Token jest zbyt długi"),
 });
 
 export const LoginSchema = z.object({
-  email: z.string().email("Invalid email format").max(255, "Email must be less than 255 characters"),
-  password: z.string().min(1, "Password is required").max(128, "Password must be less than 128 characters"),
+  email: z.string().email("Nieprawidłowy format adresu e-mail").max(255, "Adres e-mail musi mieć mniej niż 255 znaków"),
+  password: z.string().min(1, "Hasło jest wymagane").max(128, "Hasło musi mieć mniej niż 128 znaków"),
 });
 
 export const PasswordResetRequestSchema = z.object({
-  email: z.string().email("Invalid email format").max(255, "Email must be less than 255 characters"),
-  captchaToken: z.string().min(1, "Captcha token is required"),
+  email: z.string().email("Nieprawidłowy format adresu e-mail").max(255, "Adres e-mail musi mieć mniej niż 255 znaków"),
+  captchaToken: z.string().min(1, "Token Captcha jest wymagany"),
 });
 
 export const PasswordResetConfirmSchema = z.object({
-  token: z.string().min(1, "Token is required").max(255, "Token is too long"),
+  token: z.string().min(1, "Token jest wymagany").max(255, "Token jest zbyt długi"),
   newPassword: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
-    .max(128, "Password must be less than 128 characters")
+    .min(8, "Hasło musi mieć co najmniej 8 znaków")
+    .max(128, "Hasło musi mieć mniej niż 128 znaków")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one lowercase letter, one uppercase letter, and one number"
+      "Hasło musi zawierać co najmniej jedną małą literę, jedną dużą literę i jedną cyfrę"
     ),
 });
 
@@ -44,10 +44,10 @@ export const PasswordResetConfirmSchema = z.object({
 export const CreateServerSchema = z.object({
   name: z
     .string()
-    .min(1, "Server name is required")
-    .max(32, "Server name must be less than 32 characters")
+    .min(1, "Nazwa serwera jest wymagana")
+    .max(32, "Nazwa serwera musi mieć mniej niż 32 znaki")
     // Allow unicode letters, numbers, spaces, hyphens, and underscores
-    .regex(/^[\p{L}\p{N}\s\-_]+$/u, "Server name can only contain letters, numbers, spaces, hyphens, and underscores"),
+    .regex(/^[\p{L}\p{N}\s\-_]+$/u, "Nazwa serwera może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia"),
 });
 
 export const DeleteServerSchema = z.object({});
@@ -56,38 +56,38 @@ export const DeleteServerSchema = z.object({});
 export const CreateRoomSchema = z.object({
   name: z
     .string()
-    .min(1, "Room name is required")
-    .max(32, "Room name must be less than 32 characters")
+    .min(1, "Nazwa pokoju jest wymagana")
+    .max(32, "Nazwa pokoju musi mieć mniej niż 32 znaki")
     // Allow unicode letters, numbers, spaces, hyphens, and underscores
-    .regex(/^[\p{L}\p{N}\s\-_]+$/u, "Room name can only contain letters, numbers, spaces, hyphens, and underscores"),
+    .regex(/^[\p{L}\p{N}\s\-_]+$/u, "Nazwa pokoju może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia"),
   password: z
     .string()
-    .min(4, "Room password must be at least 4 characters")
-    .max(50, "Room password must be less than 50 characters")
+    .min(4, "Hasło pokoju musi mieć co najmniej 4 znaki")
+    .max(50, "Hasło pokoju musi mieć mniej niż 50 znaków")
     .optional(),
 });
 
 export const JoinRoomSchema = z.object({
-  password: z.string().max(50, "Password must be less than 50 characters").optional(),
+  password: z.string().max(50, "Hasło musi mieć mniej niż 50 znaków").optional(),
 });
 
 export const UpdateRoomPasswordSchema = z.object({
   password: z
     .string()
-    .min(4, "Room password must be at least 4 characters")
-    .max(50, "Room password must be less than 50 characters"),
+    .min(4, "Hasło pokoju musi mieć co najmniej 4 znaki")
+    .max(50, "Hasło pokoju musi mieć mniej niż 50 znaków"),
 });
 
 // Role management validation
 export const UpdateServerMemberRoleSchema = z.object({
   role: z.enum(["Owner", "Admin", "Moderator", "Member"], {
-    errorMap: () => ({ message: "Role must be one of: Owner, Admin, Moderator, Member" }),
+    errorMap: () => ({ message: "Rola musi być jedną z: Owner, Admin, Moderator, Member" }),
   }),
 });
 
 export const UpdateRoomMemberRoleSchema = z.object({
   role: z.enum(["Owner", "Admin", "Moderator", "Member"], {
-    errorMap: () => ({ message: "Role must be one of: Owner, Admin, Moderator, Member" }),
+    errorMap: () => ({ message: "Rola musi być jedną z: Owner, Admin, Moderator, Member" }),
   }),
 });
 
@@ -95,15 +95,15 @@ export const UpdateRoomMemberRoleSchema = z.object({
 export const SendMessageSchema = z.object({
   content: z
     .string()
-    .min(1, "Message content is required")
-    .max(2000, "Message content must be less than 2000 characters")
+    .min(1, "Treść wiadomości jest wymagana")
+    .max(2000, "Treść wiadomości musi mieć mniej niż 2000 znaków")
     .trim(),
 });
 
 // Invitation validation
 export const RevokeInvitationSchema = z.object({
-  expiresAt: z.string().datetime("Invalid datetime format").optional(),
-  maxUses: z.number().int("Max uses must be an integer").min(0, "Max uses must be non-negative").optional(),
+  expiresAt: z.string().datetime("Nieprawidłowy format daty").optional(),
+  maxUses: z.number().int("Maksymalna liczba użyć musi być liczbą całkowitą").min(0, "Maksymalna liczba użyć nie może być ujemna").optional(),
   revoked: z.boolean(),
 });
 
@@ -111,24 +111,24 @@ export const RevokeInvitationSchema = z.object({
 export const GenerateVoiceTokenSchema = z.object({
   permissions: z
     .array(z.string())
-    .min(1, "At least one permission is required")
-    .max(10, "Too many permissions specified"),
+    .min(1, "Wymagane jest co najmniej jedno uprawnienie")
+    .max(10, "Podano zbyt wiele uprawnień"),
 });
 
 // Query parameter validation schemas
 export const PaginationSchema = z.object({
   page: z
     .string()
-    .regex(/^\d+$/, "Page must be a positive integer")
+    .regex(/^\d+$/, "Strona musi być liczbą całkowitą dodatnią")
     .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, "Page must be greater than 0")
+    .refine((val) => val > 0, "Strona musi być większa od 0")
     .optional()
     .default("1"),
   limit: z
     .string()
-    .regex(/^\d+$/, "Limit must be a positive integer")
+    .regex(/^\d+$/, "Limit musi być liczbą całkowitą dodatnią")
     .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0 && val <= 100, "Limit must be between 1 and 100")
+    .refine((val) => val > 0 && val <= 100, "Limit musi wynosić od 1 do 100")
     .optional()
     .default("20"),
 });
@@ -136,18 +136,18 @@ export const PaginationSchema = z.object({
 export const MessageQuerySchema = PaginationSchema.extend({
   since: z
     .string()
-    .regex(/^\d+$/, "Since must be a positive integer (message ID)")
+    .regex(/^\d+$/, "Since musi być liczbą całkowitą dodatnią (ID wiadomości)")
     .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, "Since must be greater than 0")
+    .refine((val) => val > 0, "Since musi być większe od 0")
     .optional(),
 });
 
 // UUID validation helper
-export const UUIDSchema = z.string().uuid("Invalid UUID format");
+export const UUIDSchema = z.string().uuid("Nieprawidłowy format UUID");
 
 // Invite link validation helper
 export const InviteLinkSchema = z
   .string()
-  .min(1, "Invite link is required")
-  .max(255, "Invite link is too long")
-  .regex(/^[a-zA-Z0-9\-_]+$/, "Invalid invite link format");
+  .min(1, "Link zaproszeniowy jest wymagany")
+  .max(255, "Link zaproszeniowy jest zbyt długi")
+  .regex(/^[a-zA-Z0-9\-_]+$/, "Nieprawidłowy format linku zaproszeniowego");
