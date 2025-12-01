@@ -10,12 +10,12 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version: 20
           cache: 'npm'
       
       - name: Install dependencies
@@ -31,12 +31,12 @@ jobs:
       matrix:
         job: [unit]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version: 20
           cache: 'npm'
       
       - name: Install dependencies
@@ -50,12 +50,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: tests
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version: 20
           cache: 'npm'
       
       - name: Install dependencies
