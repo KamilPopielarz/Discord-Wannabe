@@ -62,13 +62,22 @@ export function UserSettingsPage({ initialSettings, initialSection }: UserSettin
                   Zarządzaj swoim profilem i bezpieczeństwem.
                 </p>
               </div>
-              <button
-                type="button"
-                className="mt-4 text-xs font-semibold uppercase tracking-[0.4em] text-[var(--retro-orange-bright)] hover:text-[var(--retro-orange)] md:mt-0"
-                onClick={refresh}
-              >
-                Odśwież
-              </button>
+              <div className="mt-4 flex flex-col gap-4 md:mt-0 md:flex-row md:items-center">
+                <button
+                  type="button"
+                  className="text-xs font-semibold uppercase tracking-[0.4em] text-[var(--retro-orange-bright)] hover:text-[var(--retro-orange)]"
+                  onClick={refresh}
+                >
+                  Odśwież
+                </button>
+                <button
+                  type="button"
+                  className="text-xs font-semibold uppercase tracking-[0.4em] text-[var(--retro-orange-bright)] hover:text-[var(--retro-orange)]"
+                  onClick={() => window.history.back()}
+                >
+                  Wyjdź z ustawień
+                </button>
+              </div>
             </div>
           </div>
         </header>
