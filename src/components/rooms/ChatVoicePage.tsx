@@ -618,19 +618,6 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 🔊 <span className="hidden lg:inline ml-1">Test</span>
               </Button>
               
-              <Button variant="outline" size="sm" onClick={toggleView} className="retro-button px-2 sm:px-3">
-                {view === "chat" ? (
-                  <>
-                    <Mic className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Głos</span>
-                  </>
-                ) : (
-                  <>
-                    <MessageCircle className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Czat</span>
-                  </>
-                )}
-              </Button>
 
               {/* Room Settings (for owner only) */}
               {currentUserRole === 'owner' && roomId && (

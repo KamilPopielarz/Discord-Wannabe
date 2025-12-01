@@ -68,25 +68,15 @@ export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button 
             variant="default" 
             size="sm" 
             onClick={() => handleJoin("chat")} 
-            className="flex items-center retro-button justify-center"
+            className="flex items-center retro-button justify-center w-full"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
             CZAT
-          </Button>
-
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => handleJoin("voice")} 
-            className="flex items-center retro-button justify-center"
-          >
-            <Mic className="h-4 w-4 mr-2" />
-            GŁOS
           </Button>
         </div>
 

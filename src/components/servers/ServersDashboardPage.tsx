@@ -128,14 +128,6 @@ export function ServersDashboardPage({ initialUsername = null, initialProfile = 
               <p className="text-sm text-muted-foreground retro-text">
                 © 2025 Discord-Wannabe.
               </p>
-              <div className="flex space-x-4 text-sm">
-                <a href="/login" className="retro-link text-xs">
-                  DOSTĘP DO SYSTEMU
-                </a>
-                <a href="/register" className="retro-link text-xs">
-                  REJESTRACJA
-                </a>
-              </div>
             </div>
           </div>
         </footer>
