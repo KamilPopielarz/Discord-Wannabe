@@ -39,6 +39,8 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
   const [showMobileUsers, setShowMobileUsers] = useState(false);
   const [requiresPassword, setRequiresPassword] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  // Track verification success to prevent redirect on successful password entry
+  const isVerifyingSuccessRef = useRef(false);
 
   // Load room info from invite link
   useEffect(() => {
@@ -232,6 +234,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
             body: JSON.stringify({ password })
         });
         if (res.ok) {
+            isVerifyingSuccessRef.current = true;
             // Reload to refresh state
             window.location.reload();
             return true;
@@ -659,16 +662,13 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
         <RoomPasswordModal 
             open={showPasswordModal} 
             onOpenChange={(open) => {
-                if (!open && showPasswordModal) {
-                    // If closing without success (handled in verify), maybe redirect?
-                    // But handleOpenChange in modal allows closing. 
-                    // If they close it, they are still on the page but can't chat (API will fail).
-                    // We should probably enforce it or redirect.
-                    // For now, let them close, but API calls will fail.
-                    setShowPasswordModal(false);
-                } else {
-                    setShowPasswordModal(open);
+                if (!open) {
+                    // If closing without success (handled in verify), redirect away
+                    if (!isVerifyingSuccessRef.current) {
+                        window.location.href = serverInviteLink ? `/servers/${serverInviteLink}` : "/servers";
+                    }
                 }
+                setShowPasswordModal(open);
             }} 
             onVerify={handleVerifyPassword} 
             roomName={roomName || ""} 
