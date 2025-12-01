@@ -1,115 +1,101 @@
 # Discord-Wannabe
 
-[![Build Status](https://github.com/KamilPopielarz/Discord-Wannabe/actions/workflows/ci.yml/badge.svg)](https://github.com/KamilPopielarz/Discord-Wannabe/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+**Discord-Wannabe** to prosta, bezpieczna aplikacja do komunikacji tekstowej dla grup znajomych. Umożliwia szybkie tworzenie prywatnych serwerów i pokoi. Zabezpieczanie pokoi hasłem. Aplikacja skupia się na minimalizmie i nowoczesnym interfejsie użytkownika, wykorzystując najnowsze technologie webowe.
 
-## Table of Contents
+## Stos Technologiczny
 
-1. [Project Description](#project-description)
-2. [Tech Stack](#tech-stack)
-3. [Getting Started](#getting-started)
-4. [Available Scripts](#available-scripts)
-5. [Project Scope](#project-scope)
-6. [Project Status](#project-status)
-7. [License](#license)
+- **Astro 5** - Szybki SSR/SSG i architektura wyspowa ("Islands Architecture").
+- **React 19** - Interaktywne komponenty interfejsu użytkownika.
+- **TypeScript 5** - Pełne statyczne typowanie dla bezpieczeństwa kodu.
+- **Tailwind CSS 4** - Nowoczesny silnik stylów.
+- **Shadcn/ui** - Komponenty UI oparte na Radix UI i Tailwind.
+- **Supabase** - Backend jako usługa: baza danych PostgreSQL, Uwierzytelnianie, Realtime.
+- **Cloudflare Turnstile** - Ochrona przed botami (CAPTCHA).
 
-## Project Description
+## Funkcjonalności
 
-**Discord-Wannabe** is a simple, secure web-based communicator for small groups of friends, with a focus on voice calls and a minimal, user-friendly chat. It enables quick setup of private servers and rooms via unlisted links, optional passwords, and supports emoji, GIF, and link previews. Voice calls are powered by LiveKit (EU) with high-quality audio and permission-based speaking.
+### Uwierzytelnianie i Użytkownicy
+- **Rejestracja i Logowanie:** Pełna obsługa kont użytkowników przez Supabase Auth.
+- **Resetowanie hasła:** Bezpieczny proces odzyskiwania dostępu do konta (email flow).
+- **Weryfikacja Email:** Potwierdzanie tożsamości użytkownika.
+- **Ochrona:** Formularze zabezpieczone przez Cloudflare Turnstile.
 
-## Tech Stack
+### Serwery i Pokoje
+- **Tworzenie Serwerów:** Użytkownicy mogą zakładać własne, prywatne serwery.
+- **Zarządzanie Pokojami:** Tworzenie tematycznych kanałów wewnątrz serwerów.
+- **Ochrona Hasłem:** Możliwość zabezpieczenia wejścia do konkretnych pokoi hasłem (haszowanie Argon2id).
 
-- **Astro 5** for fast SSR/SSG and island architecture
-- **React 19** for interactive components
-- **TypeScript 5** for static typing
-- **Tailwind CSS 4** with **shadcn/ui** for styling and UI components
-- **Supabase** (PostgreSQL, Auth, Realtime, Edge & Scheduled Functions) as Backend-as-a-Service
-- **LiveKit Cloud (EU)** for WebRTC/SFU voice calls (STUN/TURN, Opus, QoS telemetry)
-- **Cloudflare Turnstile** for CAPTCHA flows
-- **Argon2id** for secure room password hashing
-- **OpenRouter.ai** (optional MVP) for AI integrations
-- **GitHub Actions**, **Docker**, **DigitalOcean** for CI/CD and hosting
-- **Sentry** and **LiveKit webhooks** for monitoring and logging
 
-## Getting Started
+### Komunikacja
+- **Czat Real-time:** Wiadomości pojawiają się natychmiastowo u wszystkich uczestników (Supabase Realtime).
+- **Wskaźnik Pisania:** Wizualna informacja o tym, że ktoś właśnie tworzy wiadomość.
+- **Lista Użytkowników:** Podgląd aktywnych członków pokoju.
+- **Nowoczesny UI:** Ciemny motyw z efektami "glitch" i płynnymi animacjami.
+- **YouTube i emoji:** Możliwość wysłania filmów, które zostaną wyświetlone w podglądzie, oraz emoji.
 
-### Prerequisites
+### Administracja i Ustawienia
+- **Panel Użytkownika:** Zarządzanie profilem, zmiana ustawień bezpieczeństwa.
 
-- Node.js v22.14.0 (see `.nvmrc`)
-- npm (bundled with Node.js)
 
-### Environment Variables
 
-Create a `.env` file in the project root with the following variables:
+## Uruchomienie Projektu
+
+### Wymagania Wstępne
+
+- Node.js v22.14.0 (zalecane użycie `nvm` i pliku `.nvmrc`)
+- npm (dołączony do Node.js)
+
+### Konfiguracja Środowiska
+
+Utwórz plik `.env` w głównym katalogu projektu, kopiując szablon lub wprowadzając własne klucze:
 
 ```env
-# Supabase
-PUBLIC_SUPABASE_URL=
-PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+# Supabase Configuration
+PUBLIC_SUPABASE_URL=twoj_url_projektu_supabase
+PUBLIC_SUPABASE_ANON_KEY=twoj_klucz_anonimowy
+SUPABASE_SERVICE_ROLE_KEY=twoj_klucz_serwisowy
 
-# LiveKit
-LIVEKIT_URL=
-LIVEKIT_API_KEY=
-LIVEKIT_API_SECRET=
-
-# Cloudflare Turnstile
-TURNSTILE_SITE_KEY=
-TURNSTILE_SECRET_KEY=
-
-# OpenRouter (optional)
-OPENROUTER_API_KEY=
+# Cloudflare Turnstile Configuration
+TURNSTILE_SITE_KEY=twoj_klucz_strony_turnstile
+TURNSTILE_SECRET_KEY=twoj_klucz_sekretny_turnstile
 ```
 
-### Installation & Development
+### Instalacja i Uruchomienie
 
-```bash
-git clone https://github.com/KamilPopielarz/Discord-Wannabe.git
-cd discord-wannabe
-npm ci
-cp .env.example .env  # or create .env from template
-# Fill in .env values
-npm run dev
-```
+1. Sklonuj repozytorium:
+   ```bash
+   git clone https://github.com/KamilPopielarz/Discord-Wannabe.git
+   cd discord-wannabe
+   ```
 
-Visit `http://localhost:3000` to explore the app.
+2. Zainstaluj zależności:
+   ```bash
+   npm ci
+   ```
 
-## Available Scripts
+3. Uruchom serwer deweloperski:
+   ```bash
+   npm run dev
+   ```
 
-| Command            | Description                           |
-| ------------------ | ------------------------------------- |
-| `npm run dev`      | Start development server              |
-| `npm run build`    | Build for production                  |
-| `npm run preview`  | Preview production build at local URL |
-| `npm run lint`     | Run ESLint                            |
-| `npm run lint:fix` | Fix ESLint issues                     |
-| `npm run format`   | Format code with Prettier             |
+Aplikacja będzie dostępna pod adresem `http://localhost:3000`.
 
-## Project Scope
+## Dostępne Skrypty
 
-### In Scope (MVP)
+| Polecenie | Opis |
+| --- | --- |
+| `npm run dev` | Uruchamia lokalny serwer deweloperski |
+| `npm run build` | Buduje aplikację do wersji produkcyjnej |
+| `npm run preview` | Uruchamia podgląd zbudowanej wersji produkcyjnej |
+| `npm run lint` | Sprawdza kod pod kątem błędów (ESLint) |
+| `npm run format` | Formatuje kod zgodnie ze standardami (Prettier) |
+| `npm test` | Uruchamia testy jednostkowe (Vitest) |
+| `npm run test:e2e` | Uruchamia testy E2E (Playwright) |
 
-- Guest mode (temporary session) and user accounts (email + password, double opt-in)
-- Private servers & rooms via unlisted links with optional passwords
-- Text chat with emoji, GIF (GIPHY, G/PG-13), and server-generated link previews
-- Voice calls (WebRTC/SFU) with LiveKit, speak-by-permission, mute/unmute, device selection
-- Role & permission management: Owner, Admin, Moderator, Member, Guest
-- Security & privacy: TLS, SRTP, secure httpOnly cookies, Argon2id, SSRF hardening
-- Data retention: chat (1 day), logs/audit (90 days)
+## Status Projektu
 
-### Out of Scope (MVP)
+Projekt jest w fazie aktywnego rozwoju (MVP). Główne funkcjonalności tekstowe i zarządzanie serwerami są gotowe. Prace nad rozszerzeniem możliwości komunikacyjnych trwają.
 
-- Mobile or native apps
-- Message attachments or editing
-- Public room directory and search
-- End-to-end encryption and call recording
-- Advanced moderation automation
-- Integrations beyond GIPHY
-- Public API
+## Licencja
 
-## Project Status
-
-**MVP in active development.** Roadmap and feature priorities are documented in the PRD (`.ai/prd.md`). Contributions are welcome!
-
-## License
-
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+Ten projekt jest udostępniany na licencji **MIT**. Zobacz plik [LICENSE](LICENSE) po więcej szczegółów.
