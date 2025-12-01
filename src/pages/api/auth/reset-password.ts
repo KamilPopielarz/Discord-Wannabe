@@ -69,6 +69,9 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       });
     }
 
+    // Sign out the user after password reset so they have to log in with new credentials
+    await supabase.auth.signOut();
+
     return new Response(JSON.stringify({ 
       message: "Password updated successfully" 
     }), {
