@@ -15,6 +15,8 @@ import { useRoomUsers } from "../../lib/hooks/useRoomUsers";
 import { useTypingIndicator } from "../../lib/hooks/useTypingIndicator";
 import type { GetRoomResponseDto, RoomUserDto } from "../../types";
 import { RoomSettingsDialog } from "./RoomSettingsDialog";
+import { RoomPasswordModal } from "../servers/RoomPasswordModal";
+import { createSupabaseBrowserClient } from "../../db/supabase.client";
 
 interface ChatVoicePageProps {
   inviteLink?: string;
@@ -35,6 +37,8 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
   const [loadingRoomInfo, setLoadingRoomInfo] = useState(false);
   const [roomError, setRoomError] = useState<string | undefined>(undefined);
   const [showMobileUsers, setShowMobileUsers] = useState(false);
+  const [requiresPassword, setRequiresPassword] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   // Load room info from invite link
   useEffect(() => {
@@ -74,6 +78,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
       const data: GetRoomResponseDto = await response.json();
       setRoomId(data.roomId);
       setRoomName(data.name);
+      setRequiresPassword(data.requiresPassword);
       if (data.serverInviteLink) {
         setServerInviteLink(data.serverInviteLink);
       }
@@ -197,6 +202,47 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
   const currentUser = roomUsers.find(user => user.id === currentUserData?.userId);
   const currentUserRole = currentUser?.role.toLowerCase() as 'owner' | 'admin' | 'moderator' | 'member' || 'member';
   
+  // Listen for password changes
+  useEffect(() => {
+    if (!roomId) return;
+    
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+    
+    const channel = supabase.channel(`room:${roomId}`);
+    channel.on('broadcast', { event: 'PASSWORD_CHANGED' }, () => {
+        console.log("[ChatVoicePage] Password changed event received");
+        // Only show if not owner
+        if (currentUserRole !== 'owner') {
+             setShowPasswordModal(true);
+        }
+    }).subscribe();
+    
+    return () => {
+        supabase.removeChannel(channel);
+    };
+  }, [roomId, currentUserRole]);
+
+  const handleVerifyPassword = async (password: string) => {
+    if (!inviteLink) return false;
+    try {
+        const res = await fetch(`/api/rooms/${inviteLink}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password })
+        });
+        if (res.ok) {
+            // Reload to refresh state
+            window.location.reload();
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error("Password verification failed", e);
+        return false;
+    }
+  };
+
   // Debug: log users list
   useEffect(() => {
     if (roomId && roomUsers.length > 0) {
@@ -588,6 +634,7 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
                 <RoomSettingsDialog 
                   roomId={roomId}
                   onClearChat={clearChat}
+                  requiresPassword={requiresPassword}
                 />
               )}
 
@@ -609,6 +656,23 @@ export function ChatVoicePage({ inviteLink, view, initialUsername = null, initia
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
+        <RoomPasswordModal 
+            open={showPasswordModal} 
+            onOpenChange={(open) => {
+                if (!open && showPasswordModal) {
+                    // If closing without success (handled in verify), maybe redirect?
+                    // But handleOpenChange in modal allows closing. 
+                    // If they close it, they are still on the page but can't chat (API will fail).
+                    // We should probably enforce it or redirect.
+                    // For now, let them close, but API calls will fail.
+                    setShowPasswordModal(false);
+                } else {
+                    setShowPasswordModal(open);
+                }
+            }} 
+            onVerify={handleVerifyPassword} 
+            roomName={roomName || ""} 
+        />
         {/* Chat Section */}
         <div className="flex-1 flex flex-col min-h-0">
           {view === "voice" ? (

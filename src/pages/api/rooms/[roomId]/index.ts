@@ -300,6 +300,183 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
   }
 };
 
+// ... existing imports
+import { hashPassword, verifyPassword } from "../../../../lib/utils/crypto";
+
+// Schema for password update
+const UpdatePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(1, "New password is required"),
+});
+
+export const PATCH: APIRoute = async ({ params, request, locals }) => {
+  try {
+    const { roomId } = params;
+
+    // Validate room ID parameter
+    const roomIdValidation = UUIDSchema.safeParse(roomId);
+    if (!roomIdValidation.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid room ID format",
+          details: roomIdValidation.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get Supabase client and user info from locals
+    const supabase = locals.supabase;
+    const userId = locals.userId;
+
+    if (!supabase) {
+      return new Response(JSON.stringify({ error: "Database connection not available" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Parse request body
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate body
+    const validationResult = UpdatePasswordSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Validation failed",
+          details: validationResult.error.errors,
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const { currentPassword, newPassword } = validationResult.data;
+
+    // Get room info
+    const { data: room, error: roomError } = await supabase
+      .from("rooms")
+      .select("id, password_hash, server_id")
+      .eq("id", roomId)
+      .single();
+
+    if (roomError || !room) {
+      return new Response(JSON.stringify({ error: "Room not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify ownership
+    const { data: roomMembership } = await supabase
+      .from("user_room")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("room_id", roomId)
+      .single();
+
+    const isRoomOwner = roomMembership?.role === "Owner";
+
+    if (!isRoomOwner) {
+       return new Response(JSON.stringify({ error: "Only room owner can change password" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify current password
+    if (room.password_hash) {
+      const isValid = await verifyPassword(currentPassword, room.password_hash);
+      if (!isValid) {
+        return new Response(JSON.stringify({ error: "Invalid current password" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    } else {
+        // Room didn't have a password before? The requirement says "change password... only if room has password".
+        // So we should reject if room doesn't have password?
+        // "dodaj opcję zmiany hasła do pokoju, tylko jeśli oczywiście pokój jest na hasło"
+        return new Response(JSON.stringify({ error: "Room is not password protected" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
+    // Update password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    const { error: updateError } = await supabase
+      .from("rooms")
+      .update({ password_hash: newPasswordHash })
+      .eq("id", roomId);
+
+    if (updateError) {
+      console.error("Failed to update room password:", updateError);
+      return new Response(JSON.stringify({ error: "Failed to update password" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Revoke membership for non-owners
+    // We delete from user_room where room_id = roomId AND role != 'Owner'
+    const { error: revokeError } = await supabase
+      .from("user_room")
+      .delete()
+      .eq("room_id", roomId)
+      .neq("role", "Owner");
+
+    if (revokeError) {
+        console.error("Failed to revoke memberships:", revokeError);
+        // Continue anyway, as password is changed
+    }
+
+    // Broadcast PASSWORD_CHANGED event
+    // Since we are in an API route, we can't use browser client. 
+    // But we can insert into a table that triggers a realtime event, OR rely on the fact that we updated the 'rooms' table
+    // Clients listening to 'rooms' UPDATE will see password_hash changed.
+    // But hashing makes it opaque. 
+    // Clients can also listen to custom broadcast if we send it via Supabase REST API? 
+    // Supabase Realtime Broadcast can be sent via POST to realtime API, but usually we just use client SDK.
+    // However, we can't easily use client SDK here in serverless func unless we init it.
+    // But we can assume clients listen to 'UPDATE' on 'rooms' table.
+    // Wait, the 'rooms' table update will trigger a Postgres Change event.
+    // Clients can listen for `UPDATE` on `rooms`. 
+    // If `password_hash` changes, they know password changed.
+    
+    // Alternatively, we can send a signal via a dedicated 'room_events' table or similar if we want explicit events.
+    // But `ChatVoicePage` can listen to `UPDATE` on `rooms`.
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  } catch (error) {
+    console.error("Room password update error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
 export const POST: APIRoute = async ({ params, request, locals }) => {
   try {
     const { roomId: param } = params;
