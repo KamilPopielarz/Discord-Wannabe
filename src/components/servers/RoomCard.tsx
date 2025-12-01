@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Trash2, MessageCircle, Mic, Copy, Lock } from "lucide-react";
+import { Trash2, MessageCircle, Mic, Lock } from "lucide-react";
 
 interface RoomCardProps {
   room: {
@@ -20,25 +20,8 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
-  const copyInviteLink = async () => {
-    if (navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(room.inviteLink);
-        alert("Link zaproszeniowy do pokoju skopiowany do schowka!");
-      } catch {
-        alert(`Link zaproszeniowy do pokoju: ${room.inviteLink}`);
-      }
-    } else {
-      alert(`Link zaproszeniowy do pokoju: ${room.inviteLink}`);
-    }
-  };
-
   const handleJoin = (view: "chat" | "voice") => {
       onJoin(room, view);
-  };
-
-  const openRoomJoin = () => {
-    window.location.href = `/rooms/${room.inviteLink}`;
   };
 
   return (
@@ -109,29 +92,10 @@ export function RoomCard({ room, onDelete, onJoin }: RoomCardProps) {
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={openRoomJoin} 
-            className="w-full sm:w-auto flex-1 min-w-0 retro-button"
-          >
-            JOIN VIA LINK
-          </Button>
-
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={copyInviteLink}
-            className="w-full sm:w-auto retro-button"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            COPY
-          </Button>
-
-          <Button 
             variant="destructive" 
             size="sm" 
             onClick={() => onDelete(room.roomId)}
-            className="w-full sm:w-auto hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
+            className="w-full hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             DELETE

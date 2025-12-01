@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Trash2, ExternalLink, Copy } from "lucide-react";
+import { Trash2, ExternalLink } from "lucide-react";
 
 interface ServerCardProps {
   server: {
@@ -24,22 +24,11 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
   const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
   const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-  const copyInviteLink = async () => {
-    if (navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(server.inviteLink);
-        alert("Link zaproszeniowy skopiowany do schowka!");
-      } catch {
-        alert(`Link zaproszeniowy: ${server.inviteLink}`);
-      }
-    } else {
-      alert(`Link zaproszeniowy: ${server.inviteLink}`);
-    }
-  };
 
   const openServer = () => {
     window.location.href = `/servers/${server.inviteLink}`;
   };
+
 
   return (
     <Card className="w-full retro-card transition-all duration-300 hover:shadow-[0_20px_45px_rgba(255,122,24,0.25)]" data-testid="server-card">
@@ -92,17 +81,6 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             CONNECT
-          </Button>
-
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={copyInviteLink} 
-            disabled={isExpired}
-            className="w-full sm:w-auto retro-button"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            COPY
           </Button>
 
           <Button 
