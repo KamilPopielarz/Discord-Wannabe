@@ -260,13 +260,6 @@ export function useServerRooms(inviteLink?: string) {
 
       setCreating(false);
       setCreateModalOpen(false);
-
-      // Show success message
-      const showSuccess = settings?.preferences.confirmations?.createRoom ?? true;
-      
-      if (showSuccess) {
-        alert(`Pokój "${roomData.name}" utworzony pomyślnie!\nLink zaproszeniowy: ${data.inviteLink}`);
-      }
     } catch (error) {
       setState((prev) => ({
         ...prev,
@@ -277,10 +270,6 @@ export function useServerRooms(inviteLink?: string) {
   };
 
   const deleteRoom = async (roomId: string) => {
-    if (!confirm("Czy na pewno chcesz usunąć ten pokój? Ta akcja jest nieodwracalna.")) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/rooms/${roomId}`, {
         method: "DELETE",
@@ -322,8 +311,6 @@ export function useServerRooms(inviteLink?: string) {
         rooms: prev.rooms.filter((room) => room.roomId !== roomId),
         error: undefined,
       }));
-
-      alert("Pokój został usunięty pomyślnie");
     } catch (error) {
       setState((prev) => ({
         ...prev,

@@ -5,7 +5,6 @@ import { ErrorBanner } from "../ui/ErrorBanner";
 import { SettingsSidebar } from "./SettingsSidebar";
 import { ProfileSection } from "./ProfileSection";
 import { SecuritySection } from "./SecuritySection";
-import { PreferencesSection } from "./PreferencesSection";
 import { useUserSettings } from "../../lib/hooks/useUserSettings";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 
@@ -16,7 +15,6 @@ interface UserSettingsPageProps {
 
 const SECTIONS = [
   { id: "profile", label: "Profil" },
-  { id: "preferences", label: "Preferencje" },
   { id: "security", label: "Bezpieczeństwo" },
 ] as const;
 
@@ -110,14 +108,6 @@ export function UserSettingsPage({ initialSettings, initialSection }: UserSettin
                     profile={settings.profile}
                     saving={status.profile}
                     onSubmit={updateProfile}
-                  />
-                )}
-
-                {activeSection === "preferences" && (
-                  <PreferencesSection
-                    preferences={settings.preferences}
-                    saving={status.preferences}
-                    onSubmit={updatePreferences}
                   />
                 )}
 

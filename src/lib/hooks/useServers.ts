@@ -167,10 +167,6 @@ export function useServers() {
   };
 
   const deleteServer = async (serverId: string) => {
-    if (!confirm("Czy na pewno chcesz usunąć ten serwer? Ta akcja jest nieodwracalna.")) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/servers/${serverId}`, {
         method: "DELETE",
@@ -212,8 +208,6 @@ export function useServers() {
         servers: prev.servers.filter((server) => server.serverId !== serverId),
         error: undefined,
       }));
-
-      alert("Serwer został usunięty pomyślnie");
     } catch (error) {
       setState((prev) => ({
         ...prev,

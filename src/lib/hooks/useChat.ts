@@ -574,9 +574,6 @@ export function useChat(roomId?: string, roomName?: string) {
   const deleteMessage = async (messageId: number) => {
     if (!roomId) return;
 
-    const shouldConfirm = settings?.preferences.confirmations?.deleteMessage ?? true;
-    if (shouldConfirm && !confirm("Czy na pewno chcesz usunąć tę wiadomość?")) return;
-
     try {
       const response = await fetch(`/api/rooms/${roomId}/messages/${messageId}`, {
         method: "DELETE",
