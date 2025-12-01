@@ -22,8 +22,8 @@ export function LoginPage() {
       const errorDescription = urlParams.get("error_description") || hashParams.get("error_description");
 
       if (error) {
-        console.error("Auth error:", error, errorCode, errorDescription);
-        
+        // console.error("Auth error:", error, errorCode, errorDescription);
+
         let msg = "Wystąpił błąd autoryzacji.";
         if (errorCode === "otp_expired") {
           msg = "Link potwierdzający wygasł. Zaloguj się, aby wysłać nowy.";
@@ -50,10 +50,10 @@ export function LoginPage() {
               // Successful login via code exchange
               window.location.href = "/servers";
             } else {
-              console.error("Code exchange error:", error);
+              // console.error("Code exchange error:", error);
             }
           } catch (e) {
-            console.error("Code exchange exception:", e);
+            // console.error("Code exchange exception:", e);
           }
         }
       }
