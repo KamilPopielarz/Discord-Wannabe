@@ -49,7 +49,7 @@ export function CreateServerModal({ open, onOpenChange, onCreate, creating }: Cr
           Utwórz nowy serwer
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-background border-border">
+      <DialogContent className="sm:max-w-md bg-[var(--retro-bg)] border-[var(--retro-border)] shadow-lg bg-zinc-950">
         <DialogHeader>
           <DialogTitle>Utwórz nowy serwer</DialogTitle>
           <DialogDescription>

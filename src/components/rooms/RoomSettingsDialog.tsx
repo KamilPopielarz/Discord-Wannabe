@@ -50,7 +50,7 @@ export function RoomSettingsDialog({ roomId, onClearChat }: RoomSettingsDialogPr
           <Settings className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-background border-border retro-shadow">
+      <DialogContent className="sm:max-w-md bg-[var(--retro-bg)] border-[var(--retro-border)] retro-shadow bg-zinc-950">
         <DialogHeader>
           <DialogTitle className="retro-heading text-xl">Ustawienia pokoju</DialogTitle>
         </DialogHeader>

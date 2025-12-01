@@ -59,7 +59,7 @@ export function CreateRoomModal({ open, onOpenChange, onCreate, creating, error 
           Utwórz pokój
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-background border-border">
+      <DialogContent className="sm:max-w-md bg-[var(--retro-bg)] border-[var(--retro-border)] shadow-lg bg-zinc-950">
         <DialogHeader>
           <DialogTitle>Utwórz nowy pokój</DialogTitle>
           <DialogDescription>Utwórz pokój do czatu tekstowego i rozmów głosowych.</DialogDescription>
