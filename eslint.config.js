@@ -29,6 +29,8 @@ const baseConfig = tseslint.config({
     "no-useless-escape": "off",
     "prefer-const": "off",
     "no-constant-binary-expression": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
   },
 });
 
